@@ -25,10 +25,10 @@ public class ShieldItem : Item
         //// Viết code item cho nhân vật ở đây
         if (shieldIsactive)
         {
-            damageDeal = 0;
-            revertPosition = 2;
-            playerHealth -= damageDeal;
-            playerPosition -= revertPosition;
+            //damageDeal = 0;
+            //revertPosition = 2;
+            //playerHealth -= damageDeal;
+            //playerPosition -= revertPosition;
         }
 
         Debug.Log("Blocked by Shield");

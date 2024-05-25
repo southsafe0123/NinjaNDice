@@ -32,13 +32,13 @@ public class DamageItem : Item
     public void UseItem(GameObject target)
     {
         // lấy mục tiêu muốn sử dụng item
-        PlayerHealth otherPlayer = target.GetComponent<PlayerHealth>();
+        //PlayerHealth otherPlayer = target.GetComponent<PlayerHealth>();
 
-        // nếu máu của mục tiêu lớn hơn 0
-        if (otherPlayer != null)
-        {
-            // Gây sát thương cho mục tiêu
-            otherPlayer.Takedamage(damageDeal);
+        //// nếu máu của mục tiêu lớn hơn 0
+        //if (otherPlayer != null)
+        //{
+        //    // Gây sát thương cho mục tiêu
+        //    otherPlayer.Takedamage(damageDeal);
         }
     }
-}
+

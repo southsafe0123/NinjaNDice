@@ -32,13 +32,12 @@ public class RevertItem : Item
     public void UseItem(GameObject target)
     {
         // lấy mục tiêu muốn sử dụng item
-        PlayerPosition otherPlayer = target.GetComponent<PlayerPosition>();
+        //PlayerPosition otherPlayer = target.GetComponent<PlayerPosition>();
 
-        // nếu vị trí của mục tiêu lớn hơn 0
-        if (otherPlayer > 0)
-        {
-            // Thay đổi vị trí mục tiêu
-            otherPlayer.ChangePosition(revertPosition);
+        //// nếu vị trí của mục tiêu lớn hơn 0
+        //if (otherPlayer > 0)
+        //{
+        //    // Thay đổi vị trí mục tiêu
+        //    otherPlayer.ChangePosition(revertPosition);
         }
     }
-}

@@ -10,4 +10,5 @@ public abstract class Minigame : MonoBehaviour
     public List<GameObject> players = new List<GameObject>();
     public List<GameObject> bonusItems = new List<GameObject>();
     public bool hasBeenPlayedLastTurn;
+    
 }
