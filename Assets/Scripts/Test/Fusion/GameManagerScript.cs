@@ -5,10 +5,14 @@ using Fusion;
 using Fusion.Sockets;
 using UnityEngine.SceneManagement;
 using System;
+using System.Linq;
+using ExitGames.Client.Photon.StructWrapping;
 
 public class GameManagerScript : MonoBehaviour, INetworkRunnerCallbacks
 {
     public NetworkPrefabRef playerPrefab;
+    public NetworkPrefabRef mapManagerPrefab;
+    private Dictionary<PlayerRef, NetworkObject> _spawnedCharacters = new Dictionary<PlayerRef, NetworkObject>();
 
     private NetworkRunner _runner;
 
@@ -43,6 +47,11 @@ public class GameManagerScript : MonoBehaviour, INetworkRunnerCallbacks
         if (Input.GetKey(KeyCode.D))
             data.direction += Vector2.right;
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            data.roll = true;
+        }
+
         input.Set(data);
     }
 
@@ -52,13 +61,22 @@ public class GameManagerScript : MonoBehaviour, INetworkRunnerCallbacks
         // Spawn player when a new player joins
         if (runner.IsServer)
         {
-            runner.Spawn(playerPrefab, new Vector3(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(-10, 10), 0), Quaternion.identity, player);
+
+            NetworkObject networkPlayerObject = runner.Spawn(playerPrefab, new Vector3(-9.96f, -0.4f, 0), Quaternion.identity, player);
+            _spawnedCharacters.Add(player, networkPlayerObject);
         }
+
+
+
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player)
     {
-
+        if (_spawnedCharacters.TryGetValue(player, out NetworkObject networkObject))
+        {
+            runner.Despawn(networkObject);
+            _spawnedCharacters.Remove(player);
+        }
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
