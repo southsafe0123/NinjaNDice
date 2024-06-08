@@ -1,12 +1,21 @@
-﻿using Unity.Netcode;
+﻿using System;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Player:NetworkBehaviour
+public class Player : NetworkBehaviour
 {
-    private void Update()
+    public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
+    private void Start()
     {
-        if (!IsOwner) return;
+        isPlayerTurn.OnValueChanged += OnValueChange;
+    }
+    public void SetPlayerTurn(bool isPlayerTurn)
+    {
+        this.isPlayerTurn.Value = isPlayerTurn;
+    }
 
-        transform.position += new Vector3(3 * Input.GetAxisRaw("Horizontal"), 3* Input.GetAxisRaw("Vertical"),0)*Time.deltaTime;
+    void OnValueChange(bool oldBool, bool newBool)
+    {
+        if (oldBool != newBool) NetworkManagerUI.Singleton.btnRollDice.enabled = newBool;
     }
 }
