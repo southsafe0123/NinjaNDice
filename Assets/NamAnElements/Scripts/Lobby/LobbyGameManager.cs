@@ -5,6 +5,7 @@ using TMPro;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyGameManager : NetworkBehaviour
@@ -48,7 +49,8 @@ public class LobbyGameManager : NetworkBehaviour
         {
             if (!IsHost) return;
             UnloadPlayer(clientID);
-            Debug.LogError("userout: " + clientID);
+            SetActiveButton_ClientRPC(true);
+            Debug.LogError("userout: " + clientID); 
         };
     }
 
@@ -140,6 +142,7 @@ public class LobbyGameManager : NetworkBehaviour
         NetworkManager.Singleton.Shutdown();
         disconnectButton.SetActive(false);
     }
+    
     /// <summary>
     /// BELOW IS FOR BUTTON CLICK IN CANVAS PANEL COMMAND BUTTON
     /// </summary>
