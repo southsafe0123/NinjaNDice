@@ -1,0 +1,25 @@
+1,2 + 2 bằng bao nhiêu?,2,3,4,5,3
+2,5 - 3 bằng bao nhiêu?,1,2,3,4,2
+3,7 * 1 bằng bao nhiêu?,6,7,8,9,2
+4,9 / 3 bằng bao nhiêu?,1,2,3,4,3
+5,3 * 3 bằng bao nhiêu?,6,7,8,9,4
+6,Căn bậc hai của 16 là bao nhiêu?,2,3,4,5,3
+7,5 bình phương (5^2) là bao nhiêu?,20,21,24,25,4
+8,Giá trị của pi (π) làm tròn đến hai chữ số thập phân là bao nhiêu?,3.12,3.14,3.16,3.18,2
+9,Đạo hàm của x^2 là gì?,x,2x,x^2,2,2
+10,Tích phân của 1/x dx là gì?,ln(x),x^2,1/x,x,1
+11,Giới hạn của (2x + 3) khi x tiến tới 2 là bao nhiêu?,4,5,6,7,3
+12,Giá trị của sin(30 độ) là gì?,0.5,0.6,0.7,0.8,1
+13,Nghiệm của phương trình 2x + 3 = 7 là gì?,1,2,3,4,2
+14,Giá trị của e (số Euler) làm tròn đến hai chữ số thập phân là bao nhiêu?,2.71,2.72,2.73,2.74,1
+15,Tổng các góc trong của một tam giác là bao nhiêu?,180 độ,360 độ,90 độ,270 độ,1
+16,Giá trị của cos(60 độ) là gì?,0.5,0.6,0.7,0.8,1
+17,Công thức nghiệm của phương trình bậc hai là gì?,x = (-b ± √(b^2 - 4ac))/2a,x = (b ± √(b^2 - 4ac))/2a,x = (-b ± √(b^2 - 4ac))/a,x = (-b ± √(4ac - b^2))/2a,1
+18,Diện tích của một hình tròn có bán kính r là bao nhiêu?,2πr,πr^2,πr,πr^3,2
+19,Giá trị của tan(45 độ) là bao nhiêu?,0,1,√2,∞,2
+20,Định lý Pythagoras là gì?,a^2 + b^2 = c^2,a^2 - b^2 = c^2,a^2 + b^2 = c,a^2 + b = c^2,1
+21,Định thức của ma trận [[1, 2], [3, 4]] là bao nhiêu?,2,-2,5,-5,2
+22,Kết quả của 2 + 3 * 4 là bao nhiêu?,20,14,18,16,2
+23,Xác suất tung đồng xu và nó rơi vào mặt ngửa là bao nhiêu?,0.25,0.5,0.75,1,2
+24,Giá trị của tỷ lệ vàng (φ) làm tròn đến hai chữ số thập phân là bao nhiêu?,1.61,1.62,1.63,1.64,1
+25,Chu vi của một hình tròn có đường kính d là bao nhiêu?,πd,2πr,πr^2,πd/2,1
