@@ -1208,7 +1208,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1922710199}
         m_TargetAssemblyTypeName: LobbyGameManager, Assembly-CSharp
-        m_MethodName: ButtonClickHostServer
+        m_MethodName: ButtonClickStartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2260,6 +2260,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4844316182991342303, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4844785881582304729, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2426,7 +2430,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4845276930943762971, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.000030517578
       objectReference: {fileID: 0}
     - target: {fileID: 4845637959249703711, guid: 2da3dcc22749e7f4280737786d898334, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3049,7 +3053,7 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1893517235}
-    PlayerPrefab: {fileID: 0}
+    PlayerPrefab: {fileID: 3364872466953817570, guid: f09551a8349750e4d9778c403ee411db, type: 3}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: eee97be93662ef642a2ee500534bad62, type: 2}
