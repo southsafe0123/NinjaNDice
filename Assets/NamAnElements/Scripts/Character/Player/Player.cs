@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : NetworkBehaviour
 {
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
+    public NetworkVariable<int> currentPos = new NetworkVariable<int>();
     private void Start()
     {
         isPlayerTurn.OnValueChanged += OnValueChange;
