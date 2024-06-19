@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Singleton;
     public NetworkVariable<int> dice = new NetworkVariable<int>();
-    public Dictionary<ulong,Player> players = new Dictionary<ulong, Player>();
+    public Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
     public ulong playerIndex;
     public Map map;
     public NetworkManagerUI networkManagerUI;
@@ -33,9 +34,24 @@ public class GameManager : NetworkBehaviour
         players.Add(clientID, playerInNetwork);
         TeleportPlayer(clientID);
     }
-    void TeleportPlayer(ulong clientID)
+    void TeleportPlayer(ulong clientID, int index = 0) // nhat da sua ham nay
     {
-        players[clientID].gameObject.transform.position = map.movePos[0].position;
+        if (index == 0)
+        {
+            players[clientID].gameObject.transform.position = map.movePos[0].position;
+        }
+        else
+        {
+
+            int newPos = players[clientID].currentPos.Value + index;
+            if (newPos >= map.movePos.Count)
+            {
+                newPos = map.movePos.Count;
+            }
+            players[clientID].currentPos.Value = newPos;
+            players[clientID].gameObject.transform.position = map.movePos[newPos].position;
+
+        }
     }
 
     private void OnPlayerDisconnect(ulong clientID)
@@ -56,6 +72,9 @@ public class GameManager : NetworkBehaviour
     {
         if (!IsServer) return;
         dice.Value = diceValue;
+        TeleportPlayer(OwnerClientId, diceValue); // id cua nguoi roll dice
+
+
     }
     private void UpdateDiceUI(int value)
     {
@@ -74,4 +93,10 @@ public class GameManager : NetworkBehaviour
         Debug.LogError("call from host" + OwnerClientId);
         yield return null;
     }
+
+    public void test()
+    {
+
+    }
+
 }

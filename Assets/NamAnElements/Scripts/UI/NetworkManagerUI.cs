@@ -15,6 +15,8 @@ public class NetworkManagerUI : MonoBehaviour
     public Button btnClient;
     public Button btnRollDice;
     public Button btnStartGame;
+
+    public Button test;
     public TextMeshProUGUI numDiceText;
     private void Awake()
     {
@@ -40,5 +42,9 @@ public class NetworkManagerUI : MonoBehaviour
         {
             GameManager.Singleton.ClickStartGame();
         });
+        // test.onClick.AddListener(() =>
+        // {
+        //     GameManager.Singleton.ClickStartGame();
+        // });
     }
 }
