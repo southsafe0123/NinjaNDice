@@ -42,9 +42,9 @@ public class NetworkManagerUI : MonoBehaviour
         {
             GameManager.Singleton.ClickStartGame();
         });
-        // test.onClick.AddListener(() =>
-        // {
-        //     GameManager.Singleton.ClickStartGame();
-        // });
+        test.onClick.AddListener(() =>
+        {
+            GameManager.Singleton.test("minigameQuizz");
+        });
     }
 }

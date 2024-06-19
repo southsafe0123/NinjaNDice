@@ -12,6 +12,7 @@ public class GameManager : NetworkBehaviour
     public ulong playerIndex;
     public Map map;
     public NetworkManagerUI networkManagerUI;
+
     private void Awake()
     {
         Singleton = this;
@@ -94,7 +95,15 @@ public class GameManager : NetworkBehaviour
         yield return null;
     }
 
-    public void test()
+    public void test(string sceneName)
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+    }
+
+    public void ModuleMinigame()
     {
 
     }

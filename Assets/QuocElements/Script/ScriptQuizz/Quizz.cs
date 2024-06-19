@@ -4,16 +4,19 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using TMPro;
+using Unity.Netcode;
 
-public class Quizz : MonoBehaviour
+public class Quizz : NetworkBehaviour
 {
     public TMP_Text questionText;
     public TMP_Text answerTexts;
+    public NetworkVariable<int> numQ = new NetworkVariable<int>();
 
     public GameObject answer1;
     public GameObject answer2;
     public GameObject answer3;
     public GameObject answer4;
+    public List<GameObject> PlayerList = new List<GameObject>();
     public GameObject player;
 
 
@@ -21,12 +24,13 @@ public class Quizz : MonoBehaviour
 
 
     private List<Question> questions = new List<Question>();
-    private float timeRemaining = 5f;
-    private bool timerIsRunning = false;
+    // private float timeRemaining = 5f;
+    // private bool timerIsRunning = false;
 
     void Start()
     {
-        player = GameObject.Find("Player");
+        player = NetworkManager.LocalClient.PlayerObject.gameObject;
+
         LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
         StartCoroutine(AutoLoadQuestions());
     }
@@ -47,24 +51,24 @@ public class Quizz : MonoBehaviour
 
     }
 
-    [MenuItem("Tools/Write file")]
-    static void WriteString()
-    {
-        string path = "Assets/QuocElements/Resources/test.txt";
-        //Write some text to the test.txt file
-        StreamWriter writer = new StreamWriter(path, true);
-        writer.WriteLine("1,câu hỏi 1,a,b,c,d,1");
-        writer.WriteLine("2,câu hỏi 2,a,b,c,d,2");
-        writer.WriteLine("3,câu hỏi 3,a,b,c,d,3");
-        writer.Close();
-        //Re-import the file to update the reference in the editor
-        AssetDatabase.ImportAsset(path);
-        TextAsset asset = (TextAsset)Resources.Load("test");
-        //Print the text from the file
-        Debug.Log(asset.text);
-    }
+    // [MenuItem("Tools/Write file")]
+    // static void WriteString()
+    // {
+    //     string path = "Assets/QuocElements/Resources/test.txt";
+    //     //Write some text to the test.txt file
+    //     StreamWriter writer = new StreamWriter(path, true);
+    //     writer.WriteLine("1,câu hỏi 1,a,b,c,d,1");
+    //     writer.WriteLine("2,câu hỏi 2,a,b,c,d,2");
+    //     writer.WriteLine("3,câu hỏi 3,a,b,c,d,3");
+    //     writer.Close();
+    //     //Re-import the file to update the reference in the editor
+    //     AssetDatabase.ImportAsset(path);
+    //     TextAsset asset = (TextAsset)Resources.Load("test");
+    //     //Print the text from the file
+    //     Debug.Log(asset.text);
+    // }
 
-    [MenuItem("Tools/Read file")]
+    // [MenuItem("Tools/Read file")]
     public void ReadString()
     {
         string path = "Assets/QuocElements/Resources/test.txt";
@@ -92,7 +96,7 @@ public class Quizz : MonoBehaviour
         }
     }
 
-    private void LoadRandomQuestion()
+    private void LoadRandomQuestion(int q = 0)
     {
         //Random question
         if (questions.Count == 0)
@@ -100,8 +104,17 @@ public class Quizz : MonoBehaviour
             Debug.LogError("No questions loaded from file.");
             return;
         }
+        Question randomQuestion;
+        if (q == 0)
+        {
+            if (IsServer) { numQ.Value = Random.Range(0, questions.Count); }
+            randomQuestion = questions[numQ.Value];
+        }
+        else
+        {
+            randomQuestion = questions[q];
+        }
 
-        Question randomQuestion = questions[Random.Range(0, questions.Count)];
         questionText.text = randomQuestion.text;
         answerTexts.text = " A : " + randomQuestion.answers[0] + " B : " + randomQuestion.answers[1] + " C : " + randomQuestion.answers[2] + " D : " + randomQuestion.answers[3];
 
@@ -119,9 +132,9 @@ public class Quizz : MonoBehaviour
 
     private void ChooseCorrectAnswer(Question randomQuestion)
     {
-        if (!player.GetComponent<PlayerScript>().answerGameObject.name.EndsWith(randomQuestion.correctAnswer.ToString()))
+        if (!player.GetComponent<Player>().answerGameObject.name.EndsWith(randomQuestion.correctAnswer.ToString()))
         {
-            player.GetComponent<PlayerScript>().WrongAnswer();
+            player.GetComponent<Player>().WrongAnswer();
         };
         switch (randomQuestion.correctAnswer)
         {

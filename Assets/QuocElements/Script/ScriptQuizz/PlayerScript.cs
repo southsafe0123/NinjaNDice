@@ -9,6 +9,7 @@ public class PlayerScript : NetworkBehaviour
 {
     public GameObject answerGameObject;
     public int life = 3;
+    public NetworkVariable<bool> isDie = new NetworkVariable<bool>();
 
     // Start is called before the first frame update
     void Start()
@@ -45,7 +46,9 @@ public class PlayerScript : NetworkBehaviour
         if (life == 0)
         {
             Debug.Log("Game Over");
+            isDie.Value = true;
             gameObject.SetActive(false);
+
         }
     }
 

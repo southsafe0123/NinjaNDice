@@ -4735,13 +4735,14 @@ GameObject:
   - component: {fileID: 199200817}
   - component: {fileID: 199200820}
   - component: {fileID: 199200819}
+  - component: {fileID: 199200821}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &199200815
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4823,6 +4824,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   answerGameObject: {fileID: 0}
   life: 3
+  isDie:
+    m_InternalValue: 0
 --- !u!114 &199200818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4891,6 +4894,37 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &199200821
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 199200814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &406571394
 GameObject:
   m_ObjectHideFlags: 0
@@ -5753,10 +5787,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questionText: {fileID: 899590194}
   answerTexts: {fileID: 2070219408}
+  numQ:
+    m_InternalValue: 0
   answer1: {fileID: 1382691033}
   answer2: {fileID: 1388361936}
   answer3: {fileID: 1721873182}
   answer4: {fileID: 1111541963}
+  PlayerList: []
   player: {fileID: 0}
 --- !u!1 &2046842803
 GameObject:
