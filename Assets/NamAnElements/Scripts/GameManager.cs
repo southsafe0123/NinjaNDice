@@ -10,24 +10,23 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Singleton;
     public NetworkVariable<int> dice = new NetworkVariable<int>();
-    //public Dictionary<ulong, Player> players = new Dictionary<ulong, Player>();
     public List<Player> playerList = new List<Player>();
+    public int gameTurn;
     public int playerIndex;
     public Map map;
     public NetworkManagerUI networkManagerUI;
+
     private void Awake()
     {
         Singleton = this;
         playerIndex = 0;
+        gameTurn = 0;
 
-       playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
     }
     private void Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
-       
-        //NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnect;
-        //NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnect;
         if (!IsHost) return;
         for (int i = 0; i < playerList.Count; i++)
         {
@@ -40,14 +39,6 @@ public class GameManager : NetworkBehaviour
     {
         UpdateDiceUI(newValue);
     }
-    //private void OnPlayerConnect(ulong clientID)
-    //{
-    //    if (!IsServer) return;
-    //    Debug.LogError("player " + clientID + " joined");
-    //    var playerInNetwork = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.gameObject.GetComponent<Player>();
-    //    players.Add(clientID, playerInNetwork);
-    //    TeleportPlayer(clientID);
-    //}
     void TeleportPlayer(Player clientPlayer, int index = 0) // nhat da sua ham nay
     {
         if (index == 0)
@@ -67,15 +58,19 @@ public class GameManager : NetworkBehaviour
 
             clientPlayer.isPlayerTurn.Value = false;
             playerIndex = playerIndex >= playerList.Count-1 ? 0 : playerIndex + 1;
+
+            var oldGameTurn = gameTurn;
+            gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
+            OnGameTurnChange(oldGameTurn, gameTurn);
             playerList[playerIndex].isPlayerTurn.Value = true;
         }
     }
 
-    //private void OnPlayerDisconnect(ulong clientID)
-    //{
-    //    if (!IsServer) return;
-    //    Debug.LogError("player " + clientID + " joined");
-    //}
+    private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
+    {
+        if (oldGameTurn == newGameTurn) return;
+        //ToMinigame("minigameQuizz");
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public void SendRollDiceTo_ServerRPC()
@@ -97,24 +92,18 @@ public class GameManager : NetworkBehaviour
     {
         networkManagerUI.numDiceText.text = value.ToString();
     }
-   
 
-    //public void ClickStartGame()
-    //{
-    //    if (!IsServer) return;
-    //    StartCoroutine(StartGame());
-    //}
+    public void ToMinigame(string sceneName)
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+    }
 
-    //private IEnumerator StartGame()
-    //{
-    //    players[playerIndex].SetPlayerTurn(true);
-    //    Debug.LogError("call from host" + OwnerClientId);
-    //    yield return null;
-    //}
+    public void ModuleMinigame()
+    {
 
-    //public void test()
-    //{
-
-    //}
+    }
 
 }
