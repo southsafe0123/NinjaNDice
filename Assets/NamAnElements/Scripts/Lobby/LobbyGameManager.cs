@@ -9,9 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyGameManager : NetworkBehaviour
-{
-    //this is client ID
-    public ulong ownerClientID;
+{  
 
     //this is server data (because clientID is Online and only server have)
     public Dictionary<ulong, GameObject> sv_dicPlayer = new Dictionary<ulong, GameObject>();
@@ -66,32 +64,30 @@ public class LobbyGameManager : NetworkBehaviour
             return;
         }
         sv_dicPlayer[clientID] = emptyPlayerSlot;
-        SetOwnerClientID_ClientRPC(clientID);
+        AddOwnerClientID(clientID);
         sv_dicPlayer[clientID].SetActive(true);
 
         foreach (var player in sv_dicPlayer)
         {
-            if(player.Value.activeSelf)
+            if (player.Value.activeSelf)
             {
                 int slotIndex = playerSlots.IndexOf(player.Value);
                 SetActiveInClient_ClientRPC(slotIndex, true);
             }
         }
-        
+
     }
 
+    private static void AddOwnerClientID(ulong clientID)
+    {
+        var playerInClient = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<Player>();
+        playerInClient.ownerClientID.Value = clientID;
+    }
 
     [ClientRpc]
     public void SetActiveInClient_ClientRPC(int slotIndex, bool isActive)
     {
         playerSlots[slotIndex].SetActive(isActive);
-    }
-
-    [ClientRpc]
-    private void SetOwnerClientID_ClientRPC(ulong clientID)
-    {
-        if (NetworkManager.Singleton.LocalClientId != clientID) return;
-        ownerClientID = clientID;
     }
 
     private GameObject GetEmptyPlayerSlot()
@@ -114,7 +110,7 @@ public class LobbyGameManager : NetworkBehaviour
     private void UnloadPlayer(ulong clientID)
     {
         if (!sv_dicPlayer.ContainsKey(clientID)) return;
-        sv_dicPlayer[clientID].SetActive(false);
+        sv_dicPlayer[clientID]?.SetActive(false);
 
         foreach (var player in sv_dicPlayer)
         {
@@ -156,7 +152,8 @@ public class LobbyGameManager : NetworkBehaviour
     }
     public void ButtonClickDisconnectServer()
     {
-        Disconnect_ServerRPC(ownerClientID);
+        var playerInClient = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<Player>();
+        Disconnect_ServerRPC(playerInClient.ownerClientID.Value);
     }
     public void ButtonClickStartGame()
     {

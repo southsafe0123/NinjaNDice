@@ -4,19 +4,14 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
+    //this is client ID
+    public NetworkVariable<ulong> ownerClientID = new NetworkVariable<ulong>();
+
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
     public NetworkVariable<int> currentPos = new NetworkVariable<int>();
     private void Start()
     {
-        isPlayerTurn.OnValueChanged += OnValueChange;
-    }
-    public void SetPlayerTurn(bool isPlayerTurn)
-    {
-        this.isPlayerTurn.Value = isPlayerTurn;
-    }
-
-    void OnValueChange(bool oldBool, bool newBool)
-    {
-        if (oldBool != newBool) NetworkManagerUI.Singleton.btnRollDice.enabled = newBool;
+        transform.position = new Vector3(100, 100, 0);
+        DontDestroyOnLoad(gameObject);
     }
 }
