@@ -17,6 +17,7 @@ public class Quizz : NetworkBehaviour
     public GameObject answer2;
     public GameObject answer3;
     public GameObject answer4;
+    public List<NetworkObject> networkObjects;
     public List<Player> playerList = new List<Player>();
     public GameObject player;
     public Map map;
@@ -30,12 +31,19 @@ public class Quizz : NetworkBehaviour
         playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
         for (int i = 0; i < playerList.Count; i++)
         {
+
             playerList[i].transform.position = map.movePos[i].transform.position;
         }
+
+
+
     }
     void Start()
     {
-
+        networkObjects.Add(answer1.GetComponent<NetworkObject>());
+        networkObjects.Add(answer2.GetComponent<NetworkObject>());
+        networkObjects.Add(answer3.GetComponent<NetworkObject>());
+        networkObjects.Add(answer4.GetComponent<NetworkObject>());
         player = NetworkManager.LocalClient.PlayerObject.gameObject;
 
         LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
@@ -53,10 +61,10 @@ public class Quizz : NetworkBehaviour
         }
     }
 
-    void Update()
-    {
+    // void Update()
+    // {
 
-    }
+    // }
 
     // [MenuItem("Tools/Write file")]
     // static void WriteString()
@@ -139,47 +147,16 @@ public class Quizz : NetworkBehaviour
 
     private void ChooseCorrectAnswer(Question randomQuestion)
     {
+        ShowAnswer(networkObjects[randomQuestion.correctAnswer - 1]);
+
         if (!player.GetComponent<Player>().answerGameObject.name.EndsWith(randomQuestion.correctAnswer.ToString()))
         {
             player.GetComponent<Player>().WrongAnswer();
+
         };
-        switch (randomQuestion.correctAnswer)
-        {
-            case 1:
-                {
-                    answer1.SetActive(true);
-                    answer2.SetActive(false);
-                    answer3.SetActive(false);
-                    answer4.SetActive(false);
-                }
-                break;
-            case 2:
-                {
-                    answer2.SetActive(true);
-                    answer1.SetActive(false);
-                    answer3.SetActive(false);
-                    answer4.SetActive(false);
-                }
-                break;
-            case 3:
-                {
-                    answer3.SetActive(true);
-                    answer2.SetActive(false);
-                    answer1.SetActive(false);
-                    answer4.SetActive(false);
-                }
-                break;
-            case 4:
-                {
-                    answer4.SetActive(true);
-                    answer2.SetActive(false);
-                    answer3.SetActive(false);
-                    answer1.SetActive(false);
-                }
-                break;
-            default:
-                break;
-        }
+
+
+
     }
 
 
@@ -187,11 +164,23 @@ public class Quizz : NetworkBehaviour
 
     private void ResetGameObjectAnswer()
     {
-        answer1.SetActive(true);
-        answer2.SetActive(true);
-        answer3.SetActive(true);
-        answer4.SetActive(true);
+        for (int i = 0; i < networkObjects.Count; i++)
+        {
+            networkObjects[i].gameObject.SetActive(true);
+        }
     }
+
+    public void ShowAnswer(NetworkObject answer)
+    {
+        for (int i = 0; i < networkObjects.Count; i++)
+        {
+            if (networkObjects[i].NetworkObjectId != answer.NetworkObjectId)
+            {
+                networkObjects[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
 }
 
 

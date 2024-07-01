@@ -22,11 +22,12 @@ public class GameManager : NetworkBehaviour
         playerIndex = 0;
         gameTurn = 0;
 
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        // playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
     }
     private void Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
+        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
         if (!IsHost) return;
         for (int i = 0; i < playerList.Count; i++)
         {
@@ -34,7 +35,7 @@ public class GameManager : NetworkBehaviour
         }
         playerList[playerIndex].isPlayerTurn.Value = true;
     }
-    
+
     private void OnDiceValueChanged(int oldValue, int newValue)
     {
         UpdateDiceUI(newValue);
@@ -57,7 +58,7 @@ public class GameManager : NetworkBehaviour
             clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
 
             clientPlayer.isPlayerTurn.Value = false;
-            playerIndex = playerIndex >= playerList.Count-1 ? 0 : playerIndex + 1;
+            playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
 
             var oldGameTurn = gameTurn;
             gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
@@ -69,7 +70,7 @@ public class GameManager : NetworkBehaviour
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        //ToMinigame("minigameQuizz");
+        ToMinigame("minigameQuizz");
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -103,6 +104,23 @@ public class GameManager : NetworkBehaviour
 
     public void ModuleMinigame()
     {
+
+    }
+
+    public void BackToMainGame()
+    {
+        // chuyen scene ve main game
+        // dich chuyen player ve vi tri cu da dung truoc khi vao minigame
+        // chuyen turn ve nguoi choi cu
+
+
+    }
+
+    public void WinMinigame(/* nhan vao item thuong*/ )
+    {
+        // nhan thuong, luu item vao inventory cuar nguoi choi
+        // BackToMainGame();
+
 
     }
 
