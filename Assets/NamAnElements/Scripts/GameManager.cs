@@ -17,7 +17,7 @@ public class GameManager : NetworkBehaviour
     public int playerIndex;
     public Map map;
     public NetworkManagerUI networkManagerUI;
-
+    public CamToPlayer camToPlayer;
     private void Awake()
     {
         Singleton = this;
@@ -76,6 +76,7 @@ public class GameManager : NetworkBehaviour
             gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
             OnGameTurnChange(oldGameTurn, gameTurn);
             playerList[playerIndex].isPlayerTurn.Value = true;
+            StartCoroutine(SwitchCamCoroutine());
         }
     }
 
@@ -86,6 +87,11 @@ public class GameManager : NetworkBehaviour
 
 
 
+    private IEnumerator SwitchCamCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        camToPlayer.playerToFollow = playerList[playerIndex];
+    }
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
