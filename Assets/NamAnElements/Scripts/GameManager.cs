@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -55,7 +57,17 @@ public class GameManager : NetworkBehaviour
                 newPos = map.movePos.Count;
             }
             clientPlayer.currentPos.Value = newPos;
-            clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
+            try
+            {
+                clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
+            }
+            catch
+            {
+                clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+            };
+               
+
+            if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
             clientPlayer.isPlayerTurn.Value = false;
             playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
@@ -67,10 +79,18 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    private void EndGame(Player clientPlayer)
+    {
+        Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
+    }
+
+
+
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        ToMinigame("minigameQuizz");
+        ToMinigame("MinigameWoodRool");
+        Debug.LogError("isminigame now");
     }
 
     [ServerRpc(RequireOwnership = false)]
