@@ -2065,7 +2065,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1922710199}
         m_TargetAssemblyTypeName: LobbyGameManager, Assembly-CSharp
-        m_MethodName: ButtonClickDisconnectServer
+        m_MethodName: OnClickDisconnect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3085,7 +3085,6 @@ GameObject:
   - component: {fileID: 1922710197}
   - component: {fileID: 1922710198}
   - component: {fileID: 1922710199}
-  - component: {fileID: 1922710200}
   m_Layer: 0
   m_Name: LobbyGameManager
   m_TagString: Untagged
@@ -3148,16 +3147,3 @@ MonoBehaviour:
   - {fileID: 807709366}
   disconnectButton: {fileID: 1649302808}
   startGameButton: {fileID: 919006481}
---- !u!114 &1922710200
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1922710196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 67970a2b4f2bd664ba85aed5e87d3b15, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  players: []

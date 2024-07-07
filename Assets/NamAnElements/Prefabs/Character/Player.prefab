@@ -79,7 +79,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: -749729045, guid: 1235a49738e509946984f7bedecd2abe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1003141734
+  GlobalObjectIdHash: 2712921933
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -130,10 +130,8 @@ MonoBehaviour:
   currentPos:
     m_InternalValue: 0
   answerGameObject: {fileID: 0}
-  life:
-    m_InternalValue: 0
-  isDie:
-    m_InternalValue: 0
+  life: 3
+  isDie: 0
 --- !u!50 &-3657668203181700112
 Rigidbody2D:
   serializedVersion: 4
