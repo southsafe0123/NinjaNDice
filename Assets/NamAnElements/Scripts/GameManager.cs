@@ -101,6 +101,7 @@ public class GameManager : NetworkBehaviour
     private void EndGame(Player clientPlayer)
     {
         Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
+        ChangeScene("LobbyScene");
     }
 
 
@@ -120,18 +121,24 @@ public class GameManager : NetworkBehaviour
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        ToMinigame("minigameAU");
+        StartCoroutine(ChangeSceneCoroutine());
         //Debug.LogError("isminigame now");
+    }
+
+    private IEnumerator ChangeSceneCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        ChangeScene("minigameAU");
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SendRollDiceTo_ServerRPC()
     {
         var diceValue = UnityEngine.Random.Range(1, 7);
-        ChangeDiceValue(diceValue);
+        ChangeDiceValue_ClientRPC(diceValue);
     }
-
-    public void ChangeDiceValue(int diceValue)
+    [ClientRpc]
+    public void ChangeDiceValue_ClientRPC(int diceValue)
     {
         if (!IsHost) return;
         dice.Value = diceValue;
@@ -142,34 +149,12 @@ public class GameManager : NetworkBehaviour
         networkManagerUI.numDiceText.text = value.ToString();
     }
 
-    public void ToMinigame(string sceneName)
+    public void ChangeScene(string sceneName)
     {
         if (NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
-    }
-
-    public void ModuleMinigame()
-    {
-
-    }
-
-    public void BackToMainGame()
-    {
-        // chuyen scene ve main game
-        // dich chuyen player ve vi tri cu da dung truoc khi vao minigame
-        // chuyen turn ve nguoi choi cu
-
-
-    }
-
-    public void WinMinigame(/* nhan vao item thuong*/ )
-    {
-        // nhan thuong, luu item vao inventory cuar nguoi choi
-        // BackToMainGame();
-
-
     }
 
 }

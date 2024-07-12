@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ButtonRollDice : NetworkBehaviour
 {
     public Player player;
+    public Button btnRollDice;
     private void Start()
     {
         Player[] playerTemp = GameObject.FindObjectsByType<Player>(0);
@@ -22,11 +23,11 @@ public class ButtonRollDice : NetworkBehaviour
     {
         if (player.isPlayerTurn.Value)
         {
-            GetComponent<Button>().enabled = true;
+            btnRollDice.gameObject.SetActive(true);
         }
         else
         {
-            GetComponent<Button>().enabled = false;
+            btnRollDice.gameObject.SetActive(false);
         }
     }
     public void OnClick()

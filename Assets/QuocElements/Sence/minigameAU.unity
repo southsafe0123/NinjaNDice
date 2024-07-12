@@ -4186,9 +4186,10 @@ MonoBehaviour:
   - {fileID: 1171776430}
   - {fileID: 681381319}
   playerList: []
+  playerLose: []
   map: {fileID: 632704356}
-  defaultObjectMoveSpeed: 3
-  objectMoveSpeedPlus: 0.5
+  defaultObjectMoveSpeed: 4
+  objectMoveSpeedPlus: 1
 --- !u!114 &157863305
 MonoBehaviour:
   m_ObjectHideFlags: 0

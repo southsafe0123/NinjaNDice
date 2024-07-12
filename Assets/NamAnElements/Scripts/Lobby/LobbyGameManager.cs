@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.Netcode;
 using Unity.Services.Authentication;
+using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -57,6 +59,7 @@ public class LobbyGameManager : NetworkBehaviour
 
     private void LoadPlayer(ulong clientID)
     {
+        //PlayerList.Instance.UpdatePlayerList();
         GameObject emptyPlayerSlot = GetEmptyPlayerSlot();
         if (!emptyPlayerSlot)
         {
@@ -74,9 +77,12 @@ public class LobbyGameManager : NetworkBehaviour
                 int slotIndex = playerSlots.IndexOf(player.Value);
                 SetActiveInClient_ClientRPC(slotIndex, true);
             }
-        }
 
+
+        }
     }
+
+
 
     private static void AddOwnerClientID(ulong clientID)
     {
@@ -122,7 +128,7 @@ public class LobbyGameManager : NetworkBehaviour
         }
 
         sv_dicPlayer.Remove(clientID);
-
+        //PlayerList.Instance.UpdatePlayerList();
     }
     public void OnClickDisconnect()
     {
@@ -131,7 +137,8 @@ public class LobbyGameManager : NetworkBehaviour
             NetworkManager.Singleton.Shutdown();
             AuthenticationService.Instance.SignOut();
             NetworkManager.Destroy(NetworkManager.gameObject);
-
+            //Destroy(PlayerList.Instance.gameObject);
+            
             StartCoroutine(WaitForShutdownAndLoadScene());
         }
         else
@@ -146,6 +153,7 @@ public class LobbyGameManager : NetworkBehaviour
         NetworkManager.Singleton.Shutdown();
         AuthenticationService.Instance.SignOut();
         NetworkManager.Destroy(NetworkManager.gameObject);
+        //Destroy(PlayerList.Instance.gameObject);
 
         StartCoroutine(WaitForShutdownAndLoadScene());
     }
