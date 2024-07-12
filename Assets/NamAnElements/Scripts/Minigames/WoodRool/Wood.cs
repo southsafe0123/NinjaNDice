@@ -8,7 +8,7 @@ public class Wood : MonoBehaviour
 
     private void Update()
     {
-        transform.position -= new Vector3(moveSpeed, 0,0) * Time.deltaTime;
+        transform.position -= new Vector3(moveSpeed, 0, 0) * Time.deltaTime;
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -19,6 +19,10 @@ public class Wood : MonoBehaviour
         if (collision.CompareTag("Player"))
         {
             collision.transform.position -= Vector3.one;
+            if (collision.GetComponent<Player>().ownerClientID.Value == ButtonControlPlayer.Instance.player.ownerClientID.Value)
+            {
+                ButtonControlPlayer.Instance.OnClickPlayerInvisible();
+            }
         }
     }
 }

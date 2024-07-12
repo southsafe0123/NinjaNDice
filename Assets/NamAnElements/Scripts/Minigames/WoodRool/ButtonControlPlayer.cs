@@ -8,7 +8,12 @@ using UnityEngine;
 
 public class ButtonControlPlayer: NetworkBehaviour
 {
+    public static ButtonControlPlayer Instance;
     public Player player;
+    private void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         Player[] playerTemp = GameObject.FindObjectsByType<Player>(0);
