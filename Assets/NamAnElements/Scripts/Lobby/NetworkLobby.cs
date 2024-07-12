@@ -20,12 +20,14 @@ public class NetworkLobby : MonoBehaviour
     public Button JoinButton;
     private void Awake()
     {
-        SetActiveButton(false);
+        //if (NetworkManager.Singleton.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport) return;
+        //SetActiveButton(false);
     }
 
     private async void Start()
     {
-
+        Instance = this;
+        if (NetworkManager.Singleton.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport) return;
         await UnityServices.InitializeAsync();
 
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -35,7 +37,7 @@ public class NetworkLobby : MonoBehaviour
         };
 
         SetActiveButton(true);
-        Instance = this;
+        
     }
     private void SetActiveButton(bool isActive)
     {
