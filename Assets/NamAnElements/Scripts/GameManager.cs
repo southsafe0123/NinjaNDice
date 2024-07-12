@@ -29,15 +29,33 @@ public class GameManager : NetworkBehaviour
     private void Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
         if (!IsHost) return;
+        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        foreach (Player player in playerList)
+        {
+            SortPlayerListByServer_ClientRPC(player.ownerClientID.Value);
+        }
         for (int i = 0; i < playerList.Count; i++)
         {
-            playerList[i].gameObject.transform.position = map.movePos[0].position;
+            playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
         }
         playerList[playerIndex].isPlayerTurn.Value = true;
+        SetCamFollowPlayer_ClientRPC(playerIndex);
     }
-
+    [ClientRpc]
+    public void SortPlayerListByServer_ClientRPC(ulong clientID)
+    {
+        if (IsHost) return;
+        var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        foreach (var item in temp)
+        {
+            if(item.ownerClientID.Value == clientID)
+            {
+                playerList.Add(item);
+                break;
+            }
+        }
+    }
     private void OnDiceValueChanged(int oldValue, int newValue)
     {
         UpdateDiceUI(newValue);
@@ -90,30 +108,34 @@ public class GameManager : NetworkBehaviour
     private IEnumerator SwitchCamCoroutine()
     {
         yield return new WaitForSeconds(1f);
+        SetCamFollowPlayer_ClientRPC(playerIndex);
+    }
+
+    [ClientRpc]
+    private void SetCamFollowPlayer_ClientRPC(int playerIndex)
+    {
         camToPlayer.playerToFollow = playerList[playerIndex];
     }
+
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        ToMinigame("MinigameWoodRool");
-        Debug.LogError("isminigame now");
+        ToMinigame("minigameAU");
+        //Debug.LogError("isminigame now");
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SendRollDiceTo_ServerRPC()
     {
         var diceValue = UnityEngine.Random.Range(1, 7);
-        SendRollDiceTo_ClientRPC(diceValue);
+        ChangeDiceValue(diceValue);
     }
 
-    [ClientRpc]
-    public void SendRollDiceTo_ClientRPC(int diceValue)
+    public void ChangeDiceValue(int diceValue)
     {
         if (!IsHost) return;
         dice.Value = diceValue;
         TeleportPlayer(playerList[playerIndex], diceValue); // id cua nguoi roll dice
-
-
     }
     private void UpdateDiceUI(int value)
     {
