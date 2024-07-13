@@ -21,6 +21,8 @@ public class LobbyGameManager : NetworkBehaviour
     public GameObject disconnectButton;
     public GameObject startGameButton;
 
+    //use to set playerOrder that login into this server
+    private int playerOrder = 0;
 
     private void Awake()
     {
@@ -38,9 +40,27 @@ public class LobbyGameManager : NetworkBehaviour
         {
             if (!IsHost) return;
             LoadPlayer(clientID);
+            LoadListPlayerDic(clientID);
+            LoadPlayerOrder(clientID);
             SetActiveButton_ClientRPC(true);
             Debug.LogError("userjoin: " + clientID);
         };
+    }
+
+    private void LoadPlayerOrder(ulong clientID)
+    {
+        var plInstance = PlayerList.Instance;
+        plInstance.AddPlayerOrder(playerOrder, plInstance.GetPlayerDic_Value(clientID));
+        playerOrder++;
+    }
+
+    private void LoadListPlayerDic(ulong clientID)
+    {
+        var plInstance = PlayerList.Instance;
+        var playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        var player = playerList.First(player => player.ownerClientID.Value == clientID);
+        plInstance.SetPlayerDic(clientID, player);
+        plInstance.SetPlayerDic_ClientRPC();
     }
 
     private void OnDisconnectedClient()
@@ -77,8 +97,6 @@ public class LobbyGameManager : NetworkBehaviour
                 int slotIndex = playerSlots.IndexOf(player.Value);
                 SetActiveInClient_ClientRPC(slotIndex, true);
             }
-
-
         }
     }
 
@@ -138,14 +156,14 @@ public class LobbyGameManager : NetworkBehaviour
             AuthenticationService.Instance.SignOut();
             NetworkManager.Destroy(NetworkManager.gameObject);
             //Destroy(PlayerList.Instance.gameObject);
-            
+
             StartCoroutine(WaitForShutdownAndLoadScene());
         }
         else
         {
             OnClickDisconnect_ClientRPC();
         }
-       
+
     }
     [ClientRpc]
     void OnClickDisconnect_ClientRPC()

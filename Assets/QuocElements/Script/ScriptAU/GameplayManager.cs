@@ -6,8 +6,10 @@ using System.Runtime.CompilerServices;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static PlayerList;
 
 public class GameplayManager : NetworkBehaviour
 {
@@ -29,6 +31,7 @@ public class GameplayManager : NetworkBehaviour
     private float objectMoveSpeed;
     public float defaultObjectMoveSpeed;
     public float objectMoveSpeedPlus;
+    private int playerOrder = 0;
     private void Awake()
     {
         Instance = this;
@@ -36,6 +39,7 @@ public class GameplayManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playerOrder = 0;
         objectMoveSpeed = defaultObjectMoveSpeed;
         LoadPlayer();
         GenerateRandomListNumber();
@@ -45,15 +49,12 @@ public class GameplayManager : NetworkBehaviour
     private void LoadPlayer()
     {
         if (!IsHost) return;
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (Player player in playerList)
-        {
-            SortPlayerListByServer_ClientRPC(player.ownerClientID.Value);
-        }
+        playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
         {
             playerList[i].gameObject.transform.position = map.movePos[i].position;
-            AddComponent_ClientRPC(i);
+            playerList[i].isPlayerTurn.Value = false;
+            AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
         }
     }
     [ClientRpc]
@@ -71,10 +72,10 @@ public class GameplayManager : NetworkBehaviour
         }
     }
     [ClientRpc]
-    private void AddComponent_ClientRPC(int i)
+    private void AddComponent_ClientRPC(ulong clientID)
     {
-        playerList[i].AddComponent<PlayerHeath>();
-        playerList[i].GetComponent<PlayerHeath>().health = 3;
+        PlayerList.Instance.GetPlayerDic_Value(clientID).AddComponent<PlayerHeath>();
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerHeath>().health = 3;
     }
 
     // Update is called once per frame
@@ -176,20 +177,27 @@ public class GameplayManager : NetworkBehaviour
         {
             if (playerList[i].ownerClientID.Value == clientID)
             {
-                TakeDamage_ClientRPC(i);
+                TakeDamage_ClientRPC(clientID);
             }
         }
     }
     [ClientRpc]
-    private void TakeDamage_ClientRPC(int i)
+    private void TakeDamage_ClientRPC(ulong playerID)
     {
-        playerList[i].GetComponent<PlayerHeath>().health--;
-        if (playerList[i].GetComponent<PlayerHeath>().health == 0)
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        player.GetComponent<PlayerHeath>().health--;
+        if (player.GetComponent<PlayerHeath>().health == 0)
         {
-            playerList[i].GetComponent<PlayerHeath>().isDead = true;
-            playerLose.Add(playerList[i]);
-            if (playerLose.Count == playerList.Count - 1) EndGame();
+            player.GetComponent<PlayerHeath>().isDead = true;
+            CallThisPlayerIsDead_ServerRPC(playerID);
         }
+    }
+    [ServerRpc(RequireOwnership =false)]
+    private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        playerLose.Add(player);
+        if (playerLose.Count >= playerList.Count-1) EndGame();
     }
 
     private void EndGame()
@@ -198,20 +206,44 @@ public class GameplayManager : NetworkBehaviour
         {
             if (!player.GetComponent<PlayerHeath>().isDead)
             {
-                Debug.LogError("Player Win: " + player.ownerClientID.Value);
+                PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+                playerOrder++;
+                CallEndGame_ClientRPC(player.ownerClientID.Value,true);
             }
-
-            Destroy(player.GetComponent<PlayerHeath>());
         }
         foreach (Player player in playerLose)
         {
-            Debug.LogError("Player lose: "+player.ownerClientID.Value);
+            CallEndGame_ClientRPC(player.ownerClientID.Value, false);
         }
+
+        var reversePlayerList = playerLose.ToArray().Reverse();
+        foreach(Player player in reversePlayerList)
+        {
+            PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+            playerOrder++;
+        }
+
+        RemovedComponent_ClientRPC();
 
         if (NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene(MAIN_GAMEPLAY_SCENE, LoadSceneMode.Single);
         }
+    }
+    [ClientRpc]
+    private void RemovedComponent_ClientRPC()
+    {
+        foreach (var player in PlayerList.Instance.playerDic)
+        {
+            Destroy(player.Value.GetComponent<PlayerHeath>());
+        }
+    }
+
+    [ClientRpc]
+    private void CallEndGame_ClientRPC(ulong playerID,bool isWin)
+    {
+        if(isWin) Debug.LogError("Player Win: " + playerID);
+        if(!isWin) Debug.LogError("Player lose: " + playerID);
     }
 
 
