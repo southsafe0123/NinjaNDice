@@ -30,37 +30,20 @@ public class GameManager : NetworkBehaviour
     {
         dice.OnValueChanged += OnDiceValueChanged;
         if (!IsHost) return;
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (Player player in playerList)
-        {
-            SortPlayerListByServer_ClientRPC(player.ownerClientID.Value);
-        }
+        playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
         {
             playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
         }
         playerList[playerIndex].isPlayerTurn.Value = true;
-        SetCamFollowPlayer_ClientRPC(playerIndex);
+        SetCamFollowPlayer_ClientRPC(playerList[playerIndex].ownerClientID.Value);
     }
-    [ClientRpc]
-    public void SortPlayerListByServer_ClientRPC(ulong clientID)
-    {
-        if (IsHost) return;
-        var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (var item in temp)
-        {
-            if(item.ownerClientID.Value == clientID)
-            {
-                playerList.Add(item);
-                break;
-            }
-        }
-    }
+
     private void OnDiceValueChanged(int oldValue, int newValue)
     {
         UpdateDiceUI(newValue);
     }
-    void TeleportPlayer(Player clientPlayer, int index = 0) // nhat da sua ham nay
+    public void TeleportPlayer(Player clientPlayer, int index = 0) // nhat da sua ham nay
     {
         if (index == 0)
         {
@@ -109,13 +92,14 @@ public class GameManager : NetworkBehaviour
     private IEnumerator SwitchCamCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        SetCamFollowPlayer_ClientRPC(playerIndex);
+        var playerID = playerList[playerIndex].ownerClientID.Value;
+        SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
     }
 
     [ClientRpc]
-    private void SetCamFollowPlayer_ClientRPC(int playerIndex)
+    private void SetCamFollowPlayer_ClientRPC(ulong playerID)
     {
-        camToPlayer.playerToFollow = playerList[playerIndex];
+        camToPlayer.playerToFollow = PlayerList.Instance.GetPlayerDic_Value(playerID);
     }
 
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)

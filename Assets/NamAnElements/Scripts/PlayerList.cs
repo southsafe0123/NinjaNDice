@@ -1,14 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerList : NetworkBehaviour
 {
-    public static PlayerList Instance;
-    public List<Player> playerList = new List<Player>();
+    [System.Serializable]
+    public class PlayerOrder
+    {
+        public int order;
+        public Player player;
 
+        public PlayerOrder(int order, Player player)
+        {
+            this.order = order;
+            this.player = player;
+        }
+    }
+    /// /////////////////////////
+    public static PlayerList Instance;
+    public Dictionary<ulong, Player> playerDic = new Dictionary<ulong, Player>();
+    public List<PlayerOrder> playerOrders = new List<PlayerOrder>();
+    public List<Player> test = new List<Player>();
+    private Coroutine coroutine;
     private void Awake()
     {
         if (Instance == null)
@@ -22,27 +40,94 @@ public class PlayerList : NetworkBehaviour
         }
     }
 
-    public void UpdatePlayerList()
+    public void SetPlayerDic(ulong clientID, Player player)
     {
-        playerList.Clear();
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (Player player in playerList)
-        {
-            SortPlayerListByServer_ClientRPC(player.ownerClientID.Value);
-        }
+        playerDic[clientID] = player;
     }
-    [ClientRpc]
-    public void SortPlayerListByServer_ClientRPC(ulong clientID)
+    public Player GetPlayerDic_Value(ulong clientID)
     {
-        if (IsHost) return;
-        playerList.Clear();
-        var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (var item in temp)
+        if (playerDic.ContainsKey(clientID)) return playerDic[clientID];
+        return null;
+    }
+
+    public ulong? GetPlayerDic_Key(Player player)
+    {
+        foreach (var playerInDic in playerDic)
         {
-            if (item.ownerClientID.Value == clientID)
+            if (player == playerInDic.Value)
             {
-                playerList.Add(item);
+                return playerInDic.Key;
             }
         }
+        return null;
     }
+
+    public void ResetPlayerDic()
+    {
+        playerDic.Clear();
+    }
+
+    public void AddPlayerOrder(int order, Player player)
+    {
+        playerOrders.Add(new PlayerOrder(order, player));
+    }
+
+    public void SetPlayerOrder(int newOrder, Player player)
+    {
+       var query = playerOrders.First(playerOrder => playerOrder.player.ownerClientID.Value == player.ownerClientID.Value);
+       query.order = newOrder;
+    }
+
+    public List<Player> GetPlayerOrder()
+    {
+        List<Player> playerOrderList = playerOrders
+            .OrderBy(playerOrder => playerOrder.order)
+            .Select(playerOrder => playerOrder.player)
+            .ToList();
+        return playerOrderList;
+    }
+    public void ResetPlayerOrder()
+    {
+        playerOrders.Clear();
+    }
+
+    [ClientRpc]
+    public void SetPlayerDic_ClientRPC()
+    {
+        if (IsHost) return;
+        coroutine = StartCoroutine(SetPlayerDicCoroutine());
+    }
+
+    private IEnumerator SetPlayerDicCoroutine()
+    {
+        var playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        Debug.Log("Number of players found: " + playerList.Count);
+
+        yield return new WaitForSeconds(0.3f);
+        ResetPlayerDic();
+        foreach (Player player in playerList)
+        {
+            Debug.LogError(player.ownerClientID.Value);
+            SetPlayerDic(player.ownerClientID.Value, player);
+        }
+
+        coroutine = null;
+    }
+
+    [ClientRpc]
+    public void ResetPlayerDic_ClientRPC()
+    {
+        if (IsHost) return;
+        ResetPlayerDic();
+    }
+
+    [ClientRpc]
+    public void ResetPlayerOrder_ClientRPC()
+    {
+        if (IsHost) return;
+        ResetPlayerOrder();
+    }
+
+
+    // chua code truong` hop player disconnect luc dang choi
 }
