@@ -13,7 +13,20 @@
           "package_name": "com.JustATeam.NinjaNDice"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "825067341094-f6r875g4p7dc4vqo4p8v7540281bj8eq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.JustATeam.NinjaNDice",
+            "certificate_hash": "7adc7b22e1bf80a6eb5825484f2a34c8e7c8bfd3"
+          }
+        },
+        {
+          "client_id": "825067341094-d48m0vgtdtk7rb1ag83m6mpqeuv0gr8f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyC0xcoUCkFlyrew2qy9swwod1WpTRoziXU"
@@ -21,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "825067341094-d48m0vgtdtk7rb1ag83m6mpqeuv0gr8f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
