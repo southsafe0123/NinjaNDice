@@ -1,15 +1,18 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using Unity.Netcode;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyGameManager : NetworkBehaviour
-{  
+{
 
     //this is server data (because clientID is Online and only server have)
     public Dictionary<ulong, GameObject> sv_dicPlayer = new Dictionary<ulong, GameObject>();
@@ -17,7 +20,9 @@ public class LobbyGameManager : NetworkBehaviour
     public List<GameObject> playerSlots = new List<GameObject>();
     public GameObject disconnectButton;
     public GameObject startGameButton;
-    
+
+    //use to set playerOrder that login into this server
+    private int playerOrder = 0;
 
     private void Awake()
     {
@@ -29,16 +34,33 @@ public class LobbyGameManager : NetworkBehaviour
         OnConnectedClient();
         OnDisconnectedClient();
     }
-
     private void OnConnectedClient()
     {
         NetworkManager.Singleton.OnClientConnectedCallback += clientID =>
         {
             if (!IsHost) return;
             LoadPlayer(clientID);
+            LoadListPlayerDic(clientID);
+            LoadPlayerOrder(clientID);
             SetActiveButton_ClientRPC(true);
             Debug.LogError("userjoin: " + clientID);
         };
+    }
+
+    private void LoadPlayerOrder(ulong clientID)
+    {
+        var plInstance = PlayerList.Instance;
+        plInstance.AddPlayerOrder(playerOrder, plInstance.GetPlayerDic_Value(clientID));
+        playerOrder++;
+    }
+
+    private void LoadListPlayerDic(ulong clientID)
+    {
+        var plInstance = PlayerList.Instance;
+        var playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        var player = playerList.First(player => player.ownerClientID.Value == clientID);
+        plInstance.SetPlayerDic(clientID, player);
+        plInstance.SetPlayerDic_ClientRPC();
     }
 
     private void OnDisconnectedClient()
@@ -48,7 +70,7 @@ public class LobbyGameManager : NetworkBehaviour
             if (!IsHost) return;
             UnloadPlayer(clientID);
             SetActiveButton_ClientRPC(true);
-            Debug.LogError("userout: " + clientID); 
+            Debug.LogError("userout: " + clientID);
         };
     }
 
@@ -57,6 +79,7 @@ public class LobbyGameManager : NetworkBehaviour
 
     private void LoadPlayer(ulong clientID)
     {
+        //PlayerList.Instance.UpdatePlayerList();
         GameObject emptyPlayerSlot = GetEmptyPlayerSlot();
         if (!emptyPlayerSlot)
         {
@@ -75,8 +98,9 @@ public class LobbyGameManager : NetworkBehaviour
                 SetActiveInClient_ClientRPC(slotIndex, true);
             }
         }
-
     }
+
+
 
     private static void AddOwnerClientID(ulong clientID)
     {
@@ -120,25 +144,47 @@ public class LobbyGameManager : NetworkBehaviour
                 SetActiveInClient_ClientRPC(slotIndex, false);
             };
         }
-        
+
         sv_dicPlayer.Remove(clientID);
+        //PlayerList.Instance.UpdatePlayerList();
+    }
+    public void OnClickDisconnect()
+    {
+        if (!IsHost)
+        {
+            NetworkManager.Singleton.Shutdown();
+            AuthenticationService.Instance.SignOut();
+            NetworkManager.Destroy(NetworkManager.gameObject);
+            //Destroy(PlayerList.Instance.gameObject);
+
+            StartCoroutine(WaitForShutdownAndLoadScene());
+        }
+        else
+        {
+            OnClickDisconnect_ClientRPC();
+        }
 
     }
-    [ServerRpc(RequireOwnership = false)]
-    void Disconnect_ServerRPC(ulong ownerID)
-    {
-        UnloadPlayer(ownerID);
-        Disconnect_ClientRPC(ownerID);
-    }
     [ClientRpc]
-    void Disconnect_ClientRPC(ulong ownerID)
+    void OnClickDisconnect_ClientRPC()
     {
-        if (NetworkManager.Singleton.LocalClientId != ownerID) return;
-        foreach (var playerSlot in playerSlots) playerSlot.SetActive(false);
         NetworkManager.Singleton.Shutdown();
-        disconnectButton.SetActive(false);
+        AuthenticationService.Instance.SignOut();
+        NetworkManager.Destroy(NetworkManager.gameObject);
+        //Destroy(PlayerList.Instance.gameObject);
+
+        StartCoroutine(WaitForShutdownAndLoadScene());
     }
-    
+    private IEnumerator WaitForShutdownAndLoadScene()
+    {
+        // Chờ cho NetworkManager shutdown hoàn toàn
+        while (NetworkManager != null)
+        {
+            yield return null;
+        }
+        SceneManager.LoadScene("LobbyScene", LoadSceneMode.Single);
+    }
+
     /// <summary>
     /// BELOW IS FOR BUTTON CLICK IN CANVAS PANEL COMMAND BUTTON
     /// </summary>
@@ -149,11 +195,6 @@ public class LobbyGameManager : NetworkBehaviour
     public void ButtonClickJoinServer(TMP_InputField joinCode)
     {
         NetworkLobby.Instance.JoinRelay(joinCode.text);
-    }
-    public void ButtonClickDisconnectServer()
-    {
-        var playerInClient = NetworkManager.Singleton.ConnectedClients[OwnerClientId].PlayerObject.GetComponent<Player>();
-        Disconnect_ServerRPC(playerInClient.ownerClientID.Value);
     }
     public void ButtonClickStartGame()
     {

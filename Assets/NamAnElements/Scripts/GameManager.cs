@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -15,7 +17,7 @@ public class GameManager : NetworkBehaviour
     public int playerIndex;
     public Map map;
     public NetworkManagerUI networkManagerUI;
-
+    public CamToPlayer camToPlayer;
     private void Awake()
     {
         Singleton = this;
@@ -27,20 +29,21 @@ public class GameManager : NetworkBehaviour
     private void Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
         if (!IsHost) return;
+        playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
         {
-            playerList[i].gameObject.transform.position = map.movePos[0].position;
+            playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
         }
         playerList[playerIndex].isPlayerTurn.Value = true;
+        SetCamFollowPlayer_ClientRPC(playerList[playerIndex].ownerClientID.Value);
     }
 
     private void OnDiceValueChanged(int oldValue, int newValue)
     {
         UpdateDiceUI(newValue);
     }
-    void TeleportPlayer(Player clientPlayer, int index = 0) // nhat da sua ham nay
+    public void TeleportPlayer(Player clientPlayer, int index = 0) // nhat da sua ham nay
     {
         if (index == 0)
         {
@@ -55,7 +58,17 @@ public class GameManager : NetworkBehaviour
                 newPos = map.movePos.Count;
             }
             clientPlayer.currentPos.Value = newPos;
-            clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
+            try
+            {
+                clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
+            }
+            catch
+            {
+                clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+            };
+               
+
+            if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
             clientPlayer.isPlayerTurn.Value = false;
             playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
@@ -64,64 +77,68 @@ public class GameManager : NetworkBehaviour
             gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
             OnGameTurnChange(oldGameTurn, gameTurn);
             playerList[playerIndex].isPlayerTurn.Value = true;
+            StartCoroutine(SwitchCamCoroutine());
         }
+    }
+
+    private void EndGame(Player clientPlayer)
+    {
+        Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
+        ChangeScene("LobbyScene");
+    }
+
+
+
+    private IEnumerator SwitchCamCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        var playerID = playerList[playerIndex].ownerClientID.Value;
+        SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
+    }
+
+    [ClientRpc]
+    private void SetCamFollowPlayer_ClientRPC(ulong playerID)
+    {
+        camToPlayer.playerToFollow = PlayerList.Instance.GetPlayerDic_Value(playerID);
     }
 
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        ToMinigame("minigameQuizz");
+        StartCoroutine(ChangeSceneCoroutine());
+        //Debug.LogError("isminigame now");
+    }
+
+    private IEnumerator ChangeSceneCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        ChangeScene("minigameAU");
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void SendRollDiceTo_ServerRPC()
     {
         var diceValue = UnityEngine.Random.Range(1, 7);
-        SendRollDiceTo_ClientRPC(diceValue);
+        ChangeDiceValue_ClientRPC(diceValue);
     }
-
     [ClientRpc]
-    public void SendRollDiceTo_ClientRPC(int diceValue)
+    public void ChangeDiceValue_ClientRPC(int diceValue)
     {
         if (!IsHost) return;
         dice.Value = diceValue;
         TeleportPlayer(playerList[playerIndex], diceValue); // id cua nguoi roll dice
-
-
     }
     private void UpdateDiceUI(int value)
     {
         networkManagerUI.numDiceText.text = value.ToString();
     }
 
-    public void ToMinigame(string sceneName)
+    public void ChangeScene(string sceneName)
     {
         if (NetworkManager.Singleton.IsServer)
         {
             NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
-    }
-
-    public void ModuleMinigame()
-    {
-
-    }
-
-    public void BackToMainGame()
-    {
-        // chuyen scene ve main game
-        // dich chuyen player ve vi tri cu da dung truoc khi vao minigame
-        // chuyen turn ve nguoi choi cu
-
-
-    }
-
-    public void WinMinigame(/* nhan vao item thuong*/ )
-    {
-        // nhan thuong, luu item vao inventory cuar nguoi choi
-        // BackToMainGame();
-
-
     }
 
 }

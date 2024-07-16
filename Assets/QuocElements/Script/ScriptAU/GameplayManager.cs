@@ -1,27 +1,80 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using static PlayerList;
 
-public class GameplayManager : MonoBehaviour
+public class GameplayManager : NetworkBehaviour
 {
+    public const string MAIN_GAMEPLAY_SCENE = "NamAn";
+    public GameplayManager Instance;
     public GameObject[] objectPrefabs;
     public List<int> listNumber = new List<int>();
     public int currentObjectIndex = 0;
-    public List<int> listUser = new List<int>();
-
+    public List<int> listUserInput = new List<int>();
     public List<GameObject> list1;
     public List<GameObject> list2;
     public List<GameObject> list3;
     public List<GameObject> list4;
-
     private bool canInput = true; // Biến để kiểm tra xem có thể xử lý đầu vào mới hay không
 
+    public List<Player> playerList = new List<Player>();
+    public List<Player> playerLose = new List<Player>();
+    public Map map;
+    private float objectMoveSpeed;
+    public float defaultObjectMoveSpeed;
+    public float objectMoveSpeedPlus;
+    private int playerOrder = 0;
+    private void Awake()
+    {
+        Instance = this;
+    }
     // Start is called before the first frame update
     void Start()
     {
+        playerOrder = 0;
+        objectMoveSpeed = defaultObjectMoveSpeed;
+        LoadPlayer();
         GenerateRandomListNumber();
         Display();
+    }
+
+    private void LoadPlayer()
+    {
+        if (!IsHost) return;
+        playerList = PlayerList.Instance.GetPlayerOrder();
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            playerList[i].gameObject.transform.position = map.movePos[i].position;
+            playerList[i].isPlayerTurn.Value = false;
+            AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
+        }
+    }
+    [ClientRpc]
+    public void SortPlayerListByServer_ClientRPC(ulong clientID)
+    {
+        if (IsHost) return;
+        var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        foreach (var item in temp)
+        {
+            if (item.ownerClientID.Value == clientID)
+            {
+                playerList.Add(item);
+                break;
+            }
+        }
+    }
+    [ClientRpc]
+    private void AddComponent_ClientRPC(ulong clientID)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(clientID).AddComponent<PlayerHeath>();
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerHeath>().health = 3;
     }
 
     // Update is called once per frame
@@ -38,7 +91,7 @@ public class GameplayManager : MonoBehaviour
         {
             HandleInput();
 
-            if (listUser.Count == 4)
+            if (listUserInput.Count == 4)
             {
                 canInput = false; // Không cho phép nhập thêm
                 CompareListUserAndListEnemy();
@@ -51,22 +104,22 @@ public class GameplayManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            listUser.Add(2);
+            listUserInput.Add(2);
             Display();
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            listUser.Add(3);
+            listUserInput.Add(3);
             Display();
         }
         else if (Input.GetKeyDown(KeyCode.UpArrow))
         {
-            listUser.Add(0);
+            listUserInput.Add(0);
             Display();
         }
         else if (Input.GetKeyDown(KeyCode.DownArrow))
         {
-            listUser.Add(1);
+            listUserInput.Add(1);
             Display();
         }
     }
@@ -84,12 +137,15 @@ public class GameplayManager : MonoBehaviour
         }
 
         objectPrefabs[index].SetActive(true);
-        objectPrefabs[index].transform.Translate(Vector3.left * 3 * Time.deltaTime);
+        objectPrefabs[index].transform.Translate(Vector3.left * objectMoveSpeed * Time.deltaTime);
 
         if (objectPrefabs[index].transform.position.x < -15)
         {
+            objectMoveSpeed += objectMoveSpeedPlus;
             objectPrefabs[index].SetActive(false);
             currentObjectIndex = Random.Range(0, objectPrefabs.Length);
+            CompareListUserAndListEnemy();
+            listUserInput.Clear();
         }
     }
 
@@ -101,28 +157,100 @@ public class GameplayManager : MonoBehaviour
         {
             listNumber.Add(Random.Range(0, 4));
         }
-        Debug.Log(string.Join(" ", listNumber));
+        //Debug.Log(string.Join(" ", listNumber));
     }
 
     // hàm so sánh danh sách người dùng và danh sách số ngẫu nhiên
     private void CompareListUserAndListEnemy()
     {
-        if (listUser.SequenceEqual(listNumber))
-        {
-            Debug.Log("Win");
-        }
-        else
+        if (!listUserInput.SequenceEqual(listNumber)|| listUserInput.Count != 4 || listUserInput==null)
         {
             Debug.Log("Lose");
+            TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
         }
-        listUser.Clear();
     }
+    [ServerRpc(RequireOwnership = false)]
+    public void TakeDamage_ServerRPC(ulong clientID)
+    {
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            if (playerList[i].ownerClientID.Value == clientID)
+            {
+                TakeDamage_ClientRPC(clientID);
+            }
+        }
+    }
+    [ClientRpc]
+    private void TakeDamage_ClientRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        player.GetComponent<PlayerHeath>().health--;
+        if (player.GetComponent<PlayerHeath>().health == 0)
+        {
+            player.GetComponent<PlayerHeath>().isDead = true;
+            CallThisPlayerIsDead_ServerRPC(playerID);
+        }
+    }
+    [ServerRpc(RequireOwnership =false)]
+    private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        playerLose.Add(player);
+        if (playerLose.Count >= playerList.Count-1) EndGame();
+    }
+
+    private void EndGame()
+    {
+        foreach(Player player in playerList)
+        {
+            if (!player.GetComponent<PlayerHeath>().isDead)
+            {
+                PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+                playerOrder++;
+                CallEndGame_ClientRPC(player.ownerClientID.Value,true);
+            }
+        }
+        foreach (Player player in playerLose)
+        {
+            CallEndGame_ClientRPC(player.ownerClientID.Value, false);
+        }
+
+        var reversePlayerList = playerLose.ToArray().Reverse();
+        foreach(Player player in reversePlayerList)
+        {
+            PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+            playerOrder++;
+        }
+
+        RemovedComponent_ClientRPC();
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(MAIN_GAMEPLAY_SCENE, LoadSceneMode.Single);
+        }
+    }
+    [ClientRpc]
+    private void RemovedComponent_ClientRPC()
+    {
+        foreach (var player in PlayerList.Instance.playerDic)
+        {
+            Destroy(player.Value.GetComponent<PlayerHeath>());
+        }
+    }
+
+    [ClientRpc]
+    private void CallEndGame_ClientRPC(ulong playerID,bool isWin)
+    {
+        if(isWin) Debug.LogError("Player Win: " + playerID);
+        if(!isWin) Debug.LogError("Player lose: " + playerID);
+    }
+
 
     // hàm hiển thị các đối tượng
 
     private void Display()
     {
-        if (listUser.Count == 0)
+        if (listUserInput.Count == 0)
         {
             list1[listNumber[0]].SetActive(true);
             list2[listNumber[1]].SetActive(true);
@@ -137,9 +265,9 @@ public class GameplayManager : MonoBehaviour
     // hàm hiển thị các đối tượng khi người dùng nhập 
     private void SetActiveBasedOnUserInput()
     {
-        for (int i = 0; i < listUser.Count; i++)
+        for (int i = 0; i < listUserInput.Count; i++)
         {
-            int userInput = listUser[i];
+            int userInput = listUserInput[i];
             int randomValue = listNumber[i];
 
             if (userInput == randomValue)
