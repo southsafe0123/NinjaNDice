@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "825067341094",
+    "firebase_url": "https://ninjandice-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ninjandice",
+    "storage_bucket": "ninjandice.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825067341094:android:289070a00ffb6aa67d2de7",
+        "android_client_info": {
+          "package_name": "com.JustATeam.NinjaNDice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0xcoUCkFlyrew2qy9swwod1WpTRoziXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -22,6 +22,8 @@ public class Quizz : NetworkBehaviour
     public GameObject player;
     public Map map;
     private List<Question> questions = new List<Question>();
+
+    public TMP_Text lifeText;
     // private float timeRemaining = 5f;
     // private bool timerIsRunning = false;
 
@@ -45,6 +47,8 @@ public class Quizz : NetworkBehaviour
         networkObjects.Add(answer3.GetComponent<NetworkObject>());
         networkObjects.Add(answer4.GetComponent<NetworkObject>());
         player = NetworkManager.LocalClient.PlayerObject.gameObject;
+
+        lifeText.text = "Life: " + player.GetComponent<Player>().life.ToString();
 
         LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
         StartCoroutine(AutoLoadQuestions());
@@ -149,10 +153,10 @@ public class Quizz : NetworkBehaviour
     {
         ShowAnswer(networkObjects[randomQuestion.correctAnswer - 1]);
 
-        if (!player.GetComponent<Player>().answerGameObject.name.EndsWith(randomQuestion.correctAnswer.ToString()))
+        if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer == null)
         {
             player.GetComponent<Player>().WrongAnswer();
-
+            lifeText.text = "Life: " + player.GetComponent<Player>().life.ToString();
         };
 
 

@@ -1,0 +1,58 @@
+{
+    "Users": {
+        "UserID1": {
+            "username": "user1",
+            "password": "password1",
+            "role": "admin",
+            "money": 1000,
+            "activeState": true,
+            "friends": [
+                {
+                    "UserID": "UserID2",
+                    "friendSince": "2021-01-01"
+                }
+            ],
+            "SkinPurchased": [
+                {
+                    "SkinID": "SkinID1",
+                    "purchaseDate": "2021-01-01"
+                },
+                {
+                    "SkinID": "SkinID2",
+                    "purchaseDate": "2021-01-02"
+                }
+            ]
+        },
+        "UserID2": {
+            "username": "user2",
+            "password": "password2",
+            "role": "player",
+            "money": 500,
+            "activeState": false,
+            "friends": [
+                {
+                    "UserID": "UserID1",
+                    "friendSince": "2021-01-01"
+                }
+            ],
+            "SkinPurchased": [
+                {
+                    "SkinID": "SkinID1",
+                    "purchaseDate": "2021-01-01"
+                }
+            ]
+        }
+    },
+    "Skins": {
+        "SkinID1": {
+            "skinName": "Skin A",
+            "price": 100,
+            "skinImage": "url_to_image"
+        },
+        "SkinID2": {
+            "skinName": "Skin B",
+            "price": 200,
+            "skinImage": "url_to_image"
+        }
+    }
+}
