@@ -9,7 +9,7 @@ public class Player : NetworkBehaviour
 
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
     public NetworkVariable<int> currentPos = new NetworkVariable<int>();
-    public GameObject answerGameObject;
+    public string answer;
     public int life = 3;
     public bool isDie = false;
     private void Start()
@@ -25,21 +25,40 @@ public class Player : NetworkBehaviour
     }
     void Update()
     {
-        //if (IsLocalPlayer)
-        //{
-        //    transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
-        //}
+        if (IsLocalPlayer)
+        {
+            transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
+
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                answer = "1";
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                answer = "2";
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                answer = "3";
+            }
+            if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                answer = "4";
+            }
+        }
+
+
 
     }
 
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        // Debug.Log(col.name);
-        if (col.gameObject.tag == "Answer")
-        {
-            answerGameObject = col.gameObject;
-        }
+        // // Debug.Log(col.name);
+        // if (col.gameObject.tag == "Answer")
+        // {
+        //     answerGameObject = col.gameObject;
+        // }
     }
 
     public void WrongAnswer()
@@ -53,7 +72,10 @@ public class Player : NetworkBehaviour
         {
             Debug.Log("Game Over");
             isDie = true;
-            NetworkObject.NetworkHide(NetworkObjectId);
+            if (IsServer)
+            {
+                NetworkObject.NetworkHide(NetworkObjectId);
+            }
             gameObject.SetActive(false);
         }
         // }
