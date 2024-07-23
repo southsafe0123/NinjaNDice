@@ -74,6 +74,7 @@ public class Friend
     public string userID;
     public string friendSince;
 
+
     public Friend()
     {
     }
@@ -114,7 +115,7 @@ public class SkinPurchased
     }
 }
 
-public class FirebaseManager : MonoBehaviour
+public class FirebaseManagerX : MonoBehaviour
 {
     public TMP_InputField usernameInput;
     public TMP_InputField passwordInput;
