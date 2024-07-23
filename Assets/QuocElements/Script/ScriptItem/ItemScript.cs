@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -11,6 +12,8 @@ public class ItemScript : MonoBehaviour
     public GameObject player4;
     public GameObject playerListUI; // UI chứa danh sách các Button
     public Button buttonChange; // Nút ButtonChange
+    public Button buttonFrozen; // Nút ButtonFrozen
+    public Button buttonMove;  // Nút ButtonMove
     public Button buttonP2; // Button đại diện cho Player2
     public Button buttonP3; // Button đại diện cho Player3
     public Button buttonP4; // Button đại diện cho Player4
@@ -29,13 +32,19 @@ public class ItemScript : MonoBehaviour
         // Ẩn danh sách Player ban đầu
         playerListUI.SetActive(false);
 
-        // Thêm sự kiện click cho nút ButtonChange
+        // Thêm sự kiện click cho nút
         buttonChange.onClick.AddListener(ShowPlayerList);
+        buttonFrozen.onClick.AddListener(() => FrozenPlayer(player1));
+        buttonMove.onClick.AddListener(() => MovePlayer(player1));
 
         // Thêm sự kiện click cho các nút Player
         buttonP2.onClick.AddListener(() => SelectPlayer(player2));
         buttonP3.onClick.AddListener(() => SelectPlayer(player3));
         buttonP4.onClick.AddListener(() => SelectPlayer(player4));
+
+        // Kiểm tra xem các thành phần đã được gán hay chưa
+        if (player1 == null) Debug.LogError("Player1 is not assigned.");
+        if (buttonMove == null) Debug.LogError("ButtonMove is not assigned.");
     }
 
     void Update()
@@ -93,5 +102,18 @@ public class ItemScript : MonoBehaviour
         player.transform.position = targetPosition;
 
         isMoving = false;
+    }
+
+    void FrozenPlayer(GameObject player)
+    {
+        // object không di chuyển
+        Debug.Log("FrozenPlayer called for " + player.name);
+    }
+
+    void MovePlayer(GameObject player)
+    {
+        // Di chuyển object tiến thêm một khoảng cách
+        Debug.Log("MovePlayer called for " + player.name);
+        player.transform.Translate(Vector3.right * 1);
     }
 }
