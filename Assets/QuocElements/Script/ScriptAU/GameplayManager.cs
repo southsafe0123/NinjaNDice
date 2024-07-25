@@ -18,7 +18,7 @@ public class GameplayManager : NetworkBehaviour
     public List<int> listNumber = new List<int>();
     public int currentObjectIndex = 0;
     public List<int> listUserInput = new List<int>();
-    public List<GameObject> list1;
+    public List<GameObject> list1; // list mui ten
     public List<GameObject> list2;
     public List<GameObject> list3;
     public List<GameObject> list4;
@@ -56,20 +56,20 @@ public class GameplayManager : NetworkBehaviour
             AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
         }
     }
-    [ClientRpc]
-    public void SortPlayerListByServer_ClientRPC(ulong clientID)
-    {
-        if (IsHost) return;
-        var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        foreach (var item in temp)
-        {
-            if (item.ownerClientID.Value == clientID)
-            {
-                playerList.Add(item);
-                break;
-            }
-        }
-    }
+    // [ClientRpc]
+    // public void SortPlayerListByServer_ClientRPC(ulong clientID)
+    // {
+    //     if (IsHost) return;
+    //     var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+    //     foreach (var item in temp)
+    //     {
+    //         if (item.ownerClientID.Value == clientID)
+    //         {
+    //             playerList.Add(item);
+    //             break;
+    //         }
+    //     }
+    // }
     [ClientRpc]
     private void AddComponent_ClientRPC(ulong clientID)
     {
@@ -163,7 +163,7 @@ public class GameplayManager : NetworkBehaviour
     // hàm so sánh danh sách người dùng và danh sách số ngẫu nhiên
     private void CompareListUserAndListEnemy()
     {
-        if (!listUserInput.SequenceEqual(listNumber)|| listUserInput.Count != 4 || listUserInput==null)
+        if (!listUserInput.SequenceEqual(listNumber) || listUserInput.Count != 4 || listUserInput == null)
         {
             Debug.Log("Lose");
             TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
@@ -191,23 +191,23 @@ public class GameplayManager : NetworkBehaviour
             CallThisPlayerIsDead_ServerRPC(playerID);
         }
     }
-    [ServerRpc(RequireOwnership =false)]
+    [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         playerLose.Add(player);
-        if (playerLose.Count >= playerList.Count-1) EndGame();
+        if (playerLose.Count >= playerList.Count - 1) EndGame();
     }
 
     private void EndGame()
     {
-        foreach(Player player in playerList)
+        foreach (Player player in playerList)
         {
             if (!player.GetComponent<PlayerHeath>().isDead)
             {
                 PlayerList.Instance.SetPlayerOrder(playerOrder, player);
                 playerOrder++;
-                CallEndGame_ClientRPC(player.ownerClientID.Value,true);
+                CallEndGame_ClientRPC(player.ownerClientID.Value, true);
             }
         }
         foreach (Player player in playerLose)
@@ -216,7 +216,7 @@ public class GameplayManager : NetworkBehaviour
         }
 
         var reversePlayerList = playerLose.ToArray().Reverse();
-        foreach(Player player in reversePlayerList)
+        foreach (Player player in reversePlayerList)
         {
             PlayerList.Instance.SetPlayerOrder(playerOrder, player);
             playerOrder++;
@@ -239,10 +239,10 @@ public class GameplayManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void CallEndGame_ClientRPC(ulong playerID,bool isWin)
+    private void CallEndGame_ClientRPC(ulong playerID, bool isWin)
     {
-        if(isWin) Debug.LogError("Player Win: " + playerID);
-        if(!isWin) Debug.LogError("Player lose: " + playerID);
+        if (isWin) Debug.LogError("Player Win: " + playerID);
+        if (!isWin) Debug.LogError("Player lose: " + playerID);
     }
 
 
