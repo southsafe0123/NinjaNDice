@@ -11,17 +11,28 @@ public class ItemScript : MonoBehaviour
     public GameObject player3;
     public GameObject player4;
     public GameObject playerListUI; // UI chứa danh sách các Button
+    public GameObject playerListDefense; // UI chứa danh sách các Button Defense
+    public GameObject playerListCancelDefense; // UI chứa danh sách các Button CancelDefense
     public Button buttonChange; // Nút ButtonChange
     public Button buttonFrozen; // Nút ButtonFrozen
     public Button buttonMove;  // Nút ButtonMove
-    public Button buttonP2; // Button đại diện cho Player2
-    public Button buttonP3; // Button đại diện cho Player3
-    public Button buttonP4; // Button đại diện cho Player4
+    public Button buttonDefense; // Nút ButtonDefense
+    public Button buttonChangeP2; // Button đại diện cho Player2
+    public Button buttonChangeP3; // Button đại diện cho Player3
+    public Button buttonChangeP4; // Button đại diện cho Player4
+    public Button buttonDefenseP2; // Button Player2
+    public Button buttonDefenseP3; // Button Player3
+    public Button buttonDefenseP4; // Button Player4
+    public Button buttonCancelDefenseP2; // Button Player2
+    public Button buttonCancelDefenseP3; // Button Player3
+    public Button buttonCancelDefenseP4; // Button Player4
     public float moveSpeed = 2f; // Tốc độ di chuyển của Player1
     public TextMeshProUGUI player1Text; // TextMeshPro cho Player1
     public TextMeshProUGUI player2Text; // TextMeshPro cho Player2
     public TextMeshProUGUI player3Text; // TextMeshPro cho Player3
     public TextMeshProUGUI player4Text; // TextMeshPro cho Player4
+    public GameObject defenseImagePrefab; // Prefab của Image dùng để thay thế Player
+    private GameObject defenseImageInstance; // Instance của Image đã tạo
 
     private bool isMoving = false;
     private Vector3 initialPosition; // Lưu vị trí ban đầu của Player1
@@ -31,16 +42,29 @@ public class ItemScript : MonoBehaviour
     {
         // Ẩn danh sách Player ban đầu
         playerListUI.SetActive(false);
+        playerListDefense.SetActive(false);
+        playerListCancelDefense.SetActive(false);
+
 
         // Thêm sự kiện click cho nút
         buttonChange.onClick.AddListener(ShowPlayerList);
-        buttonFrozen.onClick.AddListener(() => FrozenPlayer(player1));
-        buttonMove.onClick.AddListener(() => MovePlayer(player1));
+        buttonFrozen.onClick.AddListener(ShowPlayerListCancelDefense);
+        buttonMove.onClick.AddListener(RandomDirectionPlayerMove);
+        buttonDefense.onClick.AddListener(ShowPlayerListDefense);
 
         // Thêm sự kiện click cho các nút Player
-        buttonP2.onClick.AddListener(() => SelectPlayer(player2));
-        buttonP3.onClick.AddListener(() => SelectPlayer(player3));
-        buttonP4.onClick.AddListener(() => SelectPlayer(player4));
+        buttonChangeP2.onClick.AddListener(() => SelectPlayer(player2));
+        buttonChangeP3.onClick.AddListener(() => SelectPlayer(player3));
+        buttonChangeP4.onClick.AddListener(() => SelectPlayer(player4));
+
+        buttonDefenseP2.onClick.AddListener(() => DefensePlayer(player2));
+        buttonDefenseP3.onClick.AddListener(() => DefensePlayer(player3));
+        buttonDefenseP4.onClick.AddListener(() => DefensePlayer(player4));
+
+        buttonCancelDefenseP2.onClick.AddListener(() => CancelDefensePlayer(player2));
+        buttonCancelDefenseP3.onClick.AddListener(() => CancelDefensePlayer(player3));
+        buttonCancelDefenseP4.onClick.AddListener(() => CancelDefensePlayer(player4));
+
 
         // Kiểm tra xem các thành phần đã được gán hay chưa
         if (player1 == null) Debug.LogError("Player1 is not assigned.");
@@ -61,15 +85,47 @@ public class ItemScript : MonoBehaviour
         // Hiển thị danh sách Player
         playerListUI.SetActive(true);
     }
+    void ShowPlayerListDefense()
+    {
+        // Hiển thị danh sách Player
+        playerListDefense.SetActive(true);
+    }
+    void ShowPlayerListCancelDefense()
+    {
+        // Hiển thị danh sách Player
+        playerListCancelDefense.SetActive(true);
+    }
+    void HidePlayerList()
+    {
+        // Ẩn danh sách Player
+        playerListUI.SetActive(false);
+    }
+    void HidePlayerListDefense()
+    {
+        // Ẩn danh sách Player
+        playerListDefense.SetActive(false);
+    }
+    void HidePlayerListCancelDefense()
+    {
+        // Ẩn danh sách Player
+        playerListCancelDefense.SetActive(false);
+    }
 
     void SelectPlayer(GameObject player)
     {
         selectedPlayer = player;
         StartCoroutine(MoveAllPlayers());
+        HidePlayerList();
     }
 
     IEnumerator MoveAllPlayers()
     {
+        //kiểm tra nếu selectedPlayer còn active thì di chuyển, nếu không thì báo
+        if (selectedPlayer.activeSelf == false)
+        {
+            Debug.Log("Player is not active");
+            yield break;
+        }
         // Di chuyển Player1 đến vị trí của selectedPlayer
         yield return MoveToPosition(player1, selectedPlayer.transform.position);
 
@@ -110,10 +166,65 @@ public class ItemScript : MonoBehaviour
         Debug.Log("FrozenPlayer called for " + player.name);
     }
 
-    void MovePlayer(GameObject player)
+    void MovePlayer(GameObject player, int direction)
     {
         // Di chuyển object tiến thêm một khoảng cách
         Debug.Log("MovePlayer called for " + player.name);
-        player.transform.Translate(Vector3.right * 1);
+        // player.transform.Translate(Vector3.right * 1);
+        if (direction == 0)
+        {
+            player.transform.Translate(Vector3.right * 1);
+            Debug.Log("Player move right");
+        }
+        else if (direction == 1)
+        {
+            player.transform.Translate(Vector3.left * 1);
+            Debug.Log("Player move left");
+        }
     }
+    void RandomDirectionPlayerMove()
+    {
+        int randomNum = Random.Range(0, 2);
+        Debug.Log("RandomDirectionPlayerMove:" + randomNum);
+        if (randomNum == 0)
+        {
+            MovePlayer(player1, 0);
+        }
+        else
+        {
+            MovePlayer(player1, 1);
+        }
+    }
+    void DefensePlayer(GameObject player)
+    {
+        Debug.Log("DefensePlayer called for " + player.name);
+
+        // Lưu vị trí của Player
+        Vector3 playerPosition = player.transform.position;
+
+        // Vô hiệu hóa Player
+        player.SetActive(false);
+
+        // Tạo một instance của Image tại vị trí của Player
+        defenseImageInstance = Instantiate(defenseImagePrefab, playerPosition, Quaternion.identity);
+
+        // Ẩn danh sách các Player trong trạng thái phòng thủ (nếu có chức năng này)
+        HidePlayerListDefense();
+    }
+    void CancelDefensePlayer(GameObject player)
+    {
+        Debug.Log("CancelDefensePlayer called for " + player.name);
+
+        // Hiện lại player
+        player.SetActive(true);
+
+        // Hủy instance của Image tại vị trí của Player
+        if (defenseImageInstance != null)
+        {
+            Destroy(defenseImageInstance);
+            defenseImageInstance = null; // Đặt về null để tránh hủy lại trong tương lai
+        }
+        HidePlayerListCancelDefense();
+    }
+
 }
