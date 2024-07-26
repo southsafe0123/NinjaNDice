@@ -2660,4 +2660,4 @@ MonoBehaviour:
   - {fileID: 1875278196}
   - {fileID: 807709366}
   disconnectButton: {fileID: 0}
-  startGameButton: {fileID: 0}
+  startGameButton: {fileID: 1677688377}

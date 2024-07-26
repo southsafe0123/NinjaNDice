@@ -9,13 +9,14 @@ public class PlayerJump : MonoBehaviour
     private Rigidbody2D rb;
     public int hearts = 3; // số mạng
 
-    private bool isGrounded;
+    [SerializeField] private bool isGrounded;
 
     public GameObject bulletPrefab; // Prefab của đạn
     public float bulletSpeed = 10f; // Tốc độ của đạn
     public TextMeshProUGUI statusText; // TextMeshPro để hiển thị trạng thái
     public TextMeshProUGUI heartsText; // TextMeshPro để hiển thị số mạng
     public float fireCooldown = 3f; // Thời gian chờ trước khi bắn
+    public bool isDead = false;
 
     private bool canFire = true;
 
@@ -47,7 +48,8 @@ public class PlayerJump : MonoBehaviour
     void GameOver()
     {
         Debug.Log("Game Over");
-        Time.timeScale = 0; // Dừng lại game
+        isDead = true;
+
     }
 
     void OnCollisionEnter2D(Collision2D collision)
