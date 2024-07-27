@@ -90,7 +90,6 @@ public class GameplayManager : NetworkBehaviour
         if (canInput)
         {
             HandleInput();
-
             if (listUserInput.Count == 4)
             {
                 canInput = false; // Không cho phép nhập thêm
@@ -122,6 +121,13 @@ public class GameplayManager : NetworkBehaviour
             listUserInput.Add(1);
             Display();
         }
+    }
+
+    public void AddInput(int num)
+    {
+        if (!canInput) return;
+        listUserInput.Add(num);
+        Display();
     }
 
     // hàm tái sử dụng đối tượng 
