@@ -13,7 +13,7 @@ using UnityEngine.UI;
 
 public class LobbyGameManager : NetworkBehaviour
 {
-
+    public static LobbyGameManager Instance;
     //this is server data (because clientID is Online and only server have)
     public Dictionary<ulong, GameObject> sv_dicPlayer = new Dictionary<ulong, GameObject>();
     //this is all userdata (because it offline)
@@ -26,11 +26,12 @@ public class LobbyGameManager : NetworkBehaviour
 
     private void Awake()
     {
-        startGameButton.SetActive(false);
-        disconnectButton.SetActive(false);
+        Instance = this;
     }
+
     private void Start()
     {
+        playerSlots[0].SetActive(true);
         OnConnectedClient();
         OnDisconnectedClient();
     }
@@ -127,9 +128,9 @@ public class LobbyGameManager : NetworkBehaviour
     [ClientRpc]
     private void SetActiveButton_ClientRPC(bool isActive)
     {
-
-        startGameButton.SetActive(IsHost && sv_dicPlayer.Count > 1);
-        disconnectButton.SetActive(isActive);
+        startGameButton.GetComponentInChildren<TextMeshProUGUI>().text = "S T A R T";
+        startGameButton.GetComponent<Button>().interactable = IsHost && sv_dicPlayer.Count > 1;
+        //disconnectButton.SetActive(isActive);
     }
     private void UnloadPlayer(ulong clientID)
     {

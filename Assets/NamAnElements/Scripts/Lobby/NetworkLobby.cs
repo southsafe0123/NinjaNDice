@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
@@ -16,10 +17,13 @@ using UnityEngine.UI;
 public class NetworkLobby : MonoBehaviour
 {
     public static NetworkLobby Instance;
-    public Button hostButton;
-    public Button JoinButton;
+    public static TextMeshProUGUI txtRoomCode;
+    public static Button joinButton;
     private void Awake()
     {
+        txtRoomCode = GameObject.Find("RoomCode").GetComponentInChildren<TextMeshProUGUI>();
+        joinButton = GameObject.Find("JoinButton").GetComponent<Button>();
+        txtRoomCode.transform.parent.gameObject.SetActive(false);
         //if (NetworkManager.Singleton.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport) return;
         //SetActiveButton(false);
     }
@@ -35,14 +39,7 @@ public class NetworkLobby : MonoBehaviour
         {
             Debug.Log("signed in: " + AuthenticationService.Instance.PlayerId);
         };
-
-        SetActiveButton(true);
         
-    }
-    private void SetActiveButton(bool isActive)
-    {
-        hostButton.enabled = isActive;
-        JoinButton.enabled = isActive;
     }
 
     [Command]
@@ -73,12 +70,26 @@ public class NetworkLobby : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartHost();
-            Debug.Log(joinCode);
+            CreateJoinCode(joinCode);
+            DisableJoinButton();
         }
         catch (RelayServiceException ex)
         {
             Debug.LogError("shit error in create relaynetwork" + ex);
         }
+
+        
+    }
+
+    private static void DisableJoinButton()
+    {
+        joinButton.interactable = false;
+    }
+
+    static void CreateJoinCode(string joinCode)
+    {
+        txtRoomCode.transform.parent.gameObject.SetActive(true);
+        txtRoomCode.text = joinCode;
     }
 
     [Command]
