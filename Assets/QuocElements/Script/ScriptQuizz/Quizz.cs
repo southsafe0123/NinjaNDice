@@ -82,7 +82,7 @@ public class Quizz : NetworkBehaviour
         yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
         while (true)
         {
-            yield return new WaitForSeconds(15f); // Wait 15 seconds before loading a new question
+            yield return new WaitForSeconds(7f); // Wait 15 seconds before loading a new question
             LoadRandomQuestion();
             ResetGameObjectAnswer();
         }

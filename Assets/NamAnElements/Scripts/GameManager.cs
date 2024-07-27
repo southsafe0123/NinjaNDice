@@ -112,7 +112,17 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        ChangeScene("minigameQuizz");
+        var randomvalue = 0;
+        switch (randomvalue)
+        {
+            case 0:
+                ChangeScene("minigameAU");
+                break;
+            case 1:
+                ChangeScene("minigameQuizz");
+                break;
+        }
+        
     }
 
     [ServerRpc(RequireOwnership = false)]
