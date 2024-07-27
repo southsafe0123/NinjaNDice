@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/BinhAnElements/Login.unity
+    guid: 1ce4dc62796f1744cba6c3f479505995
+  - enabled: 1
     path: Assets/NamAnElements/MenuScene.unity
     guid: 297930da4d1b6834688bac6bacb8efb6
   - enabled: 1
@@ -14,7 +17,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/NamAnElements/NamAn.unity
     guid: 8ed2d18ac8bdfbb4f8ff8e1f77510ba1
-  - enabled: 1
-    path: Assets/BinhAnElements/Login.unity
-    guid: 1ce4dc62796f1744cba6c3f479505995
   m_configObjects: {}
