@@ -6177,9 +6177,14 @@ MonoBehaviour:
   answer3: {fileID: 1721873182}
   answer4: {fileID: 1111541963}
   networkObjects: []
+  standPos:
+  - {fileID: 800051394}
+  - {fileID: 1844852909}
+  - {fileID: 701312290}
+  - {fileID: 1712652462}
   playerList: []
   player: {fileID: 0}
-  map: {fileID: 0}
+  playerLose: []
   lifeText: {fileID: 1263897488}
 --- !u!1 &1844852909
 GameObject:

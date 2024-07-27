@@ -6,22 +6,30 @@ using System.IO;
 using TMPro;
 using Unity.Netcode;
 using System.Linq;
+using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 public class Quizz : NetworkBehaviour
 {
     public TMP_Text questionText;
     public TMP_Text answerTexts;
     public NetworkVariable<int> numQ = new NetworkVariable<int>();
+    public const string MAIN_GAMEPLAY_SCENE = "NamAn";
+
 
     public GameObject answer1;
     public GameObject answer2;
     public GameObject answer3;
     public GameObject answer4;
     public List<NetworkObject> networkObjects;
+
+    public List<GameObject> standPos = new List<GameObject>();
     public List<Player> playerList = new List<Player>();
     public GameObject player;
-    public Map map;
     private List<Question> questions = new List<Question>();
+    private int playerOrder = 0;
+    public List<Player> playerLose = new List<Player>();
+
 
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
@@ -30,12 +38,13 @@ public class Quizz : NetworkBehaviour
     private void Awake()
     {
         if (!IsHost) return;
-        playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        for (int i = 0; i < playerList.Count; i++)
-        {
+        // playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
+        // foreach (var player in PlayerList.Instance.playerDic)
+        // {
+        //     playerList.Add(player.Value);
+        // }
 
-            playerList[i].transform.position = map.movePos[i].transform.position;
-        }
+
 
 
 
@@ -46,10 +55,24 @@ public class Quizz : NetworkBehaviour
         networkObjects.Add(answer2.GetComponent<NetworkObject>());
         networkObjects.Add(answer3.GetComponent<NetworkObject>());
         networkObjects.Add(answer4.GetComponent<NetworkObject>());
-        player = NetworkManager.LocalClient.PlayerObject.gameObject;
+        Debug.Log(NetworkManager.LocalClientId);
+        player = PlayerList.Instance.GetPlayerDic_Value(NetworkManager.LocalClientId).gameObject;
 
-        lifeText.text = "Life: " + player.GetComponent<Player>().life.ToString();
 
+
+        if (IsHost)
+        {
+            foreach (var player in PlayerList.Instance.playerDic)
+            {
+                playerList.Add(player.Value);
+            }
+            for (int i = 0; i < PlayerList.Instance.playerDic.Count; i++)
+            {
+                TeleportPlayer(playerList[i], i);
+                AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
+            }
+        }
+        lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
         LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
         StartCoroutine(AutoLoadQuestions());
     }
@@ -93,6 +116,11 @@ public class Quizz : NetworkBehaviour
         string path = "Assets/QuocElements/Resources/test.txt";
         LoadQuestionsFromFile(path);
         LoadRandomQuestion();
+    }
+
+    public void TeleportPlayer(Player player, int value)
+    {
+        player.transform.position = standPos[value].transform.position;
     }
 
     private void LoadQuestionsFromFile(string path)
@@ -155,11 +183,11 @@ public class Quizz : NetworkBehaviour
 
         if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer == null)
         {
-            player.GetComponent<Player>().WrongAnswer();
-            lifeText.text = "Life: " + player.GetComponent<Player>().life.ToString();
+            TakeDamage_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+
         };
 
-
+        lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
 
     }
 
@@ -183,6 +211,90 @@ public class Quizz : NetworkBehaviour
                 networkObjects[i].gameObject.SetActive(false);
             }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void TakeDamage_ServerRPC(ulong clientID)
+    {
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            if (playerList[i].ownerClientID.Value == clientID)
+            {
+                TakeDamage_ClientRPC(clientID);
+            }
+        }
+    }
+    [ClientRpc]
+    private void TakeDamage_ClientRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        player.GetComponent<PlayerHeath>().health--;
+        if (player.GetComponent<PlayerHeath>().health == 0)
+        {
+            player.GetComponent<PlayerHeath>().isDead = true;
+            Debug.Log("Player: " + playerID + " lose");
+            CallThisPlayerIsDead_ServerRPC(playerID);
+        }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        playerLose.Add(player);
+        if (playerLose.Count >= playerList.Count - 1) EndGame();
+    }
+
+    private void EndGame()
+    {
+        foreach (Player player in playerList)
+        {
+            if (!player.GetComponent<PlayerHeath>().isDead)
+            {
+                PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+                playerOrder++;
+                CallEndGame_ClientRPC(player.ownerClientID.Value, true);
+            }
+        }
+        foreach (Player player in playerLose)
+        {
+            CallEndGame_ClientRPC(player.ownerClientID.Value, false);
+        }
+
+        var reversePlayerList = playerLose.ToArray().Reverse();
+        foreach (Player player in reversePlayerList)
+        {
+            PlayerList.Instance.SetPlayerOrder(playerOrder, player);
+            playerOrder++;
+        }
+
+        RemovedComponent_ClientRPC();
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(MAIN_GAMEPLAY_SCENE, LoadSceneMode.Single);
+        }
+    }
+    [ClientRpc]
+    private void RemovedComponent_ClientRPC()
+    {
+        foreach (var player in PlayerList.Instance.playerDic)
+        {
+            Destroy(player.Value.GetComponent<PlayerHeath>());
+        }
+    }
+
+    [ClientRpc]
+    private void CallEndGame_ClientRPC(ulong playerID, bool isWin)
+    {
+        if (isWin) Debug.LogError("Player Win: " + playerID);
+        if (!isWin) Debug.LogError("Player lose: " + playerID);
+    }
+
+    [ClientRpc]
+    private void AddComponent_ClientRPC(ulong clientID)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(clientID).AddComponent<PlayerHeath>();
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerHeath>().health = 3;
     }
 
 }
