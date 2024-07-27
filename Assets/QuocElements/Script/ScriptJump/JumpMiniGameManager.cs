@@ -23,7 +23,10 @@ public class JumpMiniGameManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        foreach (var player in PlayerList.Instance.playerDic)
+        {
+            playerList.Add(player.Value);
+        }
     }
 
     // Update is called once per frame

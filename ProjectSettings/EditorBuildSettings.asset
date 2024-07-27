@@ -17,4 +17,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/NamAnElements/NamAn.unity
     guid: 8ed2d18ac8bdfbb4f8ff8e1f77510ba1
+  - enabled: 1
+    path: Assets/QuocElements/Sence/minigameAU.unity
+    guid: acc0c915cbd2442b7b6b1c1e39dc0f36
+  - enabled: 1
+    path: Assets/QuocElements/Sence/minigameJump.unity
+    guid: cdcb33c472f3c4bff8e2b029f56df31f
+  - enabled: 1
+    path: Assets/QuocElements/Sence/minigameQuizz.unity
+    guid: b8c09875c8b1c4163a98a60eed733d84
   m_configObjects: {}

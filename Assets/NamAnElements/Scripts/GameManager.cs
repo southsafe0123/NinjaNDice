@@ -66,7 +66,7 @@ public class GameManager : NetworkBehaviour
             {
                 clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
             };
-               
+
 
             if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
@@ -112,7 +112,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        ChangeScene("minigameAU");
+        ChangeScene("minigameQuizz");
     }
 
     [ServerRpc(RequireOwnership = false)]

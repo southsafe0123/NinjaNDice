@@ -63,7 +63,7 @@ public class Player : NetworkBehaviour
 
     public void WrongAnswer()
     {
-        gameObject.transform.position = new Vector3(-8f, -1.6f, 0);
+        // gameObject.transform.position = new Vector3(-8f, -1.6f, 0);
 
         // if (IsServer)
         // {
@@ -72,11 +72,11 @@ public class Player : NetworkBehaviour
         {
             Debug.Log("Game Over");
             isDie = true;
-            if (IsServer)
-            {
-                NetworkObject.NetworkHide(NetworkObjectId);
-            }
-            gameObject.SetActive(false);
+            // if (IsServer)
+            // {
+            //     NetworkObject.NetworkHide(NetworkObjectId);
+            // }
+            // gameObject.SetActive(false);
         }
         // }
     }
