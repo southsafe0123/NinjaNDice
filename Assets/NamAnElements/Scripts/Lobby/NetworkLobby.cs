@@ -31,9 +31,8 @@ public class NetworkLobby : MonoBehaviour
     private async void Start()
     {
         Instance = this;
-        if (NetworkManager.Singleton.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport) return;
         await UnityServices.InitializeAsync();
-
+        if (NetworkManager.Singleton.GetComponent<UnityTransport>().Protocol == UnityTransport.ProtocolType.UnityTransport) return;
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
         AuthenticationService.Instance.SignedIn += () =>
         {

@@ -18,7 +18,7 @@ public class LobbyGameManager : NetworkBehaviour
     public Dictionary<ulong, GameObject> sv_dicPlayer = new Dictionary<ulong, GameObject>();
     //this is all userdata (because it offline)
     public List<GameObject> playerSlots = new List<GameObject>();
-    public GameObject disconnectButton;
+    public Button disconnectButton;
     public GameObject startGameButton;
 
     //use to set playerOrder that login into this server
@@ -32,9 +32,19 @@ public class LobbyGameManager : NetworkBehaviour
     private void Start()
     {
         playerSlots[0].SetActive(true);
+        RegisterDisconnectButton();
         OnConnectedClient();
         OnDisconnectedClient();
     }
+
+    private void RegisterDisconnectButton()
+    {
+        disconnectButton.onClick.AddListener(() =>
+        {
+            OnClickDisconnect();
+        });
+    }
+
     private void OnConnectedClient()
     {
         NetworkManager.Singleton.OnClientConnectedCallback += clientID =>
@@ -153,24 +163,37 @@ public class LobbyGameManager : NetworkBehaviour
     {
         if (!IsHost)
         {
-            NetworkManager.Singleton.Shutdown();
-            AuthenticationService.Instance.SignOut();
-            NetworkManager.Destroy(NetworkManager.gameObject);
-            //Destroy(PlayerList.Instance.gameObject);
-
-            StartCoroutine(WaitForShutdownAndLoadScene());
+            Disconnect();
         }
         else
         {
             OnClickDisconnect_ClientRPC();
+            StartCoroutine(WaitAllPlayerLeft());
         }
 
     }
+
+    private IEnumerator WaitAllPlayerLeft()
+    {
+        yield return new WaitUntil(() => playerSlots.Where(player => player.activeInHierarchy).Count() == 1);
+        Disconnect();
+    }
+
     [ClientRpc]
     void OnClickDisconnect_ClientRPC()
     {
+        if (IsHost) return;
+        Disconnect();
+    }
+
+    private void Disconnect()
+    {
         NetworkManager.Singleton.Shutdown();
-        AuthenticationService.Instance.SignOut();
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            AuthenticationService.Instance.SignOut();
+        }
+        Destroy(GameObject.Find("PlayerList"));
         NetworkManager.Destroy(NetworkManager.gameObject);
         //Destroy(PlayerList.Instance.gameObject);
 
@@ -183,7 +206,7 @@ public class LobbyGameManager : NetworkBehaviour
         {
             yield return null;
         }
-        SceneManager.LoadScene("LobbyScene", LoadSceneMode.Single);
+        SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
     }
 
     /// <summary>
