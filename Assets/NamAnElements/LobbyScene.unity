@@ -16428,7 +16428,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -324.24146, y: 229}
+  m_AnchoredPosition: {x: -324.24146, y: 246}
   m_SizeDelta: {x: 164.7731, y: 135.8076}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &733046658
@@ -19467,7 +19467,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -30.000244, y: 229}
+  m_AnchoredPosition: {x: -30.000244, y: 246}
   m_SizeDelta: {x: 268.1943, y: 135.8076}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1398743787
@@ -21698,7 +21698,7 @@ MonoBehaviour:
   - {fileID: 1204257911}
   - {fileID: 1875278196}
   - {fileID: 807709366}
-  disconnectButton: {fileID: 793131558}
+  disconnectButton: {fileID: 793131560}
   startGameButton: {fileID: 1677688377}
 --- !u!1 &1962654692
 GameObject:
