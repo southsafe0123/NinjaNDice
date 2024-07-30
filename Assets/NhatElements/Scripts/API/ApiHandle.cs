@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Networking;
 using System.Text;
+using UnityEngine.SceneManagement;
 
 public class ApiHandle : MonoBehaviour
 {
@@ -63,6 +64,10 @@ public class ApiHandle : MonoBehaviour
             UserSessionManager.Instance.request = userRp.request;
             UserSessionManager.Instance.skinpurchase = userRp.skinpurchase;
             UserSessionManager.Instance.createdAt = userRp.createdAt;
+
+            //cho 1s sau chuyen scene
+            yield return new WaitForSeconds(1);
+            SceneManager.LoadScene("test");
         }
 
     }

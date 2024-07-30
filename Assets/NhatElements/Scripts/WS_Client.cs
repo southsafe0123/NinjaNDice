@@ -12,11 +12,10 @@ public class WS_Client : MonoBehaviour
     void Start()
     {
         //connect to ws server and send name
-        ws = new WebSocket("ws://localhost:3000?userId=123");
+        ws = new WebSocket("ws://localhost:3000?userId=" + UserSessionManager.Instance._id);
         ws.OnOpen += (sender, e) =>
         {
             Debug.Log("Connected");
-            ws.Send("Unity");
         };
         ws.OnMessage += (sender, e) =>
         {
@@ -43,6 +42,6 @@ public class WS_Client : MonoBehaviour
 
     public void SendButton()
     {
-        ws.Send(ID.text);
+        ws.Send("INV: " + ID.text);
     }
 }
