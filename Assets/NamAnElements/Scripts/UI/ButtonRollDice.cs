@@ -32,6 +32,6 @@ public class ButtonRollDice : NetworkBehaviour
     }
     public void OnClick()
     {
-        GameManager.Singleton.SendRollDiceTo_ServerRPC();
+        GameManager.Singleton.SendRollDiceTo_ServerRPC(player.ownerClientID.Value);
     }
 }

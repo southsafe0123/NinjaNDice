@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,19 @@ public class GameManager : NetworkBehaviour
         else
         {
 
-            int newPos = clientPlayer.currentPos.Value + index;
+            StartCoroutine(DoTeleportPlayerCoroutine(index, clientPlayer));
+        }
+    }
+
+    private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
+    {
+
+
+        int posCount = 1;
+        do
+        {
+            yield return null;
+            int newPos = clientPlayer.currentPos.Value + 1;
             if (newPos >= map.movePos.Count)
             {
                 newPos = map.movePos.Count;
@@ -60,25 +73,26 @@ public class GameManager : NetworkBehaviour
             clientPlayer.currentPos.Value = newPos;
             try
             {
-                clientPlayer.gameObject.transform.position = map.movePos[newPos].position;
+                clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                posCount++;
             }
             catch
             {
                 clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+                break;
             };
+            yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
+            yield return new WaitForSeconds(0.15f);
+        } while (posCount <= index);
 
+        if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
-            if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
-
-            clientPlayer.isPlayerTurn.Value = false;
-            playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
-
-            var oldGameTurn = gameTurn;
-            gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
-            OnGameTurnChange(oldGameTurn, gameTurn);
-            playerList[playerIndex].isPlayerTurn.Value = true;
-            StartCoroutine(SwitchCamCoroutine());
-        }
+        playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
+        var oldGameTurn = gameTurn;
+        gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
+        OnGameTurnChange(oldGameTurn, gameTurn);
+        playerList[playerIndex].isPlayerTurn.Value = true;
+        StartCoroutine(SwitchCamCoroutine());
     }
 
     private void EndGame(Player clientPlayer)
@@ -105,7 +119,7 @@ public class GameManager : NetworkBehaviour
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        StartCoroutine(ChangeSceneCoroutine());
+        //StartCoroutine(ChangeSceneCoroutine());
         //Debug.LogError("isminigame now");
     }
 
@@ -122,22 +136,46 @@ public class GameManager : NetworkBehaviour
                 ChangeScene("minigameQuizz");
                 break;
         }
-        
+
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SendRollDiceTo_ServerRPC()
+    public void SendRollDiceTo_ServerRPC(ulong clientID)
     {
         var diceValue = UnityEngine.Random.Range(1, 7);
-        ChangeDiceValue_ClientRPC(diceValue);
+        ChangeDiceValue_ClientRPC(diceValue, clientID);
     }
     [ClientRpc]
-    public void ChangeDiceValue_ClientRPC(int diceValue)
+    public void ChangeDiceValue_ClientRPC(int diceValue, ulong clientID)
     {
-        if (!IsHost) return;
-        dice.Value = diceValue;
+        StartCoroutine(RollDiceCoroutine(diceValue, clientID));
+
+    }
+
+    private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
+        if (IsHost)
+        {
+            player.isPlayerTurn.Value = false;
+        }
+        var playerDice = player.GetComponentInChildren<Animator>();
+        playerDice.Play("Dice_Roll");
+        playerDice.transform.localScale = new Vector2(0.5f, 0.5f);
+        playerDice.transform.localPosition = Vector2.zero;
+        playerDice.transform.DOScale(new Vector2(1, 1), 1).SetEase(Ease.OutBack);
+        playerDice.transform.DOMove(playerDice.transform.position + Vector3.up * 1.5f, 1).SetEase(Ease.OutBack).OnComplete(() =>
+        {
+            if (IsHost) dice.Value = diceValue;
+            playerDice.Play($"Dice_Result_{diceValue}");
+        });
+        yield return new WaitUntil(() => dice.Value == diceValue);
+        yield return new WaitForSeconds(1.5f);
+        playerDice.Play("Dice_Idle");
+        if (!IsHost) yield break;
         TeleportPlayer(playerList[playerIndex], diceValue); // id cua nguoi roll dice
     }
+
     private void UpdateDiceUI(int value)
     {
         networkManagerUI.numDiceText.text = value.ToString();
