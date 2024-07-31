@@ -570,10 +570,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f267e68cfa695cd4f9029005527c1f08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiUrl: http://localhost:3000
+  _apiUrl: https://mrxgame.loca.lt
   username: {fileID: 128668865}
   password: {fileID: 929024444}
-  message: {fileID: 0}
+  message: {fileID: 1024686824}
 --- !u!1 &495934897
 GameObject:
   m_ObjectHideFlags: 0

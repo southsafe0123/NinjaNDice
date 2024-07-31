@@ -1,26 +1,78 @@
 using WebSocketSharp;
 using UnityEngine;
 using TMPro;
+using System;
+
 
 public class WS_Client : MonoBehaviour
 {
     private WebSocket ws;
 
+    [SerializeField] private string url = "mrxgame.loca.lt";
     [SerializeField] private TMP_InputField ID;
     [SerializeField] private TMP_Text message;
+    [SerializeField] private string myID;
+
+    [SerializeField] private bool isConnect = false;
     // Start is called before the first frame update
     void Start()
     {
+
         //connect to ws server and send name
-        ws = new WebSocket("ws://localhost:3000?userId=" + UserSessionManager.Instance._id);
+        ws = new WebSocket("ws://" + url + "?userId=" + UserSessionManager.Instance._id);
+        myID = UserSessionManager.Instance._id;
         ws.OnOpen += (sender, e) =>
         {
             Debug.Log("Connected");
+            isConnect = true;
         };
         ws.OnMessage += (sender, e) =>
         {
-            Debug.Log("Message: " + e.Data);
-            message.text = e.Data;
+
+            try
+            {
+                Debug.Log("Message received: " + e.Data);
+                // Xử lý thông điệp ở đây
+                if (e.Data == "request" || e.Data == "friend")
+                {
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateRequest());
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
+
+                }
+                else
+                {
+                    //invite:idfriend:code
+                    string[] data = e.Data.Split(':');
+                    if (data[0] == "invite")
+                    {
+                        foreach (var item in ApiHandle.Instance.friendIngame)
+                        {
+                            if (item._id == data[1])
+                            {
+                                Debug.Log("Invite from: " + item.username + " code: " + data[2]);
+                            }
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("An error occurred during OnMessage event: " + ex.Message);
+                Debug.LogError(ex.StackTrace);
+            }
+
+
+        };
+        ws.OnError += (sender, e) =>
+        {
+            Debug.LogError("WebSocket Error: " + e.Message);
+            if (e.Exception != null)
+            {
+                Debug.LogError("Exception: " + e.Exception.Message);
+                Debug.LogError(e.Exception.StackTrace);
+            }
         };
         ws.Connect();
 
@@ -33,9 +85,17 @@ public class WS_Client : MonoBehaviour
         {
             return;
         }
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (isConnect == false)
         {
-            ws.Ping();
+            try
+            {
+                ws.Connect();
+            }
+            catch (System.Exception)
+            {
+
+                Debug.Log("Can't connect to server" + ws.Url + " " + ws.ReadyState);
+            }
         }
 
     }
@@ -44,4 +104,38 @@ public class WS_Client : MonoBehaviour
     {
         ws.Send("INV: " + ID.text);
     }
+
+    //close connection when application is closed
+    private void OnApplicationQuit()
+    {
+        isConnect = false;
+        ws.Close();
+        Debug.Log("Application ending after " + Time.time + " seconds");
+
+    }
+
+    private void OnDestroy()
+    {
+        isConnect = false;
+        ws.Close();
+        Debug.Log("Destroy");
+    }
+
+    private void OnDisable()
+    {
+        isConnect = false;
+        ws.Close();
+        Debug.Log("Disable");
+    }
+
+    public void reloadData()
+    {
+        ApiHandle.Instance.reloadData();
+    }
+
+
+
+
+
+
 }
