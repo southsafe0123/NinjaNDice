@@ -3,17 +3,19 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static PlayerList;
 
 public class GameplayManager : NetworkBehaviour
 {
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
-    public GameplayManager Instance;
+    public static GameplayManager Instance;
     public GameObject[] objectPrefabs;
     public List<int> listNumber = new List<int>();
     public int currentObjectIndex = 0;
@@ -31,6 +33,8 @@ public class GameplayManager : NetworkBehaviour
     public float defaultObjectMoveSpeed;
     public float objectMoveSpeedPlus;
     private int playerOrder = 0;
+    public Slider sliderTime;
+    public GameObject gameInput;
     private void Awake()
     {
         Instance = this;
@@ -93,7 +97,10 @@ public class GameplayManager : NetworkBehaviour
             if (listUserInput.Count == 4)
             {
                 canInput = false; // Không cho phép nhập thêm
-                CompareListUserAndListEnemy();
+                foreach (Transform child in gameInput.transform)
+                {
+                    child.GetComponent<Button>().interactable = false;
+                }
             }
         }
     }
@@ -133,26 +140,46 @@ public class GameplayManager : NetworkBehaviour
     // hàm tái sử dụng đối tượng 
     private void RecycleObject(int index)
     {
-        if (!objectPrefabs[index].activeSelf)
+        //if (!objectPrefabs[index].activeSelf)
+        //{
+        //    objectPrefabs[index].transform.position = new Vector3(12f, -2, 0);
+        //    ClearDisplayLists();
+        //    GenerateRandomListNumber();
+        //    Display();
+        //    canInput = true; // Cho phép nhập lại khi tái sử dụng đối tượng
+        //}
+
+        //objectPrefabs[index].SetActive(true);
+        //objectPrefabs[index].transform.Translate(Vector3.left * objectMoveSpeed * Time.deltaTime);
+
+        if(sliderTime.value == 0)
         {
-            objectPrefabs[index].transform.position = new Vector3(12f, -2, 0);
             ClearDisplayLists();
             GenerateRandomListNumber();
             Display();
-            canInput = true; // Cho phép nhập lại khi tái sử dụng đối tượng
+            canInput = true;
         }
-
-        objectPrefabs[index].SetActive(true);
-        objectPrefabs[index].transform.Translate(Vector3.left * objectMoveSpeed * Time.deltaTime);
-
-        if (objectPrefabs[index].transform.position.x < -15)
+        sliderTime.value += objectMoveSpeed / 100 * Time.deltaTime;
+        if(sliderTime.value >= 1)
         {
+            sliderTime.value = 0;
             objectMoveSpeed += objectMoveSpeedPlus;
-            objectPrefabs[index].SetActive(false);
-            currentObjectIndex = Random.Range(0, objectPrefabs.Length);
             CompareListUserAndListEnemy();
             listUserInput.Clear();
+            foreach (Transform child in gameInput.transform)
+            {
+                child.GetComponent<Button>().interactable = true;
+            }
         }
+
+        //if (objectPrefabs[index].transform.position.x < -15)
+        //{
+        //    objectMoveSpeed += objectMoveSpeedPlus;
+        //    objectPrefabs[index].SetActive(false);
+        //    currentObjectIndex = Random.Range(0, objectPrefabs.Length);
+        //    CompareListUserAndListEnemy();
+        //    listUserInput.Clear();
+        //}
     }
 
     // hàm tạo danh sách số ngẫu nhiên

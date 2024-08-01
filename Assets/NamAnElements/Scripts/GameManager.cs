@@ -91,7 +91,6 @@ public class GameManager : NetworkBehaviour
         var oldGameTurn = gameTurn;
         gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
         OnGameTurnChange(oldGameTurn, gameTurn);
-        playerList[playerIndex].isPlayerTurn.Value = true;
         StartCoroutine(SwitchCamCoroutine());
     }
 
@@ -108,6 +107,8 @@ public class GameManager : NetworkBehaviour
         yield return new WaitForSeconds(1f);
         var playerID = playerList[playerIndex].ownerClientID.Value;
         SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
+        yield return null;
+       playerList[playerIndex].isPlayerTurn.Value = true;
     }
 
     [ClientRpc]
@@ -119,7 +120,7 @@ public class GameManager : NetworkBehaviour
     private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        //StartCoroutine(ChangeSceneCoroutine());
+        StartCoroutine(ChangeSceneCoroutine());
         //Debug.LogError("isminigame now");
     }
 
