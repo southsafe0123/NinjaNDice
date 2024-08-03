@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/BinhAnElements/BinhAn.unity
     guid: 67b72056a047d0c499e040091775f747
-  - enabled: 1
+  - enabled: 0
     path: Assets/BinhAnElements/BinhAnTestScene.unity
     guid: 5a19990d11f8de8408c64f7ae353c3a3
   - enabled: 1
