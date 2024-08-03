@@ -26,5 +26,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/QuocElements/Sence/minigameQuizz.unity
     guid: b8c09875c8b1c4163a98a60eed733d84
+  - enabled: 1
+    path: Assets/NhatElements/test.unity
+    guid: 19406eac4733e02408cbb5f900e3285f
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 90fad05379353fc479734df71cd897fb, type: 2}

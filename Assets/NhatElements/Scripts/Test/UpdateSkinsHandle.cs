@@ -47,6 +47,11 @@ public class UpdateSkinsHandle : MonoBehaviour
     // get name all folder in path
     public void RenewData()
     {
+        // xoa het cac skin cu nam trong content
+        foreach (Transform child in content)
+        {
+            Destroy(child.gameObject);
+        }
         Addressables.LoadAssetsAsync<GameObject>(assetLabelReference, (gameObject) =>
         {
             if (gameObject.name == "ItemShop")
