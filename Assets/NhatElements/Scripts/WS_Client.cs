@@ -2,7 +2,7 @@ using WebSocketSharp;
 using UnityEngine;
 using TMPro;
 using System;
-
+using System.Collections;
 
 public class WS_Client : MonoBehaviour
 {
@@ -15,11 +15,13 @@ public class WS_Client : MonoBehaviour
 
     [SerializeField] private bool isConnect = false;
     // Start is called before the first frame update
+
     void Start()
     {
-
+        StartCoroutine(TryReconnect());
         //connect to ws server and send name
         ws = new WebSocket("ws://" + url + "?userId=" + UserSessionManager.Instance._id);
+
         myID = UserSessionManager.Instance._id;
         ws.OnOpen += (sender, e) =>
         {
@@ -33,12 +35,19 @@ public class WS_Client : MonoBehaviour
             {
                 Debug.Log("Message received: " + e.Data);
                 // Xử lý thông điệp ở đây
-                if (e.Data == "request" || e.Data == "friend")
+                if (e.Data == "request")
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateRequest());
-                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
+                    UnityMainThreadDispatcher.Instance().Enqueue(() =>
+                    {
+                        StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
+                    });
+                   
 
+                }else if (e.Data == "friend")
+                {
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
                 }
                 else
                 {
@@ -46,7 +55,7 @@ public class WS_Client : MonoBehaviour
                     string[] data = e.Data.Split(':');
                     if (data[0] == "invite")
                     {
-                        foreach (var item in ApiHandle.Instance.friendIngame)
+                        foreach (var item in ApiHandle.Instance.user.friends)
                         {
                             if (item._id == data[1])
                             {
@@ -74,29 +83,63 @@ public class WS_Client : MonoBehaviour
                 Debug.LogError(e.Exception.StackTrace);
             }
         };
+        ws.OnClose += (sender, e) =>
+        {
+            isConnect = false;
+            Debug.Log("disconnected");
+        };
         ws.Connect();
 
+    }
+
+    private IEnumerator TryReconnect()
+    {
+        WaitUntil waitUntill = new WaitUntil(() => !isConnect);
+        WaitForSeconds wait = new WaitForSeconds(3f);
+        while (true)
+        {
+            yield return null;
+            yield return waitUntill;
+            ws.Connect();
+            yield return wait;
+        }
+        //if (ws == null)
+        //{
+        //    return;
+        //}
+        //if (isConnect == false)
+        //{
+        //    try
+        //    {
+        //        ws.Connect();
+        //    }
+        //    catch (System.Exception)
+        //    {
+
+        //        Debug.Log("Can't connect to server" + ws.Url + " " + ws.ReadyState);
+        //    }
+        //}
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (ws == null)
-        {
-            return;
-        }
-        if (isConnect == false)
-        {
-            try
-            {
-                ws.Connect();
-            }
-            catch (System.Exception)
-            {
+        //if (ws == null)
+        //{
+        //    return;
+        //}
+        //if (isConnect == false)
+        //{
+        //    try
+        //    {
+        //        ws.Connect();
+        //    }
+        //    catch (System.Exception)
+        //    {
 
-                Debug.Log("Can't connect to server" + ws.Url + " " + ws.ReadyState);
-            }
-        }
+        //        Debug.Log("Can't connect to server" + ws.Url + " " + ws.ReadyState);
+        //    }
+        //}
 
     }
 

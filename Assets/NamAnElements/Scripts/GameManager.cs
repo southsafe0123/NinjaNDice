@@ -59,31 +59,58 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
     {
-
-
-        int posCount = 1;
-        do
+        int posCount = index > 0 ? 1 : -1;
+        if (posCount > 0)
         {
-            yield return null;
-            int newPos = clientPlayer.currentPos.Value + 1;
-            if (newPos >= map.movePos.Count)
+            do
             {
-                newPos = map.movePos.Count;
-            }
-            clientPlayer.currentPos.Value = newPos;
-            try
+                yield return null;
+                int newPos = clientPlayer.currentPos.Value + 1;
+                if (newPos >= map.movePos.Count)
+                {
+                    newPos = map.movePos.Count;
+                }
+                clientPlayer.currentPos.Value = newPos;
+                try
+                {
+                    clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                    posCount++;
+                }
+                catch
+                {
+                    clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+                    break;
+                };
+                yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
+                yield return new WaitForSeconds(0.15f);
+            } while (posCount <= index);
+        }
+        else if (posCount < 0)
+        {
+            do
             {
-                clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
-                posCount++;
-            }
-            catch
-            {
-                clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
-                break;
-            };
-            yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
-            yield return new WaitForSeconds(0.15f);
-        } while (posCount <= index);
+                yield return null;
+                int newPos = clientPlayer.currentPos.Value - 1;
+                if (newPos <= map.movePos.Count)
+                {
+                    newPos = map.movePos.Count;
+                }
+                clientPlayer.currentPos.Value = newPos;
+                try
+                {
+                    clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                    posCount--;
+                }
+                catch
+                {
+                    clientPlayer.gameObject.transform.position = map.movePos[0].position;
+                    break;
+                };
+                yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
+                yield return new WaitForSeconds(0.15f);
+            } while (posCount >= index);
+        }
+
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
@@ -108,7 +135,7 @@ public class GameManager : NetworkBehaviour
         var playerID = playerList[playerIndex].ownerClientID.Value;
         SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
         yield return null;
-       playerList[playerIndex].isPlayerTurn.Value = true;
+        playerList[playerIndex].isPlayerTurn.Value = true;
     }
 
     [ClientRpc]
@@ -153,13 +180,25 @@ public class GameManager : NetworkBehaviour
 
     }
 
-    private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
+    [ServerRpc(RequireOwnership = false)]
+    public void SetPlayerTurn_ServerRPC(ulong clientID,bool isPlayerTurn)
+    {
+        SetPlayerTurn_ClientRPC(clientID,isPlayerTurn);
+    }
+    [ClientRpc]
+    public void SetPlayerTurn_ClientRPC(ulong clientID, bool isPlayerTurn)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
         if (IsHost)
         {
-            player.isPlayerTurn.Value = false;
+            player.isPlayerTurn.Value = isPlayerTurn;
         }
+    }
+
+    private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
+        SetPlayerTurn_ClientRPC(clientID, false);
         var playerDice = player.GetComponentInChildren<Animator>();
         playerDice.Play("Dice_Roll");
         playerDice.transform.localScale = new Vector2(0.5f, 0.5f);
