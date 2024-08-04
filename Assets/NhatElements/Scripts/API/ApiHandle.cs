@@ -15,8 +15,6 @@ public class ApiHandle : MonoBehaviour
 
     [SerializeField] private string _apiUrl = "https://mrxgame.loca.lt";
 
-    [SerializeField] private TMP_InputField NameSearch;
-
     [SerializeField] private TMP_Text message;
     [SerializeField] private UI_Controller uiController;
 
@@ -61,14 +59,14 @@ public class ApiHandle : MonoBehaviour
         UserSessionManager.Instance.ClearSession();
     }
 
-    public void SearchFriendButton()
+    public void SearchFriendButton(TMP_InputField nameSearch)
     {
-        StartCoroutine(SearchFriend());
+        StartCoroutine(SearchFriend(nameSearch));
     }
 
-    public void AddFriendButton()
+    public void AddFriendButton(string _id)
     {
-        StartCoroutine(AddFriend("66aa2ba97093a0984b7188ed"));
+        StartCoroutine(AddFriend(_id));
     }
 
     public void AcceptFriendButton()
@@ -166,6 +164,7 @@ public class ApiHandle : MonoBehaviour
             if (uiController != null)
             {
                 uiController.UpdateMoney();
+                StartCoroutine(GetAllRequestname(user.request));
             }
             //else
             //{
@@ -240,7 +239,7 @@ public class ApiHandle : MonoBehaviour
         }
     }
 
-    public IEnumerator SearchFriend()
+    public IEnumerator SearchFriend(TMP_InputField NameSearch)
     {
         UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/findFriend/" + NameSearch.text);
         yield return www.SendWebRequest();
@@ -262,11 +261,14 @@ public class ApiHandle : MonoBehaviour
         {
             friendSearch friend = JsonConvert.DeserializeObject<friendSearch>(www.downloadHandler.text);
             Debug.Log(friend.username);
+
+            uiController.UpdateSearch(friend);
         }
     }
 
     public IEnumerator AddFriend(string id)
     {
+        Debug.Log("inaddfriendcoroutine");
         // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
         AddFriendRequest addFriendRq = new AddFriendRequest();
         addFriendRq.from = UserSessionManager.Instance._id;
@@ -541,9 +543,7 @@ public class ApiHandle : MonoBehaviour
             List<whoRequest> wRequest1 = new List<whoRequest>();
             wRequest1.Add(who);
             wRequest = wRequest1;
-            
         }
-
         uiController.UpdateRequest();
     }
 

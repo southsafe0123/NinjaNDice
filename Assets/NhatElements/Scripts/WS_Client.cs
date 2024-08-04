@@ -18,6 +18,7 @@ public class WS_Client : MonoBehaviour
 
     void Start()
     {
+        
         StartCoroutine(TryReconnect());
         //connect to ws server and send name
         ws = new WebSocket("ws://" + url + "?userId=" + UserSessionManager.Instance._id);
@@ -42,9 +43,10 @@ public class WS_Client : MonoBehaviour
                     {
                         StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
                     });
-                   
 
-                }else if (e.Data == "friend")
+
+                }
+                else if (e.Data == "friend")
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
                     UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
@@ -75,14 +77,14 @@ public class WS_Client : MonoBehaviour
 
         };
         ws.OnError += (sender, e) =>
-        {
-            Debug.LogError("WebSocket Error: " + e.Message);
-            if (e.Exception != null)
             {
-                Debug.LogError("Exception: " + e.Exception.Message);
-                Debug.LogError(e.Exception.StackTrace);
-            }
-        };
+                Debug.LogError("WebSocket Error: " + e.Message);
+                if (e.Exception != null)
+                {
+                    Debug.LogError("Exception: " + e.Exception.Message);
+                    Debug.LogError(e.Exception.StackTrace);
+                }
+            };
         ws.OnClose += (sender, e) =>
         {
             isConnect = false;

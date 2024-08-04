@@ -9,7 +9,13 @@ using UnityEngine.UI;
 
 public class GamePanel : MonoBehaviour
 {
+    public static GamePanel Instance;
+    private void Awake()
+    {
+        Instance = this;
+    }
     public Button btnPlay;
+    public GameObject request;
     //public Slider musicSlider;
     //public Slider soundSlider;
     //public AudioSource audioSource;

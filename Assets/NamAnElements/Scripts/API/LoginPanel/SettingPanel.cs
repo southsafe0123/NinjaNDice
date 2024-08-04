@@ -6,6 +6,9 @@ public class SettingPanel: MonoBehaviour
     public TextMeshProUGUI txtPlayerName;
     private void OnEnable()
     {
-        txtPlayerName.text = UserSessionManager.Instance.username.ToString();
+       
+        if (UserSessionManager.Instance.username == null) return;
+
+       txtPlayerName.text  = UserSessionManager.Instance.username.ToString();
     }
 }
