@@ -59,9 +59,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
     {
-        int posCount = index > 0 ? 1 : -1;
-        if (posCount > 0)
-        {
+        int posCount = 1;
             do
             {
                 yield return null;
@@ -84,33 +82,6 @@ public class GameManager : NetworkBehaviour
                 yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
                 yield return new WaitForSeconds(0.15f);
             } while (posCount <= index);
-        }
-        else if (posCount < 0)
-        {
-            do
-            {
-                yield return null;
-                int newPos = clientPlayer.currentPos.Value - 1;
-                if (newPos <= map.movePos.Count)
-                {
-                    newPos = map.movePos.Count;
-                }
-                clientPlayer.currentPos.Value = newPos;
-                try
-                {
-                    clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
-                    posCount--;
-                }
-                catch
-                {
-                    clientPlayer.gameObject.transform.position = map.movePos[0].position;
-                    break;
-                };
-                yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
-                yield return new WaitForSeconds(0.15f);
-            } while (posCount >= index);
-        }
-
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
@@ -127,7 +98,10 @@ public class GameManager : NetworkBehaviour
         ChangeScene("LobbyScene");
     }
 
-
+    public void SwitchCam()
+    {
+        StartCoroutine(SwitchCamCoroutine());
+    }
 
     private IEnumerator SwitchCamCoroutine()
     {
@@ -142,9 +116,10 @@ public class GameManager : NetworkBehaviour
     private void SetCamFollowPlayer_ClientRPC(ulong playerID)
     {
         camToPlayer.playerToFollow = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        camToPlayer.playerInTurn = PlayerList.Instance.GetPlayerDic_Value(playerID);
     }
 
-    private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
+    public void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
         StartCoroutine(ChangeSceneCoroutine());

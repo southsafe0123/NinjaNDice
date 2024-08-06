@@ -4,10 +4,10 @@ using UnityEngine.UIElements;
 
 public abstract class ItemBase : NetworkBehaviour
 {
-    public int id;
     public string itemName;
     public TextField description;
     public Sprite icon;
+    public Player targetPlayer;
 
     public abstract void Effect();
 }
