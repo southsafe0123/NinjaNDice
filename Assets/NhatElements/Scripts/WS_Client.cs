@@ -39,6 +39,7 @@ public class WS_Client : MonoBehaviour
                 if (e.Data == "request")
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
+
                     UnityMainThreadDispatcher.Instance().Enqueue(() =>
                     {
                         StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
@@ -61,6 +62,7 @@ public class WS_Client : MonoBehaviour
                         {
                             if (item._id == data[1])
                             {
+                                UI_Controller.Instance.UpdateInvite();
                                 Debug.Log("Invite from: " + item.username + " code: " + data[2]);
                             }
                         }
@@ -145,9 +147,9 @@ public class WS_Client : MonoBehaviour
 
     }
 
-    public void SendButton()
+    public void SendButton(string _id, string code)
     {
-        ws.Send("INV: " + ID.text);
+        ws.Send("invite:"+ApiHandle.Instance.user._id+":"+_id+":"+code);
     }
 
     //close connection when application is closed

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using Mono.CSharp;
-using UnityEditor.Search;
 using System.Linq;
 
 public class UI_Controller : MonoBehaviour
@@ -16,8 +15,8 @@ public class UI_Controller : MonoBehaviour
     public GameObject friendPrefab;
     public GameObject searchContent;
     public GameObject searchPrefab;
-    [SerializeField] private GameObject inviteContent;
-    [SerializeField] private GameObject invitePrefab;
+    public GameObject inviteContent;
+    public GameObject invitePrefab;
     [SerializeField] private GameObject skinContent;
     [SerializeField] private GameObject skinPrefab;
     public TextMeshProUGUI moneyText;
@@ -61,24 +60,21 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateRequest()
     {
-        if (requestContent == null || requestPrefab == null)
+        bool isDone = false;
+        foreach (var item in ApiHandle.Instance.user.request)
         {
-            bool isDone = false;
-            foreach (var item in ApiHandle.Instance.user.request)
+            foreach (var request in ApiHandle.Instance.wRequest)
             {
-                foreach (var request in ApiHandle.Instance.wRequest)
+                if (request._id.Contains(item.from))
                 {
-                    if (request._id.Contains(item.from))
-                    {
-                        GamePanel.Instance.request.SetActive(true);
-                        isDone = true;
-                        break;
-                    }
+                    GamePanel.Instance.request.SetActive(true);
+                    isDone = true;
+                    break;
                 }
-                if (isDone) break;
             }
-            return;
+            if (isDone) break;
         }
+        if (requestContent == null || requestPrefab == null) return;
 
         // Clear all request
         foreach (Transform child in requestContent.transform)
@@ -139,7 +135,7 @@ public class UI_Controller : MonoBehaviour
             for (int i = 0; i < ApiHandle.Instance.user.friends.Count; i++)
             {
                 GameObject friendItem = Instantiate(friendPrefab, friendContent.transform);
-                friendItem.GetComponent<FriendItem>().SetData(ApiHandle.Instance.user.friends[i].username, ApiHandle.Instance.user.friends[i].status);
+                friendItem.GetComponent<FriendItem>().SetData(ApiHandle.Instance.user.friends[i].username, ApiHandle.Instance.user.friends[i].status, ApiHandle.Instance.user.friends[i]._id);
             }
         }
         catch (System.Exception)
@@ -177,8 +173,25 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateInvite()
     {
+        
         // Clear all invite
+        if (inviteContent == null || invitePrefab == null) return;
+        foreach (Transform child in inviteContent.transform)
+        {
+            Destroy(child.gameObject);
+            Debug.Log("Destroy friend item");
+        }
         //do something
+        try
+        {
+            
+                GameObject requestItem = Instantiate(requestPrefab, requestContent.transform);
+                //requestItem.GetComponent<InviteItem>().SetData();
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Can't get search invite list: " + e);
+        }
     }
 
     public void UpdateSkin()

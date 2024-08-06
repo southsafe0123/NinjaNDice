@@ -68,7 +68,10 @@ public class ApiHandle : MonoBehaviour
     {
         StartCoroutine(AddFriend(_id));
     }
-
+    public void DeleteFriendButton(string _id)
+    {
+        StartCoroutine(DeleteFriend(_id));
+    }
     public void AcceptFriendButton()
     {
         StartCoroutine(AcceptFriend(UserSessionManager.Instance.request[0]));
@@ -268,7 +271,6 @@ public class ApiHandle : MonoBehaviour
 
     public IEnumerator AddFriend(string id)
     {
-        Debug.Log("inaddfriendcoroutine");
         // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
         AddFriendRequest addFriendRq = new AddFriendRequest();
         addFriendRq.from = UserSessionManager.Instance._id;
@@ -306,8 +308,49 @@ public class ApiHandle : MonoBehaviour
             if (message != null) { message.text = "Send request success"; }
             else { Debug.Log("Send request success"); }
         }
+        uiController.UpdateRequest();
     }
+    public IEnumerator DeleteFriend(string id)
+    {
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        AddFriendRequest addFriendRq = new AddFriendRequest();
+        addFriendRq.from = UserSessionManager.Instance._id;
+        addFriendRq.to = id;
+        string json = JsonUtility.ToJson(addFriendRq);
+        Debug.Log(json);
 
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/removeFriend", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            if (message != null) { message.text = "Send request success"; }
+            else { Debug.Log("Send request success"); }
+        }
+        uiController.UpdateFriend();
+    }
     public IEnumerator AcceptFriend(request request)
     {
         // post, endpoint: /acceptFriendRequest , 

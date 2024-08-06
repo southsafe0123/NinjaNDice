@@ -85,6 +85,13 @@ MonoBehaviour:
   username: {fileID: 4659515177552507603}
   status: {fileID: 4659515177743185670}
   avatar: {fileID: 0}
+  mail: {fileID: 21300000, guid: 15097d0c356e98c4a978d1b4d79629b1, type: 3}
+  delete: {fileID: 21300000, guid: 2994e7ed03b427648b64af7702b87943, type: 3}
+  mailColor: {r: 0.2784314, g: 0.4509804, b: 0.09803922, a: 1}
+  deleteColor: {r: 0.60784316, g: 0.17254902, b: 0.17254902, a: 1}
+  btnInteract: {fileID: 2694487052231256696}
+  imageInteract: {fileID: 2694487052101481383}
+  _id: 
 --- !u!222 &4659515177801874648
 CanvasRenderer:
   m_ObjectHideFlags: 0
