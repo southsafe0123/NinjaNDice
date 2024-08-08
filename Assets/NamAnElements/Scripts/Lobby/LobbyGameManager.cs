@@ -206,7 +206,7 @@ public class LobbyGameManager : NetworkBehaviour
         {
             yield return null;
         }
-        SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+        SceneManager.LoadScene("MenuSceneCopy", LoadSceneMode.Single);
     }
 
     /// <summary>
