@@ -41,7 +41,7 @@ public class GamePanel : MonoBehaviour
 
     private void OnClickPlay()
     {
-        SceneManager.LoadScene("LobbyScene");
+        SceneManager.LoadScene("LobbySceneCopy");
     }
 
 
