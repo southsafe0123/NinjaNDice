@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using System;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class WS_Client : MonoBehaviour
 {
@@ -55,18 +56,32 @@ public class WS_Client : MonoBehaviour
                 else
                 {
                     //invite:idfriend:code
-                    string[] data = e.Data.Split(':');
-                    if (data[0] == "invite")
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
+
+                    UnityMainThreadDispatcher.Instance().Enqueue(() =>
                     {
-                        foreach (var item in ApiHandle.Instance.user.friends)
+                        string[] data = e.Data.Split(':');
+                        if (data[0] == "invite")
                         {
-                            if (item._id == data[1])
+                            if (SceneManager.GetActiveScene().name == "MenuScene")
                             {
-                                UI_Controller.Instance.UpdateInvite();
-                                Debug.Log("Invite from: " + item.username + " code: " + data[2]);
+
                             }
+                            if (SceneManager.GetActiveScene().name == "LobbyScene")
+                            {
+                                foreach (var item in ApiHandle.Instance.user.friends)
+                                {
+                                    if (item._id == data[1])
+                                    {
+                                        UI_Controller.Instance.UpdateInvite(item.username, data[2]);
+                                        Debug.Log("Invite from: " + item.username + " code: " + data[2]);
+                                    }
+                                }
+                            }
+
                         }
-                    }
+                    });
+                    
 
                 }
             }

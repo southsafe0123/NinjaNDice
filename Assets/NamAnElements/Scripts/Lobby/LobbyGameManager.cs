@@ -220,6 +220,10 @@ public class LobbyGameManager : NetworkBehaviour
     {
         NetworkLobby.Instance.JoinRelay(joinCode.text);
     }
+    public void ButtonClickJoinServer(string joinCode)
+    {
+        NetworkLobby.Instance.JoinRelay(joinCode);
+    }
     public void ButtonClickStartGame()
     {
         NetworkManager.Singleton.SceneManager.LoadScene("NamAn", 0);

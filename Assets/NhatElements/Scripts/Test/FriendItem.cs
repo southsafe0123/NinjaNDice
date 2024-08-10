@@ -3,6 +3,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
+using System.Collections;
 
 public class FriendItem : MonoBehaviour
 {
@@ -31,13 +33,12 @@ public class FriendItem : MonoBehaviour
 
                 if (status.text.Contains("offline"))
                 {
-                    imageInteract.enabled = false;
+                    btnInteract.interactable = false;
                 }
                 else
                 {
-                    imageInteract.enabled = true;
+                    btnInteract.interactable = true;
                 }
-
                 break;
         }
         btnInteract.onClick.AddListener(() =>
@@ -67,33 +68,26 @@ public class FriendItem : MonoBehaviour
 
     public void InviteFriend()
     {
+        Debug.Log("Clicked Invite");
         if (NetworkLobby.txtRoomCode.text != "")
         {
-            Debug.Log("sending roomcode");
+            Debug.Log("sending roomcode" + NetworkLobby.txtRoomCode.text);
             ApiHandle.Instance.GetComponent<WS_Client>()?.SendButton(_id, NetworkLobby.txtRoomCode.text);
+        }
+        else
+        {
+            StartCoroutine(HostServer());
+            Debug.Log("sending roomcode" + NetworkLobby.txtRoomCode.text);
+            
+            Debug.Log("Host first, invite after");
+           
         }
     }
 
-}
-
-public class InviteItem : MonoBehaviour
-{
-    public TMP_Text username;
-    public RawImage avatar;
-
-    public void SetData(string username)
+    private IEnumerator HostServer()
     {
-        this.username.text = username;
-        // this.avatar.texture = avatar;
-
-    }
-    public void Accept()
-    {
-       
-    }
-
-    public void Decline()
-    {
-        
+        yield return StartCoroutine(PlayButton.Instance.HostCoroutine());
+        yield return new WaitUntil(() => NetworkLobby.txtRoomCode.text != "");
+        ApiHandle.Instance.GetComponent<WS_Client>()?.SendButton(_id, NetworkLobby.txtRoomCode.text);
     }
 }

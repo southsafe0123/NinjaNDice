@@ -171,7 +171,7 @@ public class UI_Controller : MonoBehaviour
         }
     }
 
-    public void UpdateInvite()
+    public void UpdateInvite(string name, string inviteCode)
     {
         
         // Clear all invite
@@ -184,9 +184,8 @@ public class UI_Controller : MonoBehaviour
         //do something
         try
         {
-            
-                GameObject requestItem = Instantiate(requestPrefab, requestContent.transform);
-                //requestItem.GetComponent<InviteItem>().SetData();
+            GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
+            inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
         }
         catch (System.Exception e)
         {

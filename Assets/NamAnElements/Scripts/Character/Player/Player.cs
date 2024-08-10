@@ -27,7 +27,7 @@ public class Player : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
+            //transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
