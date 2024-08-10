@@ -5,14 +5,19 @@ using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour
 {
+    public static LoadScene Instance;
     public Animator trasition;
     public float transitionTime;
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        if (Input.GetMouseButtonDown(0))
+        if(Instance == null)
         {
-            StartLoadScene();
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
 
