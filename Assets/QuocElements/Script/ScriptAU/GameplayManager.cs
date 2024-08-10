@@ -35,6 +35,7 @@ public class GameplayManager : NetworkBehaviour
     private int playerOrder = 0;
     public Slider sliderTime;
     public GameObject gameInput;
+    public bool isEndGame;
     private void Awake()
     {
         Instance = this;
@@ -84,6 +85,7 @@ public class GameplayManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isEndGame) return;
         // tái sử dụng đối tượng
         if (objectPrefabs.Count(x => x.activeSelf) <= 1)
         {
@@ -94,7 +96,7 @@ public class GameplayManager : NetworkBehaviour
         if (canInput)
         {
             HandleInput();
-            if (listUserInput.Count == 4)
+            if (listUserInput.Count == 4 || (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>()!= null&& NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().isDead))
             {
                 canInput = false; // Không cho phép nhập thêm
                 foreach (Transform child in gameInput.transform)
@@ -198,7 +200,7 @@ public class GameplayManager : NetworkBehaviour
     {
         if (!listUserInput.SequenceEqual(listNumber) || listUserInput.Count != 4 || listUserInput == null)
         {
-            Debug.Log("Lose");
+            Debug.Log("-1 health");
             TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
         }
     }
@@ -229,23 +231,26 @@ public class GameplayManager : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         playerLose.Add(player);
-        if (playerLose.Count >= playerList.Count - 1) EndGame();
+        if (playerLose.Count >= playerList.Count - 1) StartCoroutine(EndGame());
     }
 
-    private void EndGame()
+    private IEnumerator EndGame()
     {
+        isEndGame = true;
+        yield return new WaitForSeconds(0.5f);
         foreach (Player player in playerList)
         {
             if (!player.GetComponent<PlayerHeath>().isDead)
             {
                 PlayerList.Instance.SetPlayerOrder(playerOrder, player);
                 playerOrder++;
-                CallEndGame_ClientRPC(player.ownerClientID.Value, true);
+                EndGameAnouncement_ClientRPC(player.ownerClientID.Value, true);
+                ItemPool.Instance.GivePlayerRandomItem();
             }
         }
         foreach (Player player in playerLose)
         {
-            CallEndGame_ClientRPC(player.ownerClientID.Value, false);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, false);
         }
 
         var reversePlayerList = playerLose.ToArray().Reverse();
@@ -272,7 +277,7 @@ public class GameplayManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void CallEndGame_ClientRPC(ulong playerID, bool isWin)
+    private void EndGameAnouncement_ClientRPC(ulong playerID, bool isWin)
     {
         if (isWin) Debug.LogError("Player Win: " + playerID);
         if (!isWin) Debug.LogError("Player lose: " + playerID);

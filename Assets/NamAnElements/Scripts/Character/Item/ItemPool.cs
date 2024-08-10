@@ -2,6 +2,7 @@
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using static ItemPool;
 
 public class ItemPool : NetworkBehaviour
 {
@@ -9,37 +10,25 @@ public class ItemPool : NetworkBehaviour
 
     public List<GameObject> fullItemList = new List<GameObject>();
     public List<DataItemPlayerOwn> playerItemList = new List<DataItemPlayerOwn>();
-    [System.Serializable]
-    public class DataItemPlayerOwn
-    {
-        public ItemBase item;
-        public int amount;
-
-        public DataItemPlayerOwn(ItemBase item, int amount)
-        {
-            this.item = item;
-            this.amount = amount;
-        }
-    }
-    public Player playerOwner;
+    
     public int itemIndex;
+    public Player playerOwner;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(this);
         }
-        else
-        {
-            Destroy(gameObject);
-        }
+
     }
+    
     private void Start()
     {
-        playerOwner = NetworkManager.LocalClient.PlayerObject.GetComponent<Player>();
+        playerOwner = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
+        playerItemList = playerOwner.GetComponent<PlayerItem>().playerItemList;
     }
+
     [ContextMenu("UpdateFullItemList")]
     public void UpdateItemList()
     {
@@ -50,33 +39,22 @@ public class ItemPool : NetworkBehaviour
         }
     }
 
-    public void AddPlayerItemToList(ItemBase item, int amount)
+    public void AddPlayerItemToList(string itemName, int amount)
     {
-        playerItemList.Add(new DataItemPlayerOwn(item, amount));
+        playerItemList.Add(new DataItemPlayerOwn(itemName, amount));
     }
     public void SetPlayerItemAmountInList(string itemName, int amount)
     {
-        DataItemPlayerOwn item = playerItemList.First(item => item.item.itemName == itemName);
+        DataItemPlayerOwn item = playerItemList.First(item => item.itemName == itemName);
         item.amount = amount;
         if(item.amount == 0) playerItemList.Remove(item);
     }
-    public DataItemPlayerOwn GetPlayerItem(string itemName)
-    {
-        try
-        {
-            return playerItemList.First(item => item.item.itemName == itemName);
-        }
-        catch (System.Exception)
-        {
-            Debug.LogError("dont see any dataItem");
-            return null;
-        } 
-    }
     public void UseItem(Player targetPlayer)
     {
-        GetCurrentPlayerItem().item.targetPlayer = targetPlayer;
-        GetCurrentPlayerItem().item.Effect();
-        SetPlayerItemAmountInList(GetCurrentPlayerItem().item.itemName, GetCurrentPlayerItem().amount - 1);
+        GetCurrentPlayerItem().targetPlayer = targetPlayer;
+        GetCurrentPlayerItem().Effect();
+        DataItemPlayerOwn item = playerItemList.First(item => item.itemName == GetCurrentPlayerItem().itemName);
+        SetPlayerItemAmountInList(item.itemName,item.amount - 1);
     }
 
     public void OnClickNextItem()
@@ -89,16 +67,29 @@ public class ItemPool : NetworkBehaviour
         itemIndex--;
         if (itemIndex < 0) itemIndex = playerItemList.Count - 1;
     }
-    public DataItemPlayerOwn GetCurrentPlayerItem()
+    public ItemBase GetCurrentPlayerItem()
     {
         try
         {
-            return playerItemList[itemIndex];
+            var playerItem = fullItemList.First(gameObject => gameObject.GetComponent<ItemBase>().itemName == playerItemList[itemIndex].itemName).GetComponent<ItemBase>();
+            return playerItem;
         }
         catch (System.Exception)
         {
             Debug.LogError("cant display item");
             return null;
+        }
+    }
+    public int GetCurrentPlayerItemAmount()
+    {
+        try
+        {
+            return playerItemList[itemIndex].amount;
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError("cant display item amount");
+            return 0;
         }
     }
     
@@ -107,7 +98,19 @@ public class ItemPool : NetworkBehaviour
         int randomItemIndex = UnityEngine.Random.Range(0, fullItemList.Count);
         int amount = 1;
         ItemBase item = fullItemList[randomItemIndex].GetComponent<ItemBase>();
-        AddPlayerItemToList(item, amount);
+        AddPlayerItemToList(item.itemName, amount);
     }
 
+    public void SavePlayerItemBeforeChangeScene()
+    {
+            playerOwner.GetComponent<PlayerItem>().playerItemList= playerItemList;
+    }
+    private void OnDisable()
+    {
+        SavePlayerItemBeforeChangeScene();
+    }
+    public override void OnDestroy()
+    {
+        SavePlayerItemBeforeChangeScene();
+    }
 }

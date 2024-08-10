@@ -10,16 +10,13 @@ public class ItemAttack : ItemBase
 {
     public override void Effect()
     {
-        Debug.Log("InEffect");
         int attackDamage = UnityEngine.Random.Range(0, 7);
-        Debug.Log(targetPlayer.ownerClientID.Value);
         SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value,attackDamage);
     }
 
     [ServerRpc(RequireOwnership =false)]
     public void SendAttackDamage_ServerRPC(ulong targetID, int attackDamage)
     {
-        Debug.Log(targetID);
 
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetID);
         StartCoroutine(MoveBackCoroutine(targetPlayer, attackDamage));
@@ -29,29 +26,29 @@ public class ItemAttack : ItemBase
     private IEnumerator MoveBackCoroutine(Player targetPlayer, int attackDamage)
     {
         int posCount = -1;
-        Debug.Log("inCoroutine item");
+        WaitUntil waitUntil = new WaitUntil(() => targetPlayer.gameObject.transform.position == GameManager.Singleton.map.movePos[targetPlayer.currentPos.Value].position);
+        WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
         do
         {
-            Debug.Log("running");
             yield return null;
             int newPos = targetPlayer.currentPos.Value - 1;
-            if (newPos <= GameManager.Singleton.map.movePos.Count)
+            if (newPos <= 0)
             {
-                newPos = GameManager.Singleton.map.movePos.Count;
+                newPos = 0;
             }
             targetPlayer.currentPos.Value = newPos;
             try
             {
-                targetPlayer.gameObject.transform.DOJump(GameManager.Singleton.map.movePos[newPos].position, 0.5f, 1, 0.4f);
-                posCount++;
+                targetPlayer.gameObject.transform.DOJump(GameManager.Singleton.map.movePos[targetPlayer.currentPos.Value].position, 0.5f, 1, 0.4f);
+                posCount--;
             }
             catch
             {
-                targetPlayer.gameObject.transform.position = GameManager.Singleton.map.movePos[GameManager.Singleton.map.movePos.Count - 1].position;
+                targetPlayer.gameObject.transform.position = GameManager.Singleton.map.movePos[0].position;
                 break;
             };
-            yield return new WaitUntil(() => targetPlayer.gameObject.transform.position == GameManager.Singleton.map.movePos[newPos].position);
-            yield return new WaitForSeconds(0.15f);
+            yield return waitUntil;
+            yield return waitForSeconds;
         } while (posCount >= -attackDamage);
 
         GameManager.Singleton.playerIndex = GameManager.Singleton.playerIndex >= GameManager.Singleton.playerList.Count - 1 ? 0 : GameManager.Singleton.playerIndex + 1;

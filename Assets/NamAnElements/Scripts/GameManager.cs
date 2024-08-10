@@ -59,6 +59,8 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
     {
+        WaitUntil waitUntil= new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[clientPlayer.currentPos.Value].position);
+        WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
         int posCount = 1;
             do
             {
@@ -79,8 +81,8 @@ public class GameManager : NetworkBehaviour
                     clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
                     break;
                 };
-                yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
-                yield return new WaitForSeconds(0.15f);
+            yield return waitUntil;
+                yield return waitForSeconds;
             } while (posCount <= index);
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);

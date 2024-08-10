@@ -17,14 +17,16 @@ public class ItemPanel : MonoBehaviour
     {
         try
         {
-            itemImage.sprite = ItemPool.Instance.GetCurrentPlayerItem().item.icon;
-            itemName.text = ItemPool.Instance.GetCurrentPlayerItem().item.itemName;
-            itemAmount.text = $"Have: {ItemPool.Instance.GetCurrentPlayerItem().amount.ToString()}";
+            itemImage.sprite = ItemPool.Instance.GetCurrentPlayerItem().icon;
+            itemName.text = ItemPool.Instance.GetCurrentPlayerItem().itemName;
+            itemAmount.text = $"Have: {ItemPool.Instance.GetCurrentPlayerItemAmount().ToString()}";
         }
         catch (System.Exception)
         {
+            itemImage.sprite = null;
+            itemName.text = "You Dont Have Item";
+            itemAmount.text = "";
             Debug.LogError("panel cant update item");
-            throw;
         }
        
     }
