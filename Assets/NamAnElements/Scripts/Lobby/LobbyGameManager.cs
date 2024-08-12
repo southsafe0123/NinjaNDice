@@ -206,7 +206,8 @@ public class LobbyGameManager : NetworkBehaviour
         {
             yield return null;
         }
-        SceneManager.LoadScene("MenuScene", LoadSceneMode.Single);
+
+        LoadScene.Instance.StartLoadScene("MenuScene");
     }
 
     /// <summary>
@@ -226,6 +227,12 @@ public class LobbyGameManager : NetworkBehaviour
     }
     public void ButtonClickStartGame()
     {
-        NetworkManager.Singleton.SceneManager.LoadScene("NamAn", 0);
+        StartGame_ClientRPC();
+       
+    }
+    [ClientRpc]
+    private void StartGame_ClientRPC()
+    {
+        LoadScene.Instance.StartLoadSceneMultiplayer("NamAn",IsHost);
     }
 }

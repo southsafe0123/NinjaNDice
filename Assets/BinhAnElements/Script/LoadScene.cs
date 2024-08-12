@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,16 +23,51 @@ public class LoadScene : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    public void StartLoadScene()
+    private void Start()
     {
-        StartCoroutine(PlayLoadScene(SceneManager.GetActiveScene().buildIndex + 1));
+            StartCoroutine(PlayStartScene());
+            SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
     }
 
-    IEnumerator PlayLoadScene(int sceneIndex)
+    private void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
     {
-        trasition.SetTrigger("Start");
+        if (arg1.isLoaded)
+        {
+            StartCoroutine(PlayStartScene());
+        }
+    }
+
+    public void StartScene()
+    {
+        StartCoroutine(PlayStartScene());
+    }
+    public void StartLoadScene(string sceneName)
+    {
+        StartCoroutine(PlayLoadScene(sceneName));
+    }
+
+    IEnumerator PlayLoadScene(string sceneName)
+    {
+        trasition.Play("EndTransition");
         yield return new WaitForSeconds(transitionTime); 
-        SceneManager.LoadScene(sceneIndex);
+        SceneManager.LoadScene(sceneName);
+    }
+    IEnumerator PlayStartScene()
+    {
+        yield return new WaitForEndOfFrame();
+        trasition.Play("StartTransition");
+    }
+
+    public void StartLoadSceneMultiplayer(string sceneName,bool isHost)
+    {
+        StartCoroutine(PlayLoadSceneMultiplayer(sceneName, isHost));
+    }
+
+    private IEnumerator PlayLoadSceneMultiplayer(string sceneName,bool isHost)
+    {
+        trasition.Play("EndTransition");
+        yield return new WaitForSeconds(transitionTime);
+        if (!isHost) yield break;
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, 0);
     }
 }
