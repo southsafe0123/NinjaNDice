@@ -6,14 +6,16 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LoadScene : MonoBehaviour
+public class LoadScene : NetworkBehaviour
 {
     public static LoadScene Instance;
     public Animator trasition;
     public float transitionTime;
+    public GameObject waitForPlayerPanel;
+    public bool isMultiplayerScene;
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
@@ -25,16 +27,65 @@ public class LoadScene : MonoBehaviour
     }
     private void Start()
     {
-            StartCoroutine(PlayStartScene());
-            SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
+        StartCoroutine(PlayStartScene());
+        SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
     }
 
     private void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
     {
         if (arg1.isLoaded)
         {
-            StartCoroutine(PlayStartScene());
+            if (isMultiplayerScene)
+            {
+                SetPlayerReadySceneLoaded_ServerRPC(NetworkManager.LocalClientId,true);
+                StartCoroutine(WaitForPlayer());
+            }
+            else
+            {
+                StartCoroutine(PlayStartScene());
+            }
         }
+    }
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerReadySceneLoaded_ServerRPC(ulong clientID,bool isReadySceneLoaded)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(clientID).isReadySceneLoaded.Value = isReadySceneLoaded;
+    }
+
+    private IEnumerator WaitForPlayer()
+    {
+        waitForPlayerPanel.SetActive(true);
+        WaitForSeconds waithalfsecond = new WaitForSeconds(0.5f);
+        bool isAllPlayerReady = false;
+        while (true)
+        {
+            yield return waithalfsecond;
+            foreach (Player player in PlayerList.Instance.playerDic.Values)
+            {
+                if (player.isReadySceneLoaded.Value == false)
+                {
+                    isAllPlayerReady = false;
+                    break;
+                }
+                else
+                {
+                    isAllPlayerReady = true;
+                }
+                
+            }
+
+            if(isAllPlayerReady == true)
+            {
+                isMultiplayerScene = false;
+
+                waitForPlayerPanel.SetActive(false);
+                StartCoroutine(PlayStartScene());
+
+                yield break;
+            }
+            
+        }
+        
     }
 
     public void StartScene()
@@ -49,7 +100,7 @@ public class LoadScene : MonoBehaviour
     IEnumerator PlayLoadScene(string sceneName)
     {
         trasition.Play("EndTransition");
-        yield return new WaitForSeconds(transitionTime); 
+        yield return new WaitForSeconds(transitionTime);
         SceneManager.LoadScene(sceneName);
     }
     IEnumerator PlayStartScene()
@@ -58,13 +109,16 @@ public class LoadScene : MonoBehaviour
         trasition.Play("StartTransition");
     }
 
-    public void StartLoadSceneMultiplayer(string sceneName,bool isHost)
+    public void StartLoadSceneMultiplayer(string sceneName, bool isHost)
     {
         StartCoroutine(PlayLoadSceneMultiplayer(sceneName, isHost));
     }
 
-    private IEnumerator PlayLoadSceneMultiplayer(string sceneName,bool isHost)
+    private IEnumerator PlayLoadSceneMultiplayer(string sceneName, bool isHost)
     {
+        isMultiplayerScene = true;
+        SetPlayerReadySceneLoaded_ServerRPC(NetworkManager.LocalClientId, false);
+
         trasition.Play("EndTransition");
         yield return new WaitForSeconds(transitionTime);
         if (!isHost) yield break;

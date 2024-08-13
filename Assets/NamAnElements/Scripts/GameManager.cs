@@ -97,7 +97,7 @@ public class GameManager : NetworkBehaviour
     private void EndGame(Player clientPlayer)
     {
         Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
-        ChangeScene("LobbyScene");
+        Debug.LogError("endGame");
     }
 
     public void SwitchCam()
@@ -124,21 +124,29 @@ public class GameManager : NetworkBehaviour
     public void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        StartCoroutine(ChangeSceneCoroutine());
+        ChangeScene_ClientRPC();
         //Debug.LogError("isminigame now");
+    }
+    [ClientRpc]
+    private void ChangeScene_ClientRPC()
+    {
+        StartCoroutine(ChangeSceneCoroutine());
     }
 
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 0;
+        var randomvalue = 2;
         switch (randomvalue)
         {
             case 0:
-                ChangeScene("minigameAU");
+                LoadScene.Instance.StartLoadSceneMultiplayer("minigameAU", IsHost);
                 break;
             case 1:
-                ChangeScene("minigameQuizz");
+                LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
+                break;
+            default:
+                Debug.LogError("isminigame now");
                 break;
         }
 
@@ -196,14 +204,6 @@ public class GameManager : NetworkBehaviour
     private void UpdateDiceUI(int value)
     {
         networkManagerUI.numDiceText.text = value.ToString();
-    }
-
-    public void ChangeScene(string sceneName)
-    {
-        if (NetworkManager.Singleton.IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        }
     }
 
 }
