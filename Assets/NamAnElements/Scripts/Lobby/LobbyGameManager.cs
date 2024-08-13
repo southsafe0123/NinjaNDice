@@ -20,21 +20,25 @@ public class LobbyGameManager : NetworkBehaviour
     public List<GameObject> playerSlots = new List<GameObject>();
     public Button disconnectButton;
     public GameObject startGameButton;
-
     //use to set playerOrder that login into this server
     private int playerOrder = 0;
 
     private void Awake()
     {
-        Instance = this;
+       Instance = this;
     }
 
     private void Start()
     {
         playerSlots[0].SetActive(true);
         RegisterDisconnectButton();
-        OnConnectedClient();
-        OnDisconnectedClient();
+        NetworkManager.Singleton.OnClientConnectedCallback += OnConnectedClient;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnectedClient;
+    }
+    private void OnDisable()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnConnectedClient;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnDisconnectedClient;
     }
 
     private void RegisterDisconnectButton()
@@ -45,17 +49,14 @@ public class LobbyGameManager : NetworkBehaviour
         });
     }
 
-    private void OnConnectedClient()
+    private void OnConnectedClient(ulong clientID)
     {
-        NetworkManager.Singleton.OnClientConnectedCallback += clientID =>
-        {
-            if (!IsHost) return;
-            LoadPlayer(clientID);
-            LoadListPlayerDic(clientID);
-            LoadPlayerOrder(clientID);
-            SetActiveButton_ClientRPC(true);
-            Debug.LogError("userjoin: " + clientID);
-        };
+        if (!IsHost) return;
+        LoadPlayer(clientID);
+        LoadListPlayerDic(clientID);
+        LoadPlayerOrder(clientID);
+        SetActiveButton_ClientRPC(true);
+        Debug.LogError("userjoin: " + clientID);
     }
 
     private void LoadPlayerOrder(ulong clientID)
@@ -74,15 +75,12 @@ public class LobbyGameManager : NetworkBehaviour
         plInstance.SetPlayerDic_ClientRPC();
     }
 
-    private void OnDisconnectedClient()
+    private void OnDisconnectedClient(ulong clientID)
     {
-        NetworkManager.Singleton.OnClientDisconnectCallback += clientID =>
-        {
-            if (!IsHost) return;
-            UnloadPlayer(clientID);
-            SetActiveButton_ClientRPC(true);
-            Debug.LogError("userout: " + clientID);
-        };
+        if (!IsHost) return;
+        UnloadPlayer(clientID);
+        SetActiveButton_ClientRPC(true);
+        Debug.LogError("userout: " + clientID);
     }
 
 

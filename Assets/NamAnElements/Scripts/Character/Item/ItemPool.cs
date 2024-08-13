@@ -103,7 +103,15 @@ public class ItemPool : NetworkBehaviour
 
     public void SavePlayerItemBeforeChangeScene()
     {
+        try
+        {
             playerOwner.GetComponent<PlayerItem>().playerItemList= playerItemList;
+
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError("Cant Save Item Data");
+        }
     }
     private void OnDisable()
     {

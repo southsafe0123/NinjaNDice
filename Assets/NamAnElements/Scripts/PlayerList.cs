@@ -24,7 +24,6 @@ public class PlayerList : NetworkBehaviour
     public static PlayerList Instance;
     public Dictionary<ulong, Player> playerDic = new Dictionary<ulong, Player>();
     public List<PlayerOrder> playerOrders = new List<PlayerOrder>();
-    public List<Player> test = new List<Player>();
     private Coroutine coroutine;
     private void Awake()
     {
