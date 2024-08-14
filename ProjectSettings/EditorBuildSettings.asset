@@ -30,9 +30,12 @@ EditorBuildSettings:
     path: Assets/NhatElements/test.unity
     guid: 19406eac4733e02408cbb5f900e3285f
   - enabled: 1
+    path: Assets/QuocElements/Sence/minigameLucky.unity
+    guid: 42bfa6c7dad2547ed8159874ff05678e
+  - enabled: 0
     path: Assets/BinhAnElements/LobbySceneCopy.unity
     guid: ae0ebdc5018ae2a469f0246f1e259915
-  - enabled: 1
+  - enabled: 0
     path: Assets/BinhAnElements/MenuSceneCopy.unity
     guid: 40dea7014812462408edc14ef74b9c1a
   m_configObjects:

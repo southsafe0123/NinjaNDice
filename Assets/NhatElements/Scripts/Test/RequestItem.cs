@@ -33,7 +33,6 @@ public class RequestItem : MonoBehaviour
         }
         //send request to server
         StartCoroutine(ApiHandle.Instance.AcceptFriend(rq));
-        Destroy(gameObject, 0.1f);
     }
 
     public void Decline()
@@ -45,6 +44,5 @@ public class RequestItem : MonoBehaviour
         }
         //send request to server
         StartCoroutine(ApiHandle.Instance.DeclineFriend(rq));
-        Destroy(gameObject, 0.1f);
     }
 }

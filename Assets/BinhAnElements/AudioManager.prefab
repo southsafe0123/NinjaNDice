@@ -176,7 +176,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 7784007493027483353}
   sfxSource: {fileID: 7784007492096039343}
-  backgroud: {fileID: 0}
+  backgroud: {fileID: 8300000, guid: b9c452a146bb7554d88bfe3f99087fda, type: 3}
   button: {fileID: 8300000, guid: 0a155770eadc0124a9d267e165b7ac83, type: 3}
   success: {fileID: 8300000, guid: 33ec03e8566c2994d81e37a51d79e9f8, type: 3}
   claim: {fileID: 8300000, guid: 2d32a96d443508e42adce752140d2a87, type: 3}

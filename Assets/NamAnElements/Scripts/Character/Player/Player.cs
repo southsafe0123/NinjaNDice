@@ -6,7 +6,7 @@ public class Player : NetworkBehaviour
 {
     //this is client ID
     public NetworkVariable<ulong> ownerClientID = new NetworkVariable<ulong>();
-
+    public NetworkVariable<bool> isReadySceneLoaded = new NetworkVariable<bool>();
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
     public NetworkVariable<int> currentPos = new NetworkVariable<int>();
     public string answer;
@@ -27,7 +27,7 @@ public class Player : NetworkBehaviour
     {
         if (IsLocalPlayer)
         {
-            transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
+            //transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
 
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {

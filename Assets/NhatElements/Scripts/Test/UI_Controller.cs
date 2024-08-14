@@ -2,19 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Mono.CSharp;
+using System.Linq;
+
 public class UI_Controller : MonoBehaviour
 {
 
     // [SerializeField] private UserSessionManager userSessionManager;
-    [SerializeField] private GameObject requestContent;
-    [SerializeField] private GameObject requestPrefab;
-    [SerializeField] private GameObject friendContent;
-    [SerializeField] private GameObject friendPrefab;
-    [SerializeField] private GameObject inviteContent;
-    [SerializeField] private GameObject invitePrefab;
+    public GameObject requestContent;
+    public GameObject requestPrefab;
+    public GameObject friendContent;
+    public GameObject friendPrefab;
+    public GameObject searchContent;
+    public GameObject searchPrefab;
+    public GameObject inviteContent;
+    public GameObject invitePrefab;
     [SerializeField] private GameObject skinContent;
     [SerializeField] private GameObject skinPrefab;
-    [SerializeField] private TMP_Text moneyText;
+    public TextMeshProUGUI moneyText;
 
     public static UI_Controller Instance;
 
@@ -55,10 +60,27 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateRequest()
     {
+        bool isDone = false;
+        foreach (var item in ApiHandle.Instance.user.request)
+        {
+            foreach (var request in ApiHandle.Instance.wRequest)
+            {
+                if (request._id.Contains(item.from))
+                {
+                    GamePanel.Instance.request.SetActive(true);
+                    isDone = true;
+                    break;
+                }
+            }
+            if (isDone) break;
+        }
+        if (requestContent == null || requestPrefab == null) return;
+
         // Clear all request
         foreach (Transform child in requestContent.transform)
         {
             Destroy(child.gameObject);
+            Debug.Log("delete Request");
         }
         if (ApiHandle.Instance.user.request == null)
         {
@@ -66,12 +88,13 @@ public class UI_Controller : MonoBehaviour
         }
         foreach (var item in ApiHandle.Instance.user.request)
         {
-            GameObject requestItem = Instantiate(requestPrefab, requestContent.transform);
+
             //check id from request in ApiHandle.Instance.wRequest
             ApiHandle.Instance.wRequest.ForEach(request =>
             {
-                if (request._id == item.from)
+                if (request._id.Contains(item.from))
                 {
+                    GameObject requestItem = Instantiate(requestPrefab, requestContent.transform);
                     requestItem.GetComponent<RequestItem>().SetData(request.username);
                     requestItem.GetComponent<RequestItem>().setRequest(item);
                 }
@@ -101,6 +124,7 @@ public class UI_Controller : MonoBehaviour
         // }
 
         // Clear all friend in friendContent
+        if (friendContent == null || friendPrefab == null) return;
         foreach (Transform child in friendContent.transform)
         {
             Destroy(child.gameObject);
@@ -108,11 +132,10 @@ public class UI_Controller : MonoBehaviour
         }
         try
         {
-            for (int i = 0; i < ApiHandle.Instance.friendIngame.Count; i++)
+            for (int i = 0; i < ApiHandle.Instance.user.friends.Count; i++)
             {
                 GameObject friendItem = Instantiate(friendPrefab, friendContent.transform);
-                friendItem.GetComponent<FriendItem>().SetData(ApiHandle.Instance.friendIngame[i].username, ApiHandle.Instance.friendIngame[i].status);
-
+                friendItem.GetComponent<FriendItem>().SetData(ApiHandle.Instance.user.friends[i].username, ApiHandle.Instance.user.friends[i].status, ApiHandle.Instance.user.friends[i]._id);
             }
         }
         catch (System.Exception)
@@ -123,10 +146,51 @@ public class UI_Controller : MonoBehaviour
 
     }
 
-    public void UpdateInvite()
+    public void UpdateSearch(friendSearch friend)
     {
+        if (searchContent == null || searchPrefab == null) return;
+        foreach (Transform child in searchContent.transform)
+        {
+            Destroy(child.gameObject);
+            Debug.Log("Destroy friend item");
+        }
+        try
+        {
+            if (friend._id.Contains(UserSessionManager.Instance._id)) return;
+            GameObject searchItem = Instantiate(searchPrefab, searchContent.transform);
+            searchItem.GetComponent<SearchFriendItem>().SetData(friend.username, friend._id);
+            if (UserSessionManager.Instance.friends.First(ingameFriend => friend._id.Contains(ingameFriend._id)) != null)
+            {
+                searchItem.GetComponent<SearchFriendItem>().btnAddFriend.interactable = false;
+            }
+
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Can't get search friend list: " + e);
+        }
+    }
+
+    public void UpdateInvite(string name, string inviteCode)
+    {
+        
         // Clear all invite
+        if (inviteContent == null || invitePrefab == null) return;
+        foreach (Transform child in inviteContent.transform)
+        {
+            Destroy(child.gameObject);
+            Debug.Log("Destroy friend item");
+        }
         //do something
+        try
+        {
+            GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
+            inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Can't get search invite list: " + e);
+        }
     }
 
     public void UpdateSkin()

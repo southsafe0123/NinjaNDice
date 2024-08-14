@@ -5,9 +5,14 @@ using UnityEngine.UI;
 
 public class PlayButton: MonoBehaviour
 {
+    public static PlayButton Instance;
     public Button btnPlay;
     public TextMeshProUGUI txtPlay;
-    private IEnumerator HostCoroutine()
+    private void Awake()
+    {
+        Instance = this;
+    }
+    public IEnumerator HostCoroutine()
     {
         txtPlay.text = "W A I T ...";
         btnPlay.interactable = false;

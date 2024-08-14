@@ -59,31 +59,31 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
     {
-
-
+        WaitUntil waitUntil= new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[clientPlayer.currentPos.Value].position);
+        WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
         int posCount = 1;
-        do
-        {
-            yield return null;
-            int newPos = clientPlayer.currentPos.Value + 1;
-            if (newPos >= map.movePos.Count)
+            do
             {
-                newPos = map.movePos.Count;
-            }
-            clientPlayer.currentPos.Value = newPos;
-            try
-            {
-                clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
-                posCount++;
-            }
-            catch
-            {
-                clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
-                break;
-            };
-            yield return new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[newPos].position);
-            yield return new WaitForSeconds(0.15f);
-        } while (posCount <= index);
+                yield return null;
+                int newPos = clientPlayer.currentPos.Value + 1;
+                if (newPos >= map.movePos.Count)
+                {
+                    newPos = map.movePos.Count;
+                }
+                clientPlayer.currentPos.Value = newPos;
+                try
+                {
+                    clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                    posCount++;
+                }
+                catch
+                {
+                    clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+                    break;
+                };
+            yield return waitUntil;
+                yield return waitForSeconds;
+            } while (posCount <= index);
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
 
@@ -97,10 +97,13 @@ public class GameManager : NetworkBehaviour
     private void EndGame(Player clientPlayer)
     {
         Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
-        ChangeScene("LobbyScene");
+        Debug.LogError("endGame");
     }
 
-
+    public void SwitchCam()
+    {
+        StartCoroutine(SwitchCamCoroutine());
+    }
 
     private IEnumerator SwitchCamCoroutine()
     {
@@ -108,33 +111,42 @@ public class GameManager : NetworkBehaviour
         var playerID = playerList[playerIndex].ownerClientID.Value;
         SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
         yield return null;
-       playerList[playerIndex].isPlayerTurn.Value = true;
+        playerList[playerIndex].isPlayerTurn.Value = true;
     }
 
     [ClientRpc]
     private void SetCamFollowPlayer_ClientRPC(ulong playerID)
     {
         camToPlayer.playerToFollow = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        camToPlayer.playerInTurn = PlayerList.Instance.GetPlayerDic_Value(playerID);
     }
 
-    private void OnGameTurnChange(int oldGameTurn, int newGameTurn)
+    public void OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
         if (oldGameTurn == newGameTurn) return;
-        StartCoroutine(ChangeSceneCoroutine());
+        ChangeScene_ClientRPC();
         //Debug.LogError("isminigame now");
+    }
+    [ClientRpc]
+    private void ChangeScene_ClientRPC()
+    {
+        StartCoroutine(ChangeSceneCoroutine());
     }
 
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 0;
+        var randomvalue = 2;
         switch (randomvalue)
         {
             case 0:
-                ChangeScene("minigameAU");
+                LoadScene.Instance.StartLoadSceneMultiplayer("minigameAU", IsHost);
                 break;
             case 1:
-                ChangeScene("minigameQuizz");
+                LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
+                break;
+            default:
+                Debug.LogError("isminigame now");
                 break;
         }
 
@@ -153,13 +165,25 @@ public class GameManager : NetworkBehaviour
 
     }
 
-    private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
+    [ServerRpc(RequireOwnership = false)]
+    public void SetPlayerTurn_ServerRPC(ulong clientID,bool isPlayerTurn)
+    {
+        SetPlayerTurn_ClientRPC(clientID,isPlayerTurn);
+    }
+    [ClientRpc]
+    public void SetPlayerTurn_ClientRPC(ulong clientID, bool isPlayerTurn)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
         if (IsHost)
         {
-            player.isPlayerTurn.Value = false;
+            player.isPlayerTurn.Value = isPlayerTurn;
         }
+    }
+
+    private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
+        SetPlayerTurn_ClientRPC(clientID, false);
         var playerDice = player.GetComponentInChildren<Animator>();
         playerDice.Play("Dice_Roll");
         playerDice.transform.localScale = new Vector2(0.5f, 0.5f);
@@ -180,14 +204,6 @@ public class GameManager : NetworkBehaviour
     private void UpdateDiceUI(int value)
     {
         networkManagerUI.numDiceText.text = value.ToString();
-    }
-
-    public void ChangeScene(string sceneName)
-    {
-        if (NetworkManager.Singleton.IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-        }
     }
 
 }

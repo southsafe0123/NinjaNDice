@@ -7,20 +7,13 @@ using System.Text;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using System.Linq;
+using System;
 
 public class ApiHandle : MonoBehaviour
 {
     public static ApiHandle Instance { get; private set; }
 
     [SerializeField] private string _apiUrl = "https://mrxgame.loca.lt";
-    [SerializeField] private TMP_InputField usernameLogin;
-    [SerializeField] private TMP_InputField passwordLogin;
-    [SerializeField] private TMP_InputField usernameRegister;
-    [SerializeField] private TMP_InputField EmailRegister;
-    [SerializeField] private TMP_InputField passwordRegister;
-    [SerializeField] private TMP_InputField RepasswordRegister;
-
-    [SerializeField] private TMP_InputField NameSearch;
 
     [SerializeField] private TMP_Text message;
     [SerializeField] private UI_Controller uiController;
@@ -35,13 +28,14 @@ public class ApiHandle : MonoBehaviour
     [SerializeField] public List<whoRequest> wRequest;
 
 
-
     // Start is called before the first frame update
     void Start()
     {
         if (Instance == null)
         {
+            Application.targetFrameRate = 60;
             Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -56,25 +50,28 @@ public class ApiHandle : MonoBehaviour
 
     // }
 
-    public void LoginButton()
+    public void LoginButton(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
     {
-        StartCoroutine(Login());
+        StartCoroutine(Login(usernameLogin, passwordLogin));
     }
     public void LogoutButton()
     {
         UserSessionManager.Instance.ClearSession();
     }
 
-    public void SearchFriendButton()
+    public void SearchFriendButton(TMP_InputField nameSearch)
     {
-        StartCoroutine(SearchFriend());
+        StartCoroutine(SearchFriend(nameSearch));
     }
 
-    public void AddFriendButton()
+    public void AddFriendButton(string _id)
     {
-        StartCoroutine(AddFriend("66aa2ba97093a0984b7188ed"));
+        StartCoroutine(AddFriend(_id));
     }
-
+    public void DeleteFriendButton(string _id)
+    {
+        StartCoroutine(DeleteFriend(_id));
+    }
     public void AcceptFriendButton()
     {
         StartCoroutine(AcceptFriend(UserSessionManager.Instance.request[0]));
@@ -87,24 +84,27 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(getMe());
     }
 
-    public void RegisterButton()
+    public void RegisterButton(TMP_InputField usernameRegister, TMP_InputField EmailRegister, TMP_InputField passwordRegister, TMP_InputField RepasswordRegister)
     {
+        if (passwordRegister == null) return;
         if (passwordRegister.text != RepasswordRegister.text)
         {
             if (message != null) { message.text = "Password not match"; }
             else { Debug.Log("Password not match"); }
             return;
         }
-        StartCoroutine(Register());
+        StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
-    public IEnumerator Login()
+    public IEnumerator Login(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
     {
         if (usernameLogin == null || passwordLogin == null)
         {
             Debug.LogError("Username or Password field is null");
             yield break;
         }
+
+        LoadingPanel.Instance.SetDisplayLoading(true);
 
         UserRequest userRq = new UserRequest();
         userRq.username = usernameLogin.text;
@@ -134,13 +134,15 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.LogError("Download handler is null");
             }
+
+
         }
         else
         {
             Debug.Log(www.downloadHandler.text);
             UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
             user = userRp;
-            Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
+            //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
             if (message != null) { message.text = "Login success"; }
             else { Debug.Log("Login success"); }
             try
@@ -160,22 +162,20 @@ public class ApiHandle : MonoBehaviour
 
                 Debug.Log("Can't set data to UserSessionManager");
             }
-
+            Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
 
             yield return new WaitForSeconds(1);
             gameObject.AddComponent<WS_Client>();
-            // UserSessionManager.Instance.friendIngame = friendIngame;
             if (uiController != null)
             {
                 uiController.UpdateMoney();
+                StartCoroutine(GetAllRequestname(user.request));
+                uiController.UpdateFriend();
+                uiController.UpdateSkin();
             }
-            else
-            {
-                Debug.LogError("UI_Controller is null");
-            }
-            yield return StartCoroutine(GetAllFriendsStatus(userRp.friends));
-            yield return StartCoroutine(GetAllRequestname(userRp.request));
         }
+        yield return null;
+        LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
     public IEnumerator GetAllFriendsStatus(List<friend> friends)
@@ -196,7 +196,7 @@ public class ApiHandle : MonoBehaviour
         }
     }
 
-    public IEnumerator Register()
+    public IEnumerator Register(TMP_InputField usernameRegister, TMP_InputField EmailRegister, TMP_InputField passwordRegister, TMP_InputField RepasswordRegister)
     {
         if (usernameRegister == null || passwordRegister == null)
         {
@@ -242,7 +242,7 @@ public class ApiHandle : MonoBehaviour
         }
     }
 
-    public IEnumerator SearchFriend()
+    public IEnumerator SearchFriend(TMP_InputField NameSearch)
     {
         UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/findFriend/" + NameSearch.text);
         yield return www.SendWebRequest();
@@ -264,6 +264,8 @@ public class ApiHandle : MonoBehaviour
         {
             friendSearch friend = JsonConvert.DeserializeObject<friendSearch>(www.downloadHandler.text);
             Debug.Log(friend.username);
+
+            uiController.UpdateSearch(friend);
         }
     }
 
@@ -306,8 +308,49 @@ public class ApiHandle : MonoBehaviour
             if (message != null) { message.text = "Send request success"; }
             else { Debug.Log("Send request success"); }
         }
+        uiController.UpdateRequest();
     }
+    public IEnumerator DeleteFriend(string id)
+    {
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        AddFriendRequest addFriendRq = new AddFriendRequest();
+        addFriendRq.from = UserSessionManager.Instance._id;
+        addFriendRq.to = id;
+        string json = JsonUtility.ToJson(addFriendRq);
+        Debug.Log(json);
 
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/removeFriend", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            if (message != null) { message.text = "Send request success"; }
+            else { Debug.Log("Send request success"); }
+        }
+        uiController.UpdateFriend();
+    }
     public IEnumerator AcceptFriend(request request)
     {
         // post, endpoint: /acceptFriendRequest , 
@@ -353,7 +396,7 @@ public class ApiHandle : MonoBehaviour
             else { Debug.Log("Accept request success"); }
 
         }
-
+        uiController.UpdateRequest();
 
     }
 
@@ -401,7 +444,9 @@ public class ApiHandle : MonoBehaviour
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Decline request success"; }
             else { Debug.Log("Decline request success"); }
+
         }
+        uiController.UpdateRequest();
     }
 
     //update list friend enpoint: /friends/:id , method: GET , id la id cua user UserSessionManager.Instance._id
@@ -472,6 +517,7 @@ public class ApiHandle : MonoBehaviour
             }
             friendIngame = friendIn;
 
+            uiController.UpdateFriend();
 
         }
     }
@@ -486,6 +532,7 @@ public class ApiHandle : MonoBehaviour
         {
             if (www.downloadHandler != null)
             {
+                Debug.Log(www.downloadHandler);
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
                 else { Debug.Log(errorRp.message); }
@@ -506,6 +553,10 @@ public class ApiHandle : MonoBehaviour
                 StartCoroutine(getStatus(item._id));
             }
             UserSessionManager.Instance.SetFriendIngame(friendIngame);
+            foreach (var item in user.request)
+            {
+                StartCoroutine(getName(item._id));
+            }
         }
     }
 
@@ -536,6 +587,7 @@ public class ApiHandle : MonoBehaviour
             wRequest1.Add(who);
             wRequest = wRequest1;
         }
+        uiController.UpdateRequest();
     }
 
 }
@@ -549,26 +601,27 @@ public class ApiHandle : MonoBehaviour
 
 
 // ------------------------------Cac class model--------------------------
-
+[System.Serializable]
 public class AddFriendRequest
 {
     public string from;
     public string to;
 }
 
-
+[System.Serializable]
 public class whoRequest
 {
     public string _id;
     public string username;
 }
-
+[System.Serializable]
 public class friendSearch
 {
     public string _id;
     public string username;
     public string avatar;
 }
+[System.Serializable]
 public class friendIngame
 {
     public string _id;
@@ -576,22 +629,25 @@ public class friendIngame
     public string status;
     public string avatar;
 }
+[System.Serializable]
 public class ErrorRespone
 {
     public string message;
 }
+[System.Serializable]
 public class UserRequest
 {
     public string username;
     public string password;
 }
-
+[System.Serializable]
 public class UserRequestRegister
 {
     public string username;
     public string password;
     public string email;
 }
+[System.Serializable]
 public class UserResponse
 {
     /*{
@@ -633,13 +689,15 @@ public class UserResponse
     public string createdAt;
 
 }
-
+[System.Serializable]
 public class friend
 {
     public string _id; // id of friend
-    public string dateAdded;
+    //public string dateAdded;
+    public string username;
+    public string status;
 }
-
+[System.Serializable]
 public class request
 {
     // {
@@ -655,13 +713,13 @@ public class request
     public string _id;
     public string dateRequested;
 }
-
+[System.Serializable]
 public class skinpurchase
 {
     public string skin; // id of skin
     public string datePurchased;
 }
-
+[System.Serializable]
 public class skin
 {
     public string _id;
