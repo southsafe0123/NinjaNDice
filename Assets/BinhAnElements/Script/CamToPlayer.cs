@@ -8,6 +8,13 @@ public class CamToPlayer : MonoBehaviour
     public Player playerInTurn;
     private void FixedUpdate()
     {
-        GetComponent<Cinemachine.CinemachineVirtualCamera>().Follow = playerToFollow.transform;
+        if(playerToFollow != null)
+        {
+            GetComponent<Cinemachine.CinemachineVirtualCamera>().Follow = playerToFollow.transform;
+        }
+        else
+        {
+
+        }
     }
 }

@@ -24,7 +24,6 @@ public class PlayerList : NetworkBehaviour
     public static PlayerList Instance;
     public Dictionary<ulong, Player> playerDic = new Dictionary<ulong, Player>();
     public List<PlayerOrder> playerOrders = new List<PlayerOrder>();
-    public List<Player> test = new List<Player>();
     private Coroutine coroutine;
     private void Awake()
     {
@@ -87,7 +86,16 @@ public class PlayerList : NetworkBehaviour
     }
     public void ResetPlayerOrder()
     {
-        playerOrders.Clear();
+        int i = 1;
+       
+        var playerOrdersTemp = playerOrders.Where(item => item.player.gameObject != null|| item.player.isPlayerDoneGame.Value == false).ToList();
+        foreach (PlayerOrder playerOrder in playerOrdersTemp)
+        {
+            playerOrder.order= i;
+            Debug.Log("ResetOrder: Player: "+playerOrder.order);
+            i++;
+        }
+        playerOrders = playerOrdersTemp;
     }
 
     [ClientRpc]

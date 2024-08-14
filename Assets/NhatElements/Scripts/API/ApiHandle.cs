@@ -96,13 +96,15 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
-    public IEnumerator Login(TMP_InputField usernameLogin,TMP_InputField passwordLogin)
+    public IEnumerator Login(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
     {
         if (usernameLogin == null || passwordLogin == null)
         {
             Debug.LogError("Username or Password field is null");
             yield break;
         }
+
+        LoadingPanel.Instance.SetDisplayLoading(true);
 
         UserRequest userRq = new UserRequest();
         userRq.username = usernameLogin.text;
@@ -132,6 +134,8 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.LogError("Download handler is null");
             }
+
+
         }
         else
         {
@@ -146,7 +150,6 @@ public class ApiHandle : MonoBehaviour
                 if (UserSessionManager.Instance != null)
                 {
                     UserSessionManager.Instance.SetData(userRp);
-                   
                 }
 
                 else
@@ -163,19 +166,16 @@ public class ApiHandle : MonoBehaviour
 
             yield return new WaitForSeconds(1);
             gameObject.AddComponent<WS_Client>();
-            // UserSessionManager.Instance.friendIngame = friendIngame;
             if (uiController != null)
             {
                 uiController.UpdateMoney();
                 StartCoroutine(GetAllRequestname(user.request));
+                uiController.UpdateFriend();
+                uiController.UpdateSkin();
             }
-            //else
-            //{
-            //    Debug.LogError("UI_Controller is null");
-            //}
-            //yield return StartCoroutine(GetAllFriendsStatus(userRp.friends));
-            //yield return StartCoroutine(GetAllRequestname(userRp.request));
         }
+        yield return null;
+        LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
     public IEnumerator GetAllFriendsStatus(List<friend> friends)
@@ -394,7 +394,7 @@ public class ApiHandle : MonoBehaviour
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Accept request success"; }
             else { Debug.Log("Accept request success"); }
-            
+
         }
         uiController.UpdateRequest();
 
@@ -444,7 +444,7 @@ public class ApiHandle : MonoBehaviour
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Decline request success"; }
             else { Debug.Log("Decline request success"); }
-            
+
         }
         uiController.UpdateRequest();
     }
