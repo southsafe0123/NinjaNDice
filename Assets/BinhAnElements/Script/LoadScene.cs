@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LoadScene : NetworkBehaviour
+public class LoadScene : MonoBehaviour
 {
     public static LoadScene Instance;
     public Animator trasition;
@@ -17,6 +17,7 @@ public class LoadScene : NetworkBehaviour
     {
         if (Instance == null)
         {
+            Debug.Log("LoadScene_created");
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
@@ -37,7 +38,7 @@ public class LoadScene : NetworkBehaviour
         {
             if (isMultiplayerScene)
             {
-                SetPlayerReadySceneLoaded_ServerRPC(NetworkManager.LocalClientId,true);
+                SetPlayerReadyInScene(true);
                 StartCoroutine(WaitForPlayer());
             }
             else
@@ -46,11 +47,7 @@ public class LoadScene : NetworkBehaviour
             }
         }
     }
-    [ServerRpc(RequireOwnership = false)]
-    private void SetPlayerReadySceneLoaded_ServerRPC(ulong clientID,bool isReadySceneLoaded)
-    {
-        PlayerList.Instance.GetPlayerDic_Value(clientID).isReadySceneLoaded.Value = isReadySceneLoaded;
-    }
+    
 
     private IEnumerator WaitForPlayer()
     {
@@ -117,11 +114,15 @@ public class LoadScene : NetworkBehaviour
     private IEnumerator PlayLoadSceneMultiplayer(string sceneName, bool isHost)
     {
         isMultiplayerScene = true;
-        SetPlayerReadySceneLoaded_ServerRPC(NetworkManager.LocalClientId, false);
-
+        SetPlayerReadyInScene(false);
         trasition.Play("EndTransition");
         yield return new WaitForSeconds(transitionTime);
         if (!isHost) yield break;
         NetworkManager.Singleton.SceneManager.LoadScene(sceneName, 0);
+    }
+
+    private static void SetPlayerReadyInScene(bool isReady)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(NetworkManager.Singleton.LocalClientId).SetPlayerReadySceneLoaded_ServerRPC(NetworkManager.Singleton.LocalClientId, isReady);
     }
 }

@@ -113,10 +113,6 @@ public class ItemPool : NetworkBehaviour
             Debug.LogError("Cant Save Item Data");
         }
     }
-    private void OnDisable()
-    {
-        SavePlayerItemBeforeChangeScene();
-    }
     public override void OnDestroy()
     {
         SavePlayerItemBeforeChangeScene();

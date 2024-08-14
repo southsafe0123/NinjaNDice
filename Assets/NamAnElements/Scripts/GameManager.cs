@@ -59,33 +59,33 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DoTeleportPlayerCoroutine(int index, Player clientPlayer)
     {
-        WaitUntil waitUntil= new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[clientPlayer.currentPos.Value].position);
+        WaitUntil waitUntil = new WaitUntil(() => clientPlayer.gameObject.transform.position == map.movePos[clientPlayer.currentPos.Value].position);
         WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
         int posCount = 1;
-            do
+        do
+        {
+            yield return null;
+            int newPos = clientPlayer.currentPos.Value + 1;
+            if (newPos >= map.movePos.Count)
             {
-                yield return null;
-                int newPos = clientPlayer.currentPos.Value + 1;
-                if (newPos >= map.movePos.Count)
-                {
-                    newPos = map.movePos.Count;
-                }
-                clientPlayer.currentPos.Value = newPos;
-                try
-                {
-                    clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
-                    posCount++;
-                }
-                catch
-                {
-                    clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
-                    break;
-                };
+                newPos = map.movePos.Count;
+            }
+            clientPlayer.currentPos.Value = newPos;
+            try
+            {
+                clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                posCount++;
+            }
+            catch
+            {
+                clientPlayer.gameObject.transform.position = map.movePos[map.movePos.Count - 1].position;
+                break;
+            };
             yield return waitUntil;
-                yield return waitForSeconds;
-            } while (posCount <= index);
+            yield return waitForSeconds;
+        } while (posCount <= index);
 
-        if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) EndGame(clientPlayer);
+        if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) CheckEndGame_ClientRPC(clientPlayer.ownerClientID.Value);
 
         playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
         var oldGameTurn = gameTurn;
@@ -93,11 +93,31 @@ public class GameManager : NetworkBehaviour
         OnGameTurnChange(oldGameTurn, gameTurn);
         StartCoroutine(SwitchCamCoroutine());
     }
-
-    private void EndGame(Player clientPlayer)
+    [ClientRpc]
+    private void CheckEndGame_ClientRPC(ulong clientPlayerID)
     {
-        Debug.LogError("Player: " + clientPlayer.ownerClientID.Value + "Win");
-        Debug.LogError("endGame");
+        if (PlayerList.Instance.playerOrders.Count > 2)
+        {
+            EndGamePanel.Instance.btnBack.interactable = true;
+            if (IsHost)
+            {
+                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
+            }
+            EndGamePanel.Instance.DisplayEndGamePanel(true);
+            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
+            //setplayerWin;
+            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            //updatePlayerOrder
+            PlayerList.Instance.ResetPlayerOrder();
+        }
+        else
+        {
+            EndGamePanel.Instance.btnBack.interactable = false;
+            EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
+            EndGamePanel.Instance.DisplayEndGamePanel(true);
+            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
+            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
+        }
     }
 
     public void SwitchCam()
@@ -166,9 +186,9 @@ public class GameManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SetPlayerTurn_ServerRPC(ulong clientID,bool isPlayerTurn)
+    public void SetPlayerTurn_ServerRPC(ulong clientID, bool isPlayerTurn)
     {
-        SetPlayerTurn_ClientRPC(clientID,isPlayerTurn);
+        SetPlayerTurn_ClientRPC(clientID, isPlayerTurn);
     }
     [ClientRpc]
     public void SetPlayerTurn_ClientRPC(ulong clientID, bool isPlayerTurn)

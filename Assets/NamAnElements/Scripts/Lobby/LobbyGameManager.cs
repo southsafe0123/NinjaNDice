@@ -37,8 +37,16 @@ public class LobbyGameManager : NetworkBehaviour
     }
     private void OnDisable()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback -= OnConnectedClient;
-        NetworkManager.Singleton.OnClientDisconnectCallback -= OnDisconnectedClient;
+        try
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnConnectedClient;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnDisconnectedClient;
+        }
+        catch (Exception)
+        {
+            Debug.LogError("Lobbygamemanager_ Cant remove call back");
+        }
+       
     }
 
     private void RegisterDisconnectButton()
@@ -200,11 +208,7 @@ public class LobbyGameManager : NetworkBehaviour
     private IEnumerator WaitForShutdownAndLoadScene()
     {
         // Chờ cho NetworkManager shutdown hoàn toàn
-        while (NetworkManager != null)
-        {
-            yield return null;
-        }
-
+        yield return new WaitUntil(() => NetworkManager == null);
         LoadScene.Instance.StartLoadScene("MenuScene");
     }
 

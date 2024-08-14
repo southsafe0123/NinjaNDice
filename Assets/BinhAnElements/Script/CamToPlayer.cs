@@ -12,5 +12,9 @@ public class CamToPlayer : MonoBehaviour
         {
             GetComponent<Cinemachine.CinemachineVirtualCamera>().Follow = playerToFollow.transform;
         }
+        else
+        {
+
+        }
     }
 }

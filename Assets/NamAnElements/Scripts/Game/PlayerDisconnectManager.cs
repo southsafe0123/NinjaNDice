@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -27,25 +26,17 @@ public class PlayerDisconnectManager : NetworkBehaviour
     private void UnloadPlayer(ulong clientID)
     {
         if (!PlayerList.Instance.playerDic.ContainsKey(clientID)) return;
+        PlayerList.PlayerOrder playerNeedToRemove = PlayerList.Instance.playerOrders.First(playerOrder => playerOrder.player.Equals(PlayerList.Instance.GetPlayerDic_Value(clientID)));
+
+        PlayerList.Instance.playerOrders.Remove(playerNeedToRemove);
         PlayerList.Instance.playerDic.Remove(clientID);
 
-        Player player = PlayerList.Instance.GetPlayerDic_Value(clientID);
-        PlayerList.Instance.playerOrders.Remove(PlayerList.Instance.playerOrders.First(playerOrder => playerOrder.player == player));
+        PlayerList.Instance.ResetPlayerOrder();
 
-        //if (!sv_dicPlayer.ContainsKey(clientID)) return;
-        //sv_dicPlayer[clientID]?.SetActive(false);
-
-        //foreach (var player in sv_dicPlayer)
-        //{
-        //    if (player.Key.Equals(clientID))
-        //    {
-        //        int slotIndex = playerSlots.IndexOf(sv_dicPlayer[clientID]);
-        //        SetActiveInClient_ClientRPC(slotIndex, false);
-        //    };
-        //}
-
-        //sv_dicPlayer.Remove(clientID);
-        ////PlayerList.Instance.UpdatePlayerList();
+        if (PlayerList.Instance.playerDic.Count < 2)
+        {
+            OnClickDisconnect();
+        }
     }
     public void OnClickDisconnect()
     {
@@ -64,7 +55,7 @@ public class PlayerDisconnectManager : NetworkBehaviour
     }
     private IEnumerator WaitAllPlayerLeft()
     {
-        yield return new WaitUntil(() => PlayerList.Instance.playerDic.Count == 1);
+        yield return new WaitUntil(() => PlayerList.Instance.playerDic.Count < 2);
         Disconnect();
     }
 
@@ -77,16 +68,24 @@ public class PlayerDisconnectManager : NetworkBehaviour
 
     private void Disconnect()
     {
-        NetworkManager.Singleton.Shutdown();
-        if (AuthenticationService.Instance.IsSignedIn)
+        try
         {
-            AuthenticationService.Instance.SignOut();
-        }
-        Destroy(GameObject.Find("PlayerList"));
-        NetworkManager.Destroy(NetworkManager.gameObject);
-        //Destroy(PlayerList.Instance.gameObject);
+            NetworkManager.Singleton.Shutdown();
+            if (AuthenticationService.Instance.IsSignedIn)
+            {
+                AuthenticationService.Instance.SignOut();
+            }
+            Destroy(GameObject.Find("PlayerList"));
+            NetworkManager.Destroy(NetworkManager.gameObject);
+            //Destroy(PlayerList.Instance.gameObject);
 
-        StartCoroutine(WaitForShutdownAndLoadScene());
+            StartCoroutine(WaitForShutdownAndLoadScene());
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("PlayerDisconnectManager_SomethingWrong: " + e);
+        }
+
     }
     private IEnumerator WaitForShutdownAndLoadScene()
     {

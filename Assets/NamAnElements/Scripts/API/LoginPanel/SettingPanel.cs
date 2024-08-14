@@ -10,9 +10,10 @@ public class SettingPanel: MonoBehaviour
     public TextMeshProUGUI txtPlayerName;
     public GameObject btnLogin;
     public GameObject btnLogout;
+    public GameObject btnConfirmLogout;
     private void Start()
     {
-        btnLogout.GetComponent<Button>().onClick.AddListener(() =>
+        btnConfirmLogout.GetComponent<Button>().onClick.AddListener(() =>
         {
             StartCoroutine(LogoutCoroutine());
         });

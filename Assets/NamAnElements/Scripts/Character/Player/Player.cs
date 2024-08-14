@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : NetworkBehaviour
 {
@@ -9,15 +10,20 @@ public class Player : NetworkBehaviour
     public NetworkVariable<bool> isReadySceneLoaded = new NetworkVariable<bool>();
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
     public NetworkVariable<int> currentPos = new NetworkVariable<int>();
+    public NetworkVariable<bool> isPlayerDoneGame = new NetworkVariable<bool>();
     public string answer;
     public int life = 3;
     public bool isDie = false;
     private void Start()
     {
-
-
         transform.position = new Vector3(100, 100, 0);
         // DontDestroyOnLoad(gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetPlayerReadySceneLoaded_ServerRPC(ulong clientID, bool isReadySceneLoaded)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(clientID).isReadySceneLoaded.Value = isReadySceneLoaded;
     }
     public void SetPlayerTurn(bool isPlayerTurn)
     {
@@ -51,8 +57,7 @@ public class Player : NetworkBehaviour
 
     }
 
-
-    void OnTriggerEnter2D(Collider2D col)
+    public void OnTriggerEnter2D(Collider2D col)
     {
         // // Debug.Log(col.name);
         // if (col.gameObject.tag == "Answer")
