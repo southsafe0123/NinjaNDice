@@ -184,6 +184,10 @@ public class UI_Controller : MonoBehaviour
         //do something
         try
         {
+            foreach (Transform child in inviteContent.transform)
+            {
+                if (child.GetComponent<InviteItem>().name == name) return;
+            }
             GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
             inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
         }

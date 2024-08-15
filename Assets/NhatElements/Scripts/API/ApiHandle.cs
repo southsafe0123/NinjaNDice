@@ -42,6 +42,33 @@ public class ApiHandle : MonoBehaviour
             Destroy(gameObject);
         }
 
+        StartCoroutine(CheckUrlConnection());
+    }
+    IEnumerator CheckUrlConnection()
+    {
+        using (UnityWebRequest request = UnityWebRequest.Get(_apiUrl))
+        {
+            yield return request.SendWebRequest();  
+
+            if (request.result == UnityWebRequest.Result.ConnectionError ||
+                request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.Log("Connected to database failed!");
+            }
+            else
+            {
+                Debug.Log("Connected to database successfully!");
+                Debug.Log(PlayerPrefs.HasKey("username") + "/playerPrefs/" + PlayerPrefs.HasKey("unityId"));
+                if (PlayerPrefs.HasKey("username") && PlayerPrefs.HasKey("password"))
+                {
+                    LoginButton(PlayerPrefs.GetString("username"), PlayerPrefs.GetString("password"));
+                }
+                if (PlayerPrefs.HasKey("unityId"))
+                {
+                    Loginid(PlayerPrefs.GetString("unityId"), "", "Unity");
+                }
+            }
+        }
     }
 
     // Update is called once per frame
@@ -49,15 +76,18 @@ public class ApiHandle : MonoBehaviour
     // {
 
     // }
-
-    public void LoginButton(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
+    public void ChangeNameButton(string name)
+    {
+        StartCoroutine(ChangeNameIngame(name));
+    }
+    public void LoginButton(string usernameLogin, string passwordLogin)
     {
         StartCoroutine(Login(usernameLogin, passwordLogin));
     }
 
-    public void Loginid(string ID, string type)
+    public void Loginid(string ID,string username, string type)
     {
-        StartCoroutine(LoginID(ID, type));
+        StartCoroutine(LoginID(ID, username, type));
     }
     public void LogoutButton()
     {
@@ -80,8 +110,6 @@ public class ApiHandle : MonoBehaviour
     public void AcceptFriendButton()
     {
         StartCoroutine(AcceptFriend(UserSessionManager.Instance.request[0]));
-
-
     }
 
     public void reloadData()
@@ -101,7 +129,7 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
-    public IEnumerator LoginID(string ID, string type = "Unity")
+    public IEnumerator LoginID(string ID, string username, string type = "Unity")
     {
         if (ID == null)
         {
@@ -113,6 +141,7 @@ public class ApiHandle : MonoBehaviour
 
         userIDrequest userRq = new userIDrequest();
         userRq.type = type;
+        userRq.username = username;
         userRq.id = ID;
 
         string json = JsonUtility.ToJson(userRq);
@@ -133,12 +162,23 @@ public class ApiHandle : MonoBehaviour
             //if HTTP/1.1 502 Bad Gateway try again two times
             if (www.responseCode == 502)
             {
-                yield return new WaitForSeconds(1);
-                yield return StartCoroutine(LoginID(ID, type));
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(LoginID(ID, username,type));
+                LoadingPanel.Instance.SetDisplayLoading(false);
             }
             if (www.downloadHandler != null)
             {
+                Debug.Log(www.downloadHandler.text);
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if(www.responseCode == 404)
+                {
+                    LoadingPanel.Instance.SetDisplayLoading(false);
+                    WelcomePanel.instance.DisplayPanel(true);
+                    yield return new WaitUntil(() => !WelcomePanel.instance.welcomePanel.activeInHierarchy);
+                }
+
+     
                 if (message != null) { message.text = errorRp.message; }
                 else { Debug.Log(errorRp.message); }
             }
@@ -159,6 +199,10 @@ public class ApiHandle : MonoBehaviour
             else { Debug.Log("Login success"); }
             try
             {
+                //luu du lieu autologin
+                PlayerPrefs.SetString("unityId", ID);
+                Debug.Log(PlayerPrefs.HasKey("unityId"));
+
                 if (UserSessionManager.Instance != null)
                 {
                     UserSessionManager.Instance.SetData(userRp);
@@ -171,13 +215,15 @@ public class ApiHandle : MonoBehaviour
             }
             catch (System.Exception)
             {
-
                 Debug.Log("Can't set data to UserSessionManager");
             }
             Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
 
             yield return new WaitForSeconds(1);
             gameObject.AddComponent<WS_Client>();
+
+            WelcomePanel.instance.DisplayPanel(false);
+
             if (uiController != null)
             {
                 uiController.UpdateMoney();
@@ -190,7 +236,56 @@ public class ApiHandle : MonoBehaviour
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
-    public IEnumerator Login(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
+    public IEnumerator ChangeNameIngame(string name)
+    {
+        UserChangeNameData userchangename = new UserChangeNameData();
+        userchangename.userId = UserSessionManager.Instance._id;
+        userchangename.nameingame = name;
+
+        string json = JsonUtility.ToJson(userchangename);
+        Debug.Log(json);
+
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/changeNameInGame", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(ChangeNameIngame(name));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            yield return StartCoroutine(getMe());
+            if (message != null) { message.text = "Change Success!"; }
+
+        }
+        LoadingPanel.Instance.SetDisplayLoading(false);
+    }
+    public IEnumerator Login(string usernameLogin, string passwordLogin)
     {
         if (usernameLogin == null || passwordLogin == null)
         {
@@ -201,8 +296,8 @@ public class ApiHandle : MonoBehaviour
         LoadingPanel.Instance.SetDisplayLoading(true);
 
         UserRequest userRq = new UserRequest();
-        userRq.username = usernameLogin.text;
-        userRq.password = passwordLogin.text;
+        userRq.username = usernameLogin;
+        userRq.password = passwordLogin;
         string json = JsonUtility.ToJson(userRq);
         Debug.Log(json);
 
@@ -218,6 +313,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(Login(usernameLogin,passwordLogin));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -241,6 +343,10 @@ public class ApiHandle : MonoBehaviour
             else { Debug.Log("Login success"); }
             try
             {
+                //luu du lieu autologin
+                PlayerPrefs.SetString("username", usernameLogin);
+                PlayerPrefs.SetString("password", passwordLogin);
+
                 if (UserSessionManager.Instance != null)
                 {
                     UserSessionManager.Instance.SetData(userRp);
@@ -317,6 +423,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -343,6 +456,13 @@ public class ApiHandle : MonoBehaviour
 
         if (www.isNetworkError || www.isHttpError)
         {
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(SearchFriend(NameSearch));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -385,6 +505,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(AddFriend(id));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -426,6 +553,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(DeleteFriend(id));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -472,6 +606,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(AcceptFriend(request));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -522,6 +663,13 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(DeclineFriend(request));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -579,6 +727,13 @@ public class ApiHandle : MonoBehaviour
 
         if (www.isNetworkError || www.isHttpError)
         {
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(getStatus(id));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -624,6 +779,13 @@ public class ApiHandle : MonoBehaviour
 
         if (www.isNetworkError || www.isHttpError)
         {
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(getMe());
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 Debug.Log(www.downloadHandler);
@@ -662,6 +824,13 @@ public class ApiHandle : MonoBehaviour
 
         if (www.isNetworkError || www.isHttpError)
         {
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(getName(id));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
@@ -740,6 +909,11 @@ public class UserRequestRegister
     public string username;
     public string password;
     public string email;
+}
+public class UserResponseMessage
+{
+    public UserResponse userResponse;
+    public string message;
 }
 [System.Serializable]
 public class UserResponse
@@ -830,7 +1004,13 @@ public class userIDrequest
 {
     public string type;
     public string id;
+    public string username;
+}
 
+public class UserChangeNameData
+{
+    public string userId;
+    public string nameingame;
 }
 
 

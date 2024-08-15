@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
@@ -13,9 +14,9 @@ public class SettingPanel : MonoBehaviour
     public GameObject btnConfirmLogout;
     public Button btnChangeNameConfirm;
     public TextMeshProUGUI guestName;
+    public GameObject changeNamePanel;
     private void Start()
     {
-        StartCoroutine(SlowUpdateNameCoroutine());
         btnConfirmLogout.GetComponent<Button>().onClick.AddListener(() =>
         {
             StartCoroutine(LogoutCoroutine());
@@ -24,28 +25,33 @@ public class SettingPanel : MonoBehaviour
         btnChangeNameConfirm.onClick.AddListener(() =>
         {
             if (guestName.text.IsNullOrEmpty()) return;
-            PlayerPrefs.SetString("GuestName",guestName.text);
-        });
-    }
-    private IEnumerator SlowUpdateNameCoroutine()
-    {
-        WaitForSeconds wait015fsecond = new WaitForSeconds(0.15f); 
-        while (true)
-        {
-            yield return null;
-            yield return wait015fsecond;
-            if (UserSessionManager.Instance._id.IsNullOrEmpty())
+
+            if (UserSessionManager.Instance.username.IsNullOrEmpty())
             {
-                btnLogin.SetActive(true);
-                btnLogout.SetActive(false);
+                PlayerPrefs.SetString("GuestName",guestName.text);
+                changeNamePanel.SetActive(false);
             }
             else
             {
-                btnLogin.SetActive(false);
-                btnLogout.SetActive(true);
+                ApiHandle.Instance.ChangeNameButton(guestName.text);
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                changeNamePanel.SetActive(false);
             }
-            txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PlayerPrefs.GetString("GuestName") : UserSessionManager.Instance.username.ToString();
+        });
+    }
+    private void Update()
+    {
+        if (UserSessionManager.Instance._id.IsNullOrEmpty())
+        {
+            btnLogin.SetActive(true);
+            btnLogout.SetActive(false);
         }
+        else
+        {
+            btnLogin.SetActive(false);
+            btnLogout.SetActive(true);
+        }
+        txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PlayerPrefs.GetString("GuestName") : ApiHandle.Instance.user.nameingame.ToString();
     }
 
     private IEnumerator LogoutCoroutine()
@@ -55,7 +61,12 @@ public class SettingPanel : MonoBehaviour
         Destroy(ApiHandle.Instance.GetComponent<WS_Client>());
         UserSessionManager.Instance.ClearSession();
         ApiHandle.Instance.user = null;
+        Destroy(ApiHandle.Instance.GetComponent<LoginManager>());
+        PlayerPrefs.DeleteKey("username");
+        PlayerPrefs.DeleteKey("unityId");
+        PlayerPrefs.DeleteKey("password");
         yield return new WaitForSeconds(UnityEngine.Random.Range(0.3f, 1.3f));
+        ApiHandle.Instance.AddComponent<LoginManager>();
         yield return new WaitUntil(() => UserSessionManager.Instance.username.IsNullOrEmpty());
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
