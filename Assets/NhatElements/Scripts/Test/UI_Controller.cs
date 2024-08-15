@@ -173,7 +173,7 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateInvite(string name, string inviteCode)
     {
-        
+
         // Clear all invite
         if (inviteContent == null || invitePrefab == null) return;
         foreach (Transform child in inviteContent.transform)

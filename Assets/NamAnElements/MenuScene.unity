@@ -34650,6 +34650,7 @@ GameObject:
   - component: {fileID: 1693369085}
   - component: {fileID: 1693369084}
   - component: {fileID: 1693369086}
+  - component: {fileID: 1693369087}
   m_Layer: 0
   m_Name: network
   m_TagString: Untagged
@@ -34677,6 +34678,8 @@ MonoBehaviour:
     _id: 
     username: 
     email: 
+    nameingame: 
+    avatar: 
     role: 
     money: 0
     friends: []
@@ -34712,6 +34715,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f50b0eef0cedd94a82f57a9199f6ce9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1693369087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1693369083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cef5d5afdbd0b4d4fa434e7d6bbcc5eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerProfile:
+    Name: 
+  txtName: {fileID: 0}
 --- !u!1 &1701324709
 GameObject:
   m_ObjectHideFlags: 0
@@ -35341,6 +35359,10 @@ PrefabInstance:
       propertyPath: m_Volume
       value: 0.3
       objectReference: {fileID: 0}
+    - target: {fileID: 7784007493255628901, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: button
+      value: 
+      objectReference: {fileID: 8300000, guid: 936d22d1dfe127e4bbbc00506d27ff05, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
 --- !u!1 &1784566466
@@ -35428,7 +35450,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1784566469}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1693369087}
+        m_TargetAssemblyTypeName: LoginManager, Assembly-CSharp
+        m_MethodName: ButtonSignIn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1784566469
 MonoBehaviour:
   m_ObjectHideFlags: 0

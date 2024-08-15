@@ -54,6 +54,11 @@ public class ApiHandle : MonoBehaviour
     {
         StartCoroutine(Login(usernameLogin, passwordLogin));
     }
+
+    public void Loginid(string ID, string type)
+    {
+        StartCoroutine(LoginID(ID, type));
+    }
     public void LogoutButton()
     {
         UserSessionManager.Instance.ClearSession();
@@ -94,6 +99,95 @@ public class ApiHandle : MonoBehaviour
             return;
         }
         StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
+    }
+
+    public IEnumerator LoginID(string ID, string type = "Unity")
+    {
+        if (ID == null)
+        {
+            Debug.LogError("field is null");
+            yield break;
+        }
+
+        LoadingPanel.Instance.SetDisplayLoading(true);
+
+        userIDrequest userRq = new userIDrequest();
+        userRq.type = type;
+        userRq.id = ID;
+
+        string json = JsonUtility.ToJson(userRq);
+        Debug.Log(json);
+
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/loginId", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            //if HTTP/1.1 502 Bad Gateway try again two times
+            if (www.responseCode == 502)
+            {
+                yield return new WaitForSeconds(1);
+                yield return StartCoroutine(LoginID(ID, type));
+            }
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+
+
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
+            user = userRp;
+            //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
+            if (message != null) { message.text = "Login success"; }
+            else { Debug.Log("Login success"); }
+            try
+            {
+                if (UserSessionManager.Instance != null)
+                {
+                    UserSessionManager.Instance.SetData(userRp);
+                }
+
+                else
+                {
+                    Debug.LogError("UserSessionManager instance is null");
+                }
+            }
+            catch (System.Exception)
+            {
+
+                Debug.Log("Can't set data to UserSessionManager");
+            }
+            Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
+
+            yield return new WaitForSeconds(1);
+            gameObject.AddComponent<WS_Client>();
+            if (uiController != null)
+            {
+                uiController.UpdateMoney();
+                StartCoroutine(GetAllRequestname(user.request));
+                uiController.UpdateFriend();
+                uiController.UpdateSkin();
+            }
+        }
+        yield return null;
+        LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
     public IEnumerator Login(TMP_InputField usernameLogin, TMP_InputField passwordLogin)
@@ -681,6 +775,8 @@ public class UserResponse
     public string _id;
     public string username;
     public string email;
+    public string nameingame;
+    public string avatar;
     public string role;
     public int money;
     public List<friend> friends;
@@ -727,6 +823,13 @@ public class skin
     public int price;
     public string skinImage;
     public string createdAt;
+
+}
+
+public class userIDrequest
+{
+    public string type;
+    public string id;
 
 }
 
