@@ -156,7 +156,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 2;
+        var randomvalue = 0;
         switch (randomvalue)
         {
             case 0:
