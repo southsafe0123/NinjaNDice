@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using Newtonsoft.Json;
 using System.Linq;
 using System;
+using Google.MiniJSON;
 
 public class ApiHandle : MonoBehaviour
 {
@@ -46,29 +47,49 @@ public class ApiHandle : MonoBehaviour
     }
     IEnumerator CheckUrlConnection()
     {
-        using (UnityWebRequest request = UnityWebRequest.Get(_apiUrl))
-        {
-            yield return request.SendWebRequest();  
+        LoadingPanel.Instance.SetDisplayLoading(true);
+        yield return new WaitForSeconds(1);
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/ping", "GET");
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.ConnectionError ||
-                request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.Log("Connected to database failed!");
-            }
-            else
+        try
+        {
+            Debug.Log(www.downloadHandler.text);
+            ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+            if (errorRp.message == "Pong!")
             {
                 Debug.Log("Connected to database successfully!");
                 Debug.Log(PlayerPrefs.HasKey("username") + "/playerPrefs/" + PlayerPrefs.HasKey("unityId"));
-                if (PlayerPrefs.HasKey("username") && PlayerPrefs.HasKey("password"))
+
+
+                if (PrefsData.HaveData(PrefsData.PLAYER_USERNAME_LOGIN) || PrefsData.HaveData(PrefsData.PLAYER_PASSWORD_LOGIN))
                 {
-                    LoginButton(PlayerPrefs.GetString("username"), PlayerPrefs.GetString("password"));
+                    LoginButton(PrefsData.GetData(PrefsData.PLAYER_USERNAME_LOGIN), PrefsData.GetData(PrefsData.PLAYER_PASSWORD_LOGIN));
                 }
-                if (PlayerPrefs.HasKey("unityId"))
+                else if (PrefsData.HaveData(PrefsData.PLAYER_ID_UNITY_LOGIN))
                 {
-                    Loginid(PlayerPrefs.GetString("unityId"), "", "Unity");
+                    Loginid(PrefsData.GetData(PrefsData.PLAYER_ID_UNITY_LOGIN), "", "Unity");
+                }
+                else
+                {
+                    LoadingPanel.Instance.SetDisplayLoading(false);
                 }
             }
+            else
+            {
+                Debug.Log("Connected to database failed!");
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
+
         }
+        catch (Exception)
+        {
+
+            throw;
+        }
+
     }
 
     // Update is called once per frame
@@ -85,7 +106,7 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(Login(usernameLogin, passwordLogin));
     }
 
-    public void Loginid(string ID,string username, string type)
+    public void Loginid(string ID, string username, string type)
     {
         StartCoroutine(LoginID(ID, username, type));
     }
@@ -164,21 +185,21 @@ public class ApiHandle : MonoBehaviour
             {
                 LoadingPanel.Instance.SetDisplayLoading(true);
                 yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(LoginID(ID, username,type));
+                yield return StartCoroutine(LoginID(ID, username, type));
                 LoadingPanel.Instance.SetDisplayLoading(false);
             }
             if (www.downloadHandler != null)
             {
                 Debug.Log(www.downloadHandler.text);
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                if(www.responseCode == 404)
+                if (www.responseCode == 404)
                 {
                     LoadingPanel.Instance.SetDisplayLoading(false);
                     WelcomePanel.instance.DisplayPanel(true);
                     yield return new WaitUntil(() => !WelcomePanel.instance.welcomePanel.activeInHierarchy);
                 }
 
-     
+
                 if (message != null) { message.text = errorRp.message; }
                 else { Debug.Log(errorRp.message); }
             }
@@ -200,8 +221,7 @@ public class ApiHandle : MonoBehaviour
             try
             {
                 //luu du lieu autologin
-                PlayerPrefs.SetString("unityId", ID);
-                Debug.Log(PlayerPrefs.HasKey("unityId"));
+                PrefsData.SetData(PrefsData.PLAYER_ID_UNITY_LOGIN, ID);
 
                 if (UserSessionManager.Instance != null)
                 {
@@ -317,7 +337,7 @@ public class ApiHandle : MonoBehaviour
             {
                 LoadingPanel.Instance.SetDisplayLoading(true);
                 yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(Login(usernameLogin,passwordLogin));
+                yield return StartCoroutine(Login(usernameLogin, passwordLogin));
                 LoadingPanel.Instance.SetDisplayLoading(false);
             }
             if (www.downloadHandler != null)
@@ -344,8 +364,8 @@ public class ApiHandle : MonoBehaviour
             try
             {
                 //luu du lieu autologin
-                PlayerPrefs.SetString("username", usernameLogin);
-                PlayerPrefs.SetString("password", passwordLogin);
+                PrefsData.SetData(PrefsData.PLAYER_USERNAME_LOGIN, usernameLogin);
+                PrefsData.SetData(PrefsData.PLAYER_PASSWORD_LOGIN, passwordLogin);
 
                 if (UserSessionManager.Instance != null)
                 {

@@ -51,7 +51,7 @@ public class SettingPanel : MonoBehaviour
             btnLogin.SetActive(false);
             btnLogout.SetActive(true);
         }
-        txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PlayerPrefs.GetString("GuestName") : ApiHandle.Instance.user.nameingame.ToString();
+        txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
     }
 
     private IEnumerator LogoutCoroutine()
@@ -62,9 +62,9 @@ public class SettingPanel : MonoBehaviour
         UserSessionManager.Instance.ClearSession();
         ApiHandle.Instance.user = null;
         Destroy(ApiHandle.Instance.GetComponent<LoginManager>());
-        PlayerPrefs.DeleteKey("username");
-        PlayerPrefs.DeleteKey("unityId");
-        PlayerPrefs.DeleteKey("password");
+        PrefsData.DeleteData(PrefsData.PLAYER_ID_UNITY_LOGIN);
+        PrefsData.DeleteData(PrefsData.PLAYER_USERNAME_LOGIN);
+        PrefsData.DeleteData(PrefsData.PLAYER_PASSWORD_LOGIN);
         yield return new WaitForSeconds(UnityEngine.Random.Range(0.3f, 1.3f));
         ApiHandle.Instance.AddComponent<LoginManager>();
         yield return new WaitUntil(() => UserSessionManager.Instance.username.IsNullOrEmpty());

@@ -10,7 +10,7 @@ public class ItemAttack : ItemBase
 {
     public override void Effect()
     {
-        int attackDamage = UnityEngine.Random.Range(0, 7);
+        int attackDamage = UnityEngine.Random.Range(0, 4);
         SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value,attackDamage);
     }
 

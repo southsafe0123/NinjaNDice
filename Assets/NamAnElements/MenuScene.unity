@@ -42681,6 +42681,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5064799538443980805, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1001
+      objectReference: {fileID: 0}
     - target: {fileID: 5064799538838161635, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}
       propertyPath: m_Name
       value: TransittionScene
@@ -42729,9 +42733,13 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5064799539896538668, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1000
+      objectReference: {fileID: 0}
     - target: {fileID: 5064799539896538677, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}

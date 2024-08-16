@@ -55,8 +55,8 @@ public class ItemPool : NetworkBehaviour
         GetCurrentPlayerItem().Effect();
         DataItemPlayerOwn item = playerItemList.First(item => item.itemName == GetCurrentPlayerItem().itemName);
         SetPlayerItemAmountInList(item.itemName,item.amount - 1);
+        GameManager.Singleton.SetPlayerTurn_ServerRPC(NetworkManager.LocalClientId, false);
     }
-
     public void OnClickNextItem()
     {
         itemIndex++;

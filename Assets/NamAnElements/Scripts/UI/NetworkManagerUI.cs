@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class NetworkManagerUI : NetworkBehaviour
 {
     public static NetworkManagerUI Instance;
-    public ButtonRollDice btnRollDice;
     public TextMeshProUGUI numDiceText;
     
     private void Awake()
