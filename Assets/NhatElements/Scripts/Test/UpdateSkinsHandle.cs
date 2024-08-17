@@ -98,6 +98,11 @@ public class UpdateSkinsHandle : MonoBehaviour
 
     public void LoadPrefab()
     {
+        foreach (Transform child in content)
+        {
+            Destroy(child.gameObject);
+        }
+
         List<skin> skins = new List<skin>();
         skins = ApiHandle.Instance.skins;
         foreach (skin s in skins)
