@@ -28,6 +28,7 @@ public class ApiHandle : MonoBehaviour
     //list name of user request
     [SerializeField] public List<whoRequest> wRequest;
 
+    [SerializeField] public List<skin> skins;
 
     // Start is called before the first frame update
     void Start()
@@ -44,6 +45,7 @@ public class ApiHandle : MonoBehaviour
         }
 
         StartCoroutine(CheckUrlConnection());
+        GetAllSkin();
     }
     IEnumerator CheckUrlConnection()
     {
@@ -96,6 +98,11 @@ public class ApiHandle : MonoBehaviour
     // {
 
     // }
+
+    public void GetAllSkin()
+    {
+        StartCoroutine(getAllSkins());
+    }
     public void ChangeNameButton(string name)
     {
         StartCoroutine(ChangeNameIngame(name));
@@ -103,8 +110,14 @@ public class ApiHandle : MonoBehaviour
     public void LoginButton(string usernameLogin, string passwordLogin)
     {
         StartCoroutine(Login(usernameLogin, passwordLogin));
+
     }
 
+    public skin skisn1(skin s1)
+    {
+        StartCoroutine(getSkin(s1));
+        return s1;
+    }
     public void Loginid(string ID, string username, string type)
     {
         StartCoroutine(LoginID(ID, username, type));
@@ -738,6 +751,35 @@ public class ApiHandle : MonoBehaviour
     }
 
 
+    //get skin by id, endpoint: /skin/:id , method: GET , id la id cua skin
+    public IEnumerator getSkin(skin s1)
+    {
+        UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skin/" + s1._id);
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            skin skin = JsonConvert.DeserializeObject<skin>(www.downloadHandler.text);
+            //so sanh s1 va skin xem co giong nhau khong
+            s1 = skin;
+        }
+    }
+
+
 
     public IEnumerator getStatus(string id)
     {
@@ -872,7 +914,46 @@ public class ApiHandle : MonoBehaviour
         uiController.UpdateRequest();
     }
 
+    //get all skins, endpoint: /skins , method: GET
+
+    public IEnumerator getAllSkins()
+    {
+        UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skins");
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(getAllSkins());
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
+            Debug.Log(skins.Count);
+
+        }
+
+    }
 }
+
+
+
 
 
 
@@ -1011,10 +1092,21 @@ public class skinpurchase
 [System.Serializable]
 public class skin
 {
+
+    //     {
+    //   "_id": "66bc57c5ea0484839ae5c2c1",
+    //   "name": "thành quốc",
+    //   "price": 222,
+    //   "skinImage": "skins/thành quốc/LionOrange.png",
+    //   "status": "available",
+    //   "createdAt": "2024-08-14T07:07:49.756Z",
+    //   "__v": 0
+    // }
     public string _id;
     public string name;
     public int price;
     public string skinImage;
+    public string status;
     public string createdAt;
 
 }

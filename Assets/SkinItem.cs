@@ -7,12 +7,12 @@ using UnityEngine.UI;
 public class SkinItem : MonoBehaviour
 {
 
-    [SerializeField] private SkinInfo skinInfo;
+    [SerializeField] private skin skinInfo;
     [SerializeField] private GameObject skinImage;
     // Start is called before the first frame update
 
 
-    public void SetData(SkinInfo skinInfo, Sprite sprite)
+    public void SetData(skin skinInfo, Sprite sprite)
     {
         this.skinInfo = skinInfo;
         skinImage.GetComponent<Image>().sprite = sprite;
