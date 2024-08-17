@@ -6,37 +6,70 @@ public class GameManagerRPK : NetworkBehaviour
 {
     public Map map;
     public Map mapFight;
-    public int index;
+    public int index, indexInFight;
     public GameObject myResult;
     public GameObject theirResult;
+    public GameObject gameInput;
     Result theirResultTemp;
     Result myResultTemp;
+    List<Player> players = new List<Player>();
     // Start is called before the first frame update
     void Start()
     {
         index = 0;
-        foreach(Player player in PlayerList.Instance.playerDic.Values)
+        foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
             player.gameObject.transform.position = map.movePos[index].position;
+            players.Add(player);
             index++;
         }
+        Debug.Log("so player " + players.Count);
 
-        if (!IsHost) return;
-        Player player1 = PlayerList.Instance.playerOrders[Random.Range(0, PlayerList.Instance.playerOrders.Count - 1)].player;
-        Player player2 = PlayerList.Instance.playerOrders[Random.Range(0, PlayerList.Instance.playerOrders.Count - 1)].player==player1 ? PlayerList.Instance.playerOrders[Random.Range(0, PlayerList.Instance.playerOrders.Count - 1)].player : PlayerList.Instance.playerOrders[Random.Range(0, PlayerList.Instance.playerOrders.Count - 1)].player;
+        List<Player> playerRange = new List<Player>();
+        HashSet<int> selectedIndices = new HashSet<int>();
 
-        player1.gameObject.transform.position = mapFight.movePos[0].position;
-        player2.gameObject.transform.position = mapFight.movePos[1].position;
+        while (playerRange.Count < 2)
+        {
+            int randomIndex = Random.Range(0, players.Count);
+            if (!selectedIndices.Contains(randomIndex))
+            {
+                playerRange.Add(players[randomIndex]);
+                selectedIndices.Add(randomIndex);
+            }
+        }
 
-        CheckPlayerInFightMap_ClientRPC(player1.ownerClientID.Value,player2.ownerClientID.Value);
+        Debug.Log("so playerRange " + playerRange.Count);
+        TelePlayerToFightMap(playerRange);
 
     }
-    [ClientRpc]
-    public void CheckPlayerInFightMap_ClientRPC(ulong player1ID, ulong player2ID)
+
+    public void TelePlayerToFightMap(List<Player> playerRange)
     {
-        if(NetworkManager.Singleton.LocalClientId == player1ID || NetworkManager.Singleton.LocalClientId == player2ID)
+
+        indexInFight = 0;
+        foreach (Player playerInFight in playerRange)
+        {
+            if (indexInFight < mapFight.movePos.Count)
+            {
+                playerInFight.gameObject.transform.position = mapFight.movePos[indexInFight].position;
+                indexInFight++;
+                CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value);
+            }
+            else
+            {
+                Debug.LogWarning("Not enough positions in mapFight.movePos for all players.");
+            }
+        }
+
+    }
+
+    [ClientRpc]
+    public void CheckPlayerInFightMap_ClientRPC(ulong playerID)
+    {
+        if(NetworkManager.Singleton.LocalClientId == playerID)
         {
             Debug.Log("ok");
+            gameInput.SetActive(true);
         }
     }
 

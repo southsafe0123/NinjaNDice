@@ -165,6 +165,9 @@ public class GameManager : NetworkBehaviour
             case 1:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
                 break;
+            case 2:
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+                break;
             default:
                 Debug.LogError("isminigame now");
                 break;
