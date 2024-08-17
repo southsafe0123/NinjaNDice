@@ -37,7 +37,6 @@ public class PlayerList : NetworkBehaviour
             Destroy(gameObject);
         }
     }
-
     public void SetPlayerDic(ulong clientID, Player player)
     {
         playerDic[clientID] = player;

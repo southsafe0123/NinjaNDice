@@ -18829,7 +18829,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   usernameLogin: {fileID: 260112083}
   passwordLogin: {fileID: 1605354869}
+  textUsernameGoogle: {fileID: 0}
   btnConfirm: {fileID: 1311546758}
+  btnLoginGoogle: {fileID: 0}
 --- !u!225 &736994449
 CanvasGroup:
   m_ObjectHideFlags: 0

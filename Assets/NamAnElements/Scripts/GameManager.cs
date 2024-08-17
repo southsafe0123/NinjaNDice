@@ -104,7 +104,7 @@ public class GameManager : NetworkBehaviour
                 EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
             }
             EndGamePanel.Instance.DisplayEndGamePanel(true);
-            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
+            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
             //setplayerWin;
             PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
             //updatePlayerOrder
@@ -115,8 +115,18 @@ public class GameManager : NetworkBehaviour
             EndGamePanel.Instance.btnBack.interactable = false;
             EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
             EndGamePanel.Instance.DisplayEndGamePanel(true);
-            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
-            EndGamePanel.Instance.AddPlayerRankingList(clientPlayerID);
+            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
+            foreach(Player player in PlayerList.Instance.playerDic.Values)
+            {
+                if(player.isPlayerDoneGame.Value == false)
+                {
+                    player.isPlayerDoneGame.Value = true;
+                    EndGamePanel.Instance.UpdateRankingList(player.ownerClientID.Value);
+                    break; 
+                }
+            }
+           
         }
     }
 
@@ -131,7 +141,7 @@ public class GameManager : NetworkBehaviour
         var playerID = playerList[playerIndex].ownerClientID.Value;
         SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
         yield return null;
-        playerList[playerIndex].isPlayerTurn.Value = true;
+        SetPlayerTurn_ClientRPC(playerList[playerIndex].OwnerClientId, true);
     }
 
     [ClientRpc]
@@ -156,7 +166,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 0;
+        var randomvalue = 2;
         switch (randomvalue)
         {
             case 0:
@@ -206,8 +216,19 @@ public class GameManager : NetworkBehaviour
     private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
-        SetPlayerTurn_ClientRPC(clientID, false);
         var playerDice = player.GetComponentInChildren<Animator>();
+
+        SetPlayerTurn_ClientRPC(clientID, false);
+        PlayDiceAnimation(diceValue, playerDice);
+        yield return new WaitUntil(() => dice.Value == diceValue);
+        yield return new WaitForSeconds(1.5f);
+        playerDice.Play("Dice_Idle");
+        if (!IsHost) yield break;
+        TeleportPlayer(playerList[playerIndex], diceValue); // id cua nguoi roll dice
+    }
+
+    private void PlayDiceAnimation(int diceValue, Animator playerDice)
+    {
         playerDice.Play("Dice_Roll");
         playerDice.transform.localScale = new Vector2(0.5f, 0.5f);
         playerDice.transform.localPosition = Vector2.zero;
@@ -217,11 +238,6 @@ public class GameManager : NetworkBehaviour
             if (IsHost) dice.Value = diceValue;
             playerDice.Play($"Dice_Result_{diceValue}");
         });
-        yield return new WaitUntil(() => dice.Value == diceValue);
-        yield return new WaitForSeconds(1.5f);
-        playerDice.Play("Dice_Idle");
-        if (!IsHost) yield break;
-        TeleportPlayer(playerList[playerIndex], diceValue); // id cua nguoi roll dice
     }
 
     private void UpdateDiceUI(int value)

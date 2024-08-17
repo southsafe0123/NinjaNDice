@@ -22,7 +22,7 @@ public class LoginManager : MonoBehaviour
     {
         try
         {
-            await UnityServices.InitializeAsync();
+           await UnityServices.InitializeAsync();
             PlayerAccountService.Instance.SignedIn += SignInWithUnity;
         }
         catch (Exception e)
@@ -103,6 +103,7 @@ public class LoginManager : MonoBehaviour
     {
         try
         {
+            LoadingPanel.Instance.SetDisplayLoading(true);
             await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
             Debug.Log("SignIn is successful.");
             playerInfo = AuthenticationService.Instance.PlayerInfo;
@@ -112,7 +113,8 @@ public class LoginManager : MonoBehaviour
             Debug.Log("Player Name: " + name);
             Debug.Log("Player ID: " + playerInfo.Id);
             // txtName.text = name.Split('#')[0];
-            ApiHandle.Instance.Loginid(playerInfo.Id, "Unity");
+            //hienPopup username
+            ApiHandle.Instance.Loginid(playerInfo.Id, "", "Unity");
             OnSignedIn?.Invoke(PlayerProfile);
 
         }
@@ -183,6 +185,8 @@ public class LoginManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        PlayerAccountService.Instance.SignOut();
+        AuthenticationService.Instance.SignOut();
         PlayerAccountService.Instance.SignedIn -= SignInWithUnity;
     }
 }

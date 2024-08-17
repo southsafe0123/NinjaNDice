@@ -76,6 +76,7 @@ public class PlayerDisconnectManager : NetworkBehaviour
                 AuthenticationService.Instance.SignOut();
             }
             Destroy(GameObject.Find("PlayerList"));
+            Destroy(EndGamePanel.Instance.gameObject);
             NetworkManager.Destroy(NetworkManager.gameObject);
             //Destroy(PlayerList.Instance.gameObject);
 
