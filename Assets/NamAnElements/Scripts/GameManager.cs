@@ -86,13 +86,18 @@ public class GameManager : NetworkBehaviour
         } while (posCount <= index);
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) CheckEndGame_ClientRPC(clientPlayer.ownerClientID.Value);
-
-        playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
+        NextPlayerTurn();
         var oldGameTurn = gameTurn;
         gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
         OnGameTurnChange(oldGameTurn, gameTurn);
         StartCoroutine(SwitchCamCoroutine());
     }
+
+    private void NextPlayerTurn()
+    {
+        playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
+    }
+
     [ClientRpc]
     private void CheckEndGame_ClientRPC(ulong clientPlayerID)
     {
@@ -117,16 +122,16 @@ public class GameManager : NetworkBehaviour
             EndGamePanel.Instance.DisplayEndGamePanel(true);
             PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
             EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
-            foreach(Player player in PlayerList.Instance.playerDic.Values)
+            foreach (Player player in PlayerList.Instance.playerDic.Values)
             {
-                if(player.isPlayerDoneGame.Value == false)
+                if (player.isPlayerDoneGame.Value == false)
                 {
                     player.isPlayerDoneGame.Value = true;
                     EndGamePanel.Instance.UpdateRankingList(player.ownerClientID.Value);
-                    break; 
+                    break;
                 }
             }
-           
+
         }
     }
 
@@ -207,6 +212,12 @@ public class GameManager : NetworkBehaviour
     public void SetPlayerTurn_ClientRPC(ulong clientID, bool isPlayerTurn)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
+        // Check player frozen
+        if (player.isPlayerFrozen.Value)
+        {
+            player.isPlayerFrozen.Value = false;
+            NextPlayerTurn();
+        }
         if (IsHost)
         {
             player.isPlayerTurn.Value = isPlayerTurn;

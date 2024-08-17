@@ -11,10 +11,10 @@ public class ItemAttack : ItemBase
     public override void Effect()
     {
         int attackDamage = UnityEngine.Random.Range(0, 4);
-        SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value,attackDamage);
+        SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value, attackDamage);
     }
 
-    [ServerRpc(RequireOwnership =false)]
+    [ServerRpc(RequireOwnership = false)]
     public void SendAttackDamage_ServerRPC(ulong targetID, int attackDamage)
     {
 
@@ -25,6 +25,13 @@ public class ItemAttack : ItemBase
 
     private IEnumerator MoveBackCoroutine(Player targetPlayer, int attackDamage)
     {
+        //kiểm tra targetPlayer có isPlayerDeffend = true không, nếu có thì return và trả isPlayerDeffend = false
+        // if (targetPlayer.isPlayerDeffend.Value)
+        // {
+        //     targetPlayer.isPlayerDeffend.Value = false;
+        //     yield break;
+        // }
+
         int posCount = -1;
         WaitUntil waitUntil = new WaitUntil(() => targetPlayer.gameObject.transform.position == GameManager.Singleton.map.movePos[targetPlayer.currentPos.Value].position);
         WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
