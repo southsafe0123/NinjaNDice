@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using static UnityEditor.Progress;
 
 public class PlayerList : NetworkBehaviour
 {
@@ -87,7 +88,8 @@ public class PlayerList : NetworkBehaviour
     {
         int i = 1;
        
-        var playerOrdersTemp = playerOrders.Where(item => item.player.gameObject != null|| item.player.isPlayerDoneGame.Value == false).ToList();
+        var playerOrdersTemp = playerOrders.Where(item => item.player.gameObject != null).ToList();
+        playerOrdersTemp = playerOrdersTemp.Where(item => item.player.isPlayerDoneGame.Value == false).ToList();
         foreach (PlayerOrder playerOrder in playerOrdersTemp)
         {
             playerOrder.order= i;

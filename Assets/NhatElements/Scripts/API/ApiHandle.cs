@@ -86,8 +86,7 @@ public class ApiHandle : MonoBehaviour
         }
         catch (Exception)
         {
-
-            throw;
+            LoadingPanel.Instance.SetDisplayLoading(false);
         }
 
     }

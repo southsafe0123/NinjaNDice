@@ -56,5 +56,6 @@ public class EndGamePanel : MonoBehaviour
                 break;
             }
         }
+        PlayerList.Instance.ResetPlayerOrder();
     }
 }

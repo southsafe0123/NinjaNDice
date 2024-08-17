@@ -99,34 +99,39 @@ public class GameManager : NetworkBehaviour
         if (PlayerList.Instance.playerOrders.Count > 2)
         {
             EndGamePanel.Instance.btnBack.interactable = true;
-            if (IsHost)
-            {
-                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
-            }
             EndGamePanel.Instance.DisplayEndGamePanel(true);
             EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
             //setplayerWin;
-            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            //updatePlayerOrder
-            PlayerList.Instance.ResetPlayerOrder();
+            if (IsHost)
+            {
+                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
+                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            }
         }
         else
         {
             EndGamePanel.Instance.btnBack.interactable = false;
             EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
             EndGamePanel.Instance.DisplayEndGamePanel(true);
-            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
-            foreach(Player player in PlayerList.Instance.playerDic.Values)
+            if (IsHost)
             {
-                if(player.isPlayerDoneGame.Value == false)
+                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            }
+            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
+            foreach (Player player in PlayerList.Instance.playerDic.Values)
+            {
+                if (player.isPlayerDoneGame.Value == false)
                 {
-                    player.isPlayerDoneGame.Value = true;
+                    if (IsHost)
+                    {
+                        player.isPlayerDoneGame.Value = true;
+                    }
                     EndGamePanel.Instance.UpdateRankingList(player.ownerClientID.Value);
-                    break; 
+                    break;
                 }
             }
-           
+
+
         }
     }
 
