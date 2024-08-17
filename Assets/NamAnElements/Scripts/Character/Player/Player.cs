@@ -11,6 +11,9 @@ public class Player : NetworkBehaviour
     public NetworkVariable<bool> isPlayerTurn = new NetworkVariable<bool>();
     public NetworkVariable<int> currentPos = new NetworkVariable<int>();
     public NetworkVariable<bool> isPlayerDoneGame = new NetworkVariable<bool>();
+    public NetworkVariable<bool> isPlayerFrozen = new NetworkVariable<bool>();
+    public NetworkVariable<bool> isPlayerDeffend = new NetworkVariable<bool>();
+
     public string answer;
     public int life = 3;
     public bool isDie = false;

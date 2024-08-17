@@ -1,4 +1,4 @@
-﻿// using Unity.Tutorials.Core.Editor;
+﻿
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
