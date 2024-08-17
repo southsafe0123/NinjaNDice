@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Newtonsoft.Json;
 
 public class ItemShop : MonoBehaviour
 {
@@ -10,18 +11,27 @@ public class ItemShop : MonoBehaviour
     [SerializeField] private TMP_Text skinName;
     [SerializeField] private TMP_Text skinPrice;
     // Start is called before the first frame update
-    void Start()
+    // void Start()
+    // {
+
+    // }
+
+    public void UpdateData(skin s1)
     {
-        SkinInfo skinInfo = JsonUtility.FromJson<SkinInfo>(skinInfoJson.text);
-        skinName.text = skinInfo.name;
-        skinPrice.text = skinInfo.price.ToString();
+
+
+        DisplayData(s1);
+
     }
 
-    public void UpdateData(TextAsset skinInfoJson)
+    public void DisplayData(skin s1)
     {
-        SkinInfo skinInfo = JsonUtility.FromJson<SkinInfo>(skinInfoJson.text);
-        skinName.text = skinInfo.name;
-        skinPrice.text = skinInfo.price.ToString();
+
+        skinName.text = s1.name;
+        skinPrice.text = s1.price.ToString();
     }
+
+
+
 
 }
