@@ -17,4 +17,11 @@ public class ItemShop : MonoBehaviour
         skinPrice.text = skinInfo.price.ToString();
     }
 
+    public void UpdateData(TextAsset skinInfoJson)
+    {
+        SkinInfo skinInfo = JsonUtility.FromJson<SkinInfo>(skinInfoJson.text);
+        skinName.text = skinInfo.name;
+        skinPrice.text = skinInfo.price.ToString();
+    }
+
 }

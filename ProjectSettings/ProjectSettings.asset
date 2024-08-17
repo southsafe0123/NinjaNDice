@@ -772,7 +772,12 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Purchasing: 0
+    UDP: 0
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -787,11 +792,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 39c78ed6-1765-41f7-84cc-6845faf9afba
+  cloudProjectId: 2e215eb9-d2b2-430d-bf3e-4cb070ab8aa4
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: DragonNDice
-  organizationId: unity_24b76337700370002451
+  projectName: NinjaNDice
+  organizationId: unity_pl9kacygyi5h9w
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 

@@ -63,7 +63,7 @@ MonoBehaviour:
       - m_Id: e9737500568431d459a7a20067dadadb
         m_Value: ServerData/[BuildTarget]
       - m_Id: 340e673eb970532439b3f7653dc26fe1
-        m_Value: http://localhost:3000
+        m_Value: https://mrxgame.loca.lt/androidData
     m_ProfileEntryNames:
     - m_Id: 5dd3e5f090958a64b943dd217eaeb871
       m_Name: BuildTarget
