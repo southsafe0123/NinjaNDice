@@ -113,6 +113,11 @@ public class ApiHandle : MonoBehaviour
 
     }
 
+    public void BuySkinButton(string userId,string skinId)
+    {
+        StartCoroutine(BuySkin(userId,skinId));
+    }
+
     public skin skisn1(skin s1)
     {
         StartCoroutine(getSkin(s1));
@@ -455,6 +460,7 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            Debug.Log(www.downloadHandler.text);
             if (www.responseCode == 502)
             {
                 LoadingPanel.Instance.SetDisplayLoading(true);
@@ -508,8 +514,7 @@ public class ApiHandle : MonoBehaviour
         }
         else
         {
-            friendSearch friend = JsonConvert.DeserializeObject<friendSearch>(www.downloadHandler.text);
-            Debug.Log(friend.username);
+            List<friendSearch> friend = JsonConvert.DeserializeObject<List<friendSearch>>(www.downloadHandler.text);
 
             uiController.UpdateSearch(friend);
         }
@@ -950,11 +955,59 @@ public class ApiHandle : MonoBehaviour
         }
 
     }
+
+
+    public IEnumerator BuySkin(string userId, string skinId)
+    {
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        BuySkinRequest buySkinrq = new BuySkinRequest();
+        buySkinrq.userId = userId;
+        buySkinrq.skinId = skinId;
+        string json = JsonUtility.ToJson(buySkinrq);
+        Debug.Log(json);
+
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/buySkin", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(BuySkin(userId,skinId));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            if (message != null) { message.text = "Send request success"; }
+            else { Debug.Log("Send request success"); }
+            CheckBuySkinPanel.instance.DisplayCheck(false);
+        }
+        LoadingPanel.Instance.SetDisplayLoading(false);
+    }
+
+
 }
-
-
-
-
 
 
 
@@ -982,6 +1035,7 @@ public class friendSearch
 {
     public string _id;
     public string username;
+    public string nameingame;
     public string avatar;
 }
 [System.Serializable]
@@ -1086,7 +1140,7 @@ public class request
 [System.Serializable]
 public class skinpurchase
 {
-    public string skin; // id of skin
+    public string _id; // id of skin
     public string datePurchased;
 }
 [System.Serializable]
@@ -1123,5 +1177,9 @@ public class UserChangeNameData
     public string userId;
     public string nameingame;
 }
-
+public class BuySkinRequest
+{
+    public string userId;
+    public string skinId;
+}
 

@@ -279,11 +279,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8290837315187581980}
-  - component: {fileID: -3314776204825649671}
   - component: {fileID: 1672572601449800018}
   - component: {fileID: 1672572601449800019}
+  - component: {fileID: 5003223381114874354}
   m_Layer: 5
-  m_Name: ItemShop
+  m_Name: ItemSkin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -312,22 +312,6 @@ RectTransform:
   m_AnchoredPosition: {x: 188.68933, y: -212.11426}
   m_SizeDelta: {x: 208.9923, y: 218.6805}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &-3314776204825649671
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8290837315187581983}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8e7c1f9090beb24397acb82d6d4fcf5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skinId: 
-  skinInfoJson: {fileID: 4900000, guid: 887cb89d47ce769438eea340d159e3ca, type: 3}
-  skinName: {fileID: 7294001225069884182}
-  skinPrice: {fileID: 5286042886935263014}
 --- !u!222 &1672572601449800018
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -366,6 +350,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1.71
+--- !u!114 &5003223381114874354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8290837315187581983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d990b756c3ad906458e6c51bfa1e7708, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinId: 
+  skinName: 
+  avatar: {fileID: 0}
 --- !u!1 &8290837315544610204
 GameObject:
   m_ObjectHideFlags: 0
@@ -432,7 +431,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 69bac1e02b932a64bace1bb9d1e9ba5f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9cebb503e2c506e47ac651831ccbcc73, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -564,7 +563,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: -3314776204825649671}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: ItemShop, Assembly-CSharp
         m_MethodName: BuySkin
         m_Mode: 1

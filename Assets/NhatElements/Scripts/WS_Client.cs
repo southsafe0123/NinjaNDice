@@ -52,6 +52,10 @@ public class WS_Client : MonoBehaviour
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
                     UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
+                }else if (e.Data == "money")
+                {
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
+                    UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateMoney());
                 }
                 else
                 {

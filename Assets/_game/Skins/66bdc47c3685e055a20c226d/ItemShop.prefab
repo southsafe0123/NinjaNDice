@@ -324,6 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e7c1f9090beb24397acb82d6d4fcf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  skinId: 
   skinInfoJson: {fileID: 4900000, guid: 887cb89d47ce769438eea340d159e3ca, type: 3}
   skinName: {fileID: 7294001225069884182}
   skinPrice: {fileID: 5286042886935263014}
@@ -562,7 +563,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 9091287029558231543}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: -3314776204825649671}
+        m_TargetAssemblyTypeName: ItemShop, Assembly-CSharp
+        m_MethodName: BuySkin
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &9091287029814907645
 GameObject:
   m_ObjectHideFlags: 0

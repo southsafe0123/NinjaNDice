@@ -13,7 +13,7 @@ public class SettingPanel : MonoBehaviour
     public GameObject btnLogout;
     public GameObject btnConfirmLogout;
     public Button btnChangeNameConfirm;
-    public TextMeshProUGUI guestName;
+    public TMP_InputField guestName;
     public GameObject changeNamePanel;
     private void Start()
     {
@@ -33,7 +33,7 @@ public class SettingPanel : MonoBehaviour
             }
             else
             {
-                ApiHandle.Instance.ChangeNameButton(guestName.text);
+                ApiHandle.Instance.ChangeNameButton(guestName.text.ToString());
                 LoadingPanel.Instance.SetDisplayLoading(true);
                 changeNamePanel.SetActive(false);
             }

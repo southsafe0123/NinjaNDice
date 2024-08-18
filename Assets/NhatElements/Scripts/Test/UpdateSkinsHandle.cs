@@ -116,8 +116,7 @@ public class UpdateSkinsHandle : MonoBehaviour
                 {
                     GameObject prefab = obj.Result;
                     GameObject item = Instantiate(prefab, content);
-                    item.GetComponent<ItemShop>().UpdateData(s);
-                    itemSkins.Add(s._id, item);
+                    item.GetComponent<ItemShop>().UpdateData(s,s._id);
                 }
                 else
                 {
