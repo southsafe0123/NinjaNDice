@@ -43,7 +43,10 @@ public class ApiHandle : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        if (!PrefsData.HaveData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN))
+        {
+            PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, "Player_" + UnityEngine.Random.Range(1000, 9000));
+        }
         StartCoroutine(CheckUrlConnection());
         GetAllSkin();
     }

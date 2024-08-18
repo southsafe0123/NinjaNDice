@@ -16,11 +16,10 @@ public class PlayerData : NetworkBehaviour
     {
         string myPlayerName = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
         SetPlayerPlayerName_ServerRPC(myPlayerName, NetworkManager.LocalClientId);
-        
     }
     [ServerRpc(RequireOwnership =false)]
     private void SetPlayerPlayerName_ServerRPC(string clientPlayerName, ulong clientID)
-    {
+    {   if (!IsHost) return;
         PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerName.Value = clientPlayerName;
     }
 

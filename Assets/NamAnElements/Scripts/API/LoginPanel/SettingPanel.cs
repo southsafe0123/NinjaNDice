@@ -28,7 +28,7 @@ public class SettingPanel : MonoBehaviour
 
             if (UserSessionManager.Instance.username.IsNullOrEmpty())
             {
-                PlayerPrefs.SetString("GuestName",guestName.text);
+                PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, guestName.text);    
                 changeNamePanel.SetActive(false);
             }
             else

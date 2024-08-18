@@ -359,6 +359,10 @@ MonoBehaviour:
     m_InternalValue: 0
   isPlayerDoneGame:
     m_InternalValue: 0
+  isPlayerFrozen:
+    m_InternalValue: 0
+  isPlayerDeffend:
+    m_InternalValue: 0
   answer: 
   life: 3
   isDie: 0
@@ -608,7 +612,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.7
+  m_fontSize: 0.5
   m_fontSizeBase: 5
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -686,8 +690,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -860.02, y: -438.82}
-  m_SizeDelta: {x: 6.7969, y: 1.1606}
+  m_AnchoredPosition: {x: -860, y: -438.98}
+  m_SizeDelta: {x: 5.2082, y: 0.9114}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8705614216247658257
 CanvasRenderer:

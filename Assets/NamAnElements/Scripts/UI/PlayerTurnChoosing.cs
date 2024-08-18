@@ -1,4 +1,7 @@
-﻿using Unity.Netcode;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerTurnChoosing : NetworkBehaviour

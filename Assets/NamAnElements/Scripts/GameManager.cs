@@ -176,7 +176,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 2;
+        var randomvalue = 1;
         switch (randomvalue)
         {
             case 0:
@@ -187,6 +187,9 @@ public class GameManager : NetworkBehaviour
                 break;
             case 2:
                 LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+                break;
+            case 3:
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
                 break;
             default:
                 Debug.LogError("isminigame now");

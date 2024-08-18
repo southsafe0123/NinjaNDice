@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,7 +11,6 @@ public class ItemPool : NetworkBehaviour
 
     public List<GameObject> fullItemList = new List<GameObject>();
     public List<DataItemPlayerOwn> playerItemList = new List<DataItemPlayerOwn>();
-    
     public int itemIndex;
     public Player playerOwner;
 
@@ -22,7 +22,7 @@ public class ItemPool : NetworkBehaviour
         }
 
     }
-    
+
     private void Start()
     {
         playerOwner = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
@@ -41,20 +41,31 @@ public class ItemPool : NetworkBehaviour
 
     public void AddPlayerItemToList(string itemName, int amount)
     {
-        playerItemList.Add(new DataItemPlayerOwn(itemName, amount));
+        Debug.Log("===> give item to player");
+        bool playerHaveThisItem = playerItemList.FirstOrDefault(item => item.itemName == itemName) != null;
+        if (playerHaveThisItem)
+        {
+            DataItemPlayerOwn thisItem = playerItemList.First(item => item.itemName == itemName);
+            thisItem.amount = thisItem.amount + amount;
+        }
+        else
+        {
+            playerItemList.Add(new DataItemPlayerOwn(itemName, amount));
+        }
     }
+
     public void SetPlayerItemAmountInList(string itemName, int amount)
     {
         DataItemPlayerOwn item = playerItemList.First(item => item.itemName == itemName);
         item.amount = amount;
-        if(item.amount == 0) playerItemList.Remove(item);
+        if (item.amount == 0) playerItemList.Remove(item);
     }
     public void UseItem(Player targetPlayer)
     {
         GetCurrentPlayerItem().targetPlayer = targetPlayer;
         GetCurrentPlayerItem().Effect();
         DataItemPlayerOwn item = playerItemList.First(item => item.itemName == GetCurrentPlayerItem().itemName);
-        SetPlayerItemAmountInList(item.itemName,item.amount - 1);
+        SetPlayerItemAmountInList(item.itemName, item.amount - 1);
         GameManager.Singleton.SetPlayerTurn_ServerRPC(NetworkManager.LocalClientId, false);
     }
     public void OnClickNextItem()
@@ -80,6 +91,19 @@ public class ItemPool : NetworkBehaviour
             return null;
         }
     }
+    public ItemBase GetItemInFullItem(string itemName)
+    {
+        try
+        {
+            var playerItem = fullItemList.First(gameObject => gameObject.GetComponent<ItemBase>().itemName == itemName).GetComponent<ItemBase>();
+            return playerItem;
+        }
+        catch (System.Exception)
+        {
+            Debug.LogError("cant display item");
+            return null;
+        }
+    }
     public int GetCurrentPlayerItemAmount()
     {
         try
@@ -92,20 +116,45 @@ public class ItemPool : NetworkBehaviour
             return 0;
         }
     }
-    
-    public void GivePlayerRandomItem()
+    [ClientRpc]
+    public void GivePlayerRandomItem_ClientRPC(ulong clientID)
     {
-        int randomItemIndex = UnityEngine.Random.Range(0, fullItemList.Count);
-        int amount = 1;
-        ItemBase item = fullItemList[randomItemIndex].GetComponent<ItemBase>();
-        AddPlayerItemToList(item.itemName, amount);
+        if (clientID == NetworkManager.Singleton.LocalClientId)
+        {
+            int randomItemIndex = UnityEngine.Random.Range(0, fullItemList.Count);
+            int amount = 1;
+            ItemBase item = fullItemList[randomItemIndex].GetComponent<ItemBase>();
+
+            SendInfoItemToMiniEndGame_ServerRPC(NetworkManager.Singleton.LocalClientId,item.itemName); 
+            AddPlayerItemToList(item.itemName, amount);
+        }
+    }
+    [ServerRpc(RequireOwnership =false)]
+    private void SendInfoItemToMiniEndGame_ServerRPC(ulong clientID, string itemName)
+    {
+        if (MiniEndGamePanel.instance == null) return;
+        UpdatePlayerItem_ClientRPC(clientID,itemName);
+    }
+
+    [ClientRpc]
+    public void UpdatePlayerItem_ClientRPC(ulong playerID, string itemName)
+    {
+        foreach (PlayerMiniEndGameItem playerItem in MiniEndGamePanel.instance.playerEndList)
+        {
+            if (playerItem.player != null && playerItem.player.ownerClientID.Value == playerID)
+            {
+                ItemBase item = GetItemInFullItem(itemName);
+                Debug.Log("player: " + playerID + "/item: " + item.itemName);
+                playerItem.itemPlayerGet = item;
+            }
+        }
     }
 
     public void SavePlayerItemBeforeChangeScene()
     {
         try
         {
-            playerOwner.GetComponent<PlayerItem>().playerItemList= playerItemList;
+            playerOwner.GetComponent<PlayerItem>().playerItemList = playerItemList;
 
         }
         catch (System.Exception)
