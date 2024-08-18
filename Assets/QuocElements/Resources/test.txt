@@ -1,25 +1,10 @@
-1,Ai là tác giả của tiểu thuyết "Tiểu thư Pompadour"?,Alexandre Dumas,Victor Hugo,Émile Zola,Théophile Gautier,4
-2,Công thức nào dưới đây biểu thị luật Gravitational của Newton?,F = ma,E = mc^2,F = G (m1 * m2) / r^2,E = -ħω,3
-3,Đơn vị nào dưới đây được sử dụng để đo áp suất?,Pascal,Ohm,Kelvin,Hertz,1
-4,Element nào là phổ biến nhất trong vỏ trái đất?,Oxy,Silic,Nitơ,Nhôm,1
-5,Mặt trời có đường kính lớn nhất khoảng bao nhiêu kilômét?,1.4 triệu km,2 triệu km,1.2 triệu km,1.5 triệu km,4
-6,Năm 1927 ai đã đưa ra định lý bất đẳng thức không chắc chắn?,Werner Heisenberg,Max Planck,Niels Bohr,Erwin Schrödinger,1
-7,Element nào là nguyên tố phổ biến nhất trong hệ mặt trời?,Hydro,Helium,Carbon,Oxygen,2
-8,Công nghệ nào dưới đây được sử dụng để tạo ra hình ảnh 3D trong các ứng dụng điện tử?,CGI,AI,MRI,USB,1
-9,Mạng xã hội nào được thành lập đầu tiên?,Facebook,Instagram,Twitter,LinkedIn,3
-10,AI là viết tắt của cái gì trong lĩnh vực công nghệ?,Trí tuệ nhân tạo,Trình diễn ảo,Âm thanh hình ảnh,Tiện ích cá nhân,1
-11,Google được thành lập vào năm nào?,1998,1995,2000,2002,1
-12,AI "Deep Blue" của IBM nổi tiếng vì gì?,Đánh bại Garry Kasparov trong cờ vua,Phát triển AI đầu tiên,Phát minh ra Internet,Làm việc trong không gian,1
-13,Hệ điều hành "Linux" được phát triển bởi ai?,Linus Torvalds,Bill Gates,Steve Jobs,Tim Berners-Lee,1
-14,Công nghệ nào dưới đây được sử dụng để tạo ra các ứng dụng di động?,Android,Windows,macOS,Linux,1
-15,Người sáng lập ra công ty Apple là ai?,Steve Jobs,Bill Gates,Mark Zuckerberg,Larry Page,1
-16,Nền tảng nào dưới đây được sử dụng để phát triển các ứng dụng web?,HTML/CSS/JavaScript,Java,C++,Python,1
-17,Công nghệ nào dưới đây được sử dụng để lưu trữ dữ liệu trong đám mây?,Cloud computing,AI,Blockchain,IoT,1
-18,Phần mềm nào dưới đây được sử dụng để tạo và quản lý cơ sở dữ liệu?,MySQL,Photoshop,Excel,Word,1
-19,Ai là tác giả của tiểu thuyết "Anna Karenina"?,Leo Tolstoy,Fyodor Dostoevsky,Anton Chekhov,Maxim Gorky,1
-20,Người sáng lập ra triết học Stoicism là ai?,Zeno of Citium,Socrates,Plato,Aristotle,1
-21,Quyển sách "The Origin of Species" của Charles Darwin được xuất bản vào năm nào?,1859,1865,1871,1880,1
-22,Tragedy "Romeo and Juliet" was written by?,Shakespeare,Shelley,Marlowe,Chaucer,1
-23,Đâu là một loại năng lượng tái tạo không phải là điện mặt trời?,Gió,Nước,Dầu mỏ,Đất nung,3
-24,Công nghệ nào dưới đây được sử dụng để tạo ra các ứng dụng di động?,Android,Windows,macOS,Linux,1
-25,Đơn vị nào dưới đây được sử dụng để đo áp suất?,Pascal,Ohm,Kelvin,Hertz,1
+1,1+1,6,2,4,10,2
+2,100/100*50/10,20,30,5,10,3
+3,7*8+5-9,50,52,54,60,2
+4,9+8*2,25,30,35,40,1
+5,12-4*2,4,8,10,14,1
+6,9*10,2,50,90,1,3
+7,4*2,8,15,19,26,1
+8,8*4-10,34,26,30,22,4
+9,8*4,25,64,32,1,3
+10,7*5,25,45,55,35,4

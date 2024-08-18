@@ -8,6 +8,7 @@ using Unity.Netcode;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class Quizz : NetworkBehaviour
 {
@@ -16,12 +17,7 @@ public class Quizz : NetworkBehaviour
     public NetworkVariable<int> numQ = new NetworkVariable<int>();
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
 
-
-    public GameObject answer1;
-    public GameObject answer2;
-    public GameObject answer3;
-    public GameObject answer4;
-    public List<NetworkObject> networkObjects;
+    public List<GameObject> answerObjects;
 
     public List<GameObject> standPos = new List<GameObject>();
     public List<Player> playerList = new List<Player>();
@@ -51,10 +47,6 @@ public class Quizz : NetworkBehaviour
     }
     void Start()
     {
-        networkObjects.Add(answer1.GetComponent<NetworkObject>());
-        networkObjects.Add(answer2.GetComponent<NetworkObject>());
-        networkObjects.Add(answer3.GetComponent<NetworkObject>());
-        networkObjects.Add(answer4.GetComponent<NetworkObject>());
         Debug.Log(NetworkManager.LocalClientId);
         player = PlayerList.Instance.GetPlayerDic_Value(NetworkManager.LocalClientId).gameObject;
 
@@ -69,6 +61,7 @@ public class Quizz : NetworkBehaviour
             for (int i = 0; i < PlayerList.Instance.playerDic.Count; i++)
             {
                 TeleportPlayer(playerList[i], i);
+                playerList[i].isPlayerTurn.Value = false;
                 AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
             }
         }
@@ -82,7 +75,7 @@ public class Quizz : NetworkBehaviour
         yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
         while (true)
         {
-            yield return new WaitForSeconds(7f); // Wait 15 seconds before loading a new question
+            yield return new WaitForSeconds(5f); // Wait 15 seconds before loading a new question
             LoadRandomQuestion();
             ResetGameObjectAnswer();
         }
@@ -163,52 +156,54 @@ public class Quizz : NetworkBehaviour
         }
 
         questionText.text = randomQuestion.text;
-        answerTexts.text = " A : " + randomQuestion.answers[0] + " B : " + randomQuestion.answers[1] + " C : " + randomQuestion.answers[2] + " D : " + randomQuestion.answers[3];
-
+        AnswerPanel.instance.txtAnswer1.text = randomQuestion.answers[0];
+        AnswerPanel.instance.txtAnswer2.text = randomQuestion.answers[1];
+        AnswerPanel.instance.txtAnswer3.text = randomQuestion.answers[2];
+        AnswerPanel.instance.txtAnswer4.text = randomQuestion.answers[3];
 
         StartCoroutine(WaitAndDisplayCorrectAnswer(randomQuestion));
     }
 
     private IEnumerator WaitAndDisplayCorrectAnswer(Question randomQuestion)
     {
-        yield return new WaitForSeconds(5f);
-
+        yield return new WaitUntil(()=>AnswerPanel.instance.isPlayerClick);
+        AnswerPanel.instance.isPlayerClick = false;
         // Call ChooseCorrectAnswer to display correct answer
         ChooseCorrectAnswer(randomQuestion);
     }
 
     private void ChooseCorrectAnswer(Question randomQuestion)
     {
-        ShowAnswer(networkObjects[randomQuestion.correctAnswer - 1]);
+        ShowAnswer(answerObjects[randomQuestion.correctAnswer - 1]);
 
         if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer == null)
         {
             TakeDamage_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-
         };
 
         lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
-
     }
-
-
-
 
     private void ResetGameObjectAnswer()
     {
-        for (int i = 0; i < networkObjects.Count; i++)
+        for (int i = 0; i < answerObjects.Count; i++)
         {
-            networkObjects[i].gameObject.SetActive(true);
+            answerObjects[i].gameObject.SetActive(true);
+            answerObjects[i].GetComponent<Button>().interactable = true;
         }
     }
 
-    public void ShowAnswer(NetworkObject answer)
+    public void ShowAnswer(GameObject answer)
     {
-        for (int i = 0; i < networkObjects.Count; i++)
+        for (int i = 0; i < answerObjects.Count; i++)
         {
-            if (networkObjects[i].NetworkObjectId != answer.NetworkObjectId)
+            if (answerObjects[i] != answer)
             {
-                networkObjects[i].gameObject.SetActive(false);
+                answerObjects[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                answerObjects[i].GetComponent<Button>().interactable = false;
             }
         }
     }

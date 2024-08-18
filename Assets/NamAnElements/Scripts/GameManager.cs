@@ -27,10 +27,16 @@ public class GameManager : NetworkBehaviour
 
         // playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
     }
-    private void Start()
+
+    
+    
+    private IEnumerator Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
-        if (!IsHost) return;
+        if (!IsHost) yield break;
+
+        yield return new WaitUntil(() =>  LoadScene.Instance != null && LoadScene.Instance.isAllPlayerReady);
+
         playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
         {
