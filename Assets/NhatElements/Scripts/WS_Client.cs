@@ -9,7 +9,9 @@ public class WS_Client : MonoBehaviour
 {
     private WebSocket ws;
 
-    [SerializeField] private string url = "mrxgame.loca.lt";
+    [SerializeField] private string url = "172.16.90.43:3000";
+    //[SerializeField] private string url = "mrxgame.loca.lt";
+
     [SerializeField] private TMP_InputField ID;
     [SerializeField] private TMP_Text message;
     [SerializeField] private string myID;

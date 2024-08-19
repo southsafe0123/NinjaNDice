@@ -36392,7 +36392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f267e68cfa695cd4f9029005527c1f08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiUrl: https://mrxgame.loca.lt
+  _apiUrl: http://172.16.90.43:3000
   message: {fileID: 0}
   uiController: {fileID: 1244948564}
   friendIngame: []
@@ -40774,9 +40774,9 @@ MonoBehaviour:
   m_fontSize: 55
   m_fontSizeBase: 55
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 55
   m_fontStyle: 1
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
@@ -43429,7 +43429,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5064799539896538677, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f1ba147e8bc08b46881699e74455075, type: 3}

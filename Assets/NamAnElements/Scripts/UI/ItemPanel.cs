@@ -10,6 +10,7 @@ public class ItemPanel : MonoBehaviour
     public TextMeshProUGUI itemAmount;
     public Color itemDefaultColor;
     public Color itemEmptyColor;
+    public Button btnItemUse;
     private void OnEnable()
     {
         UpdateDisplayItemPanel();
@@ -18,6 +19,7 @@ public class ItemPanel : MonoBehaviour
     {
         try
         {
+            btnItemUse.gameObject.SetActive(true);
             itemImage.sprite = ItemPool.Instance.GetCurrentPlayerItem().icon;
             itemImage.color = itemDefaultColor;
             itemName.text = ItemPool.Instance.GetCurrentPlayerItem().itemName;
@@ -25,6 +27,7 @@ public class ItemPanel : MonoBehaviour
         }
         catch (System.Exception)
         {
+            btnItemUse.gameObject.SetActive(false);
             itemImage.sprite = null;
             itemImage.color = itemEmptyColor;
             itemName.text = "You Dont Have Item";
