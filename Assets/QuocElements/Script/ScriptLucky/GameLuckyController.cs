@@ -9,19 +9,14 @@ public class GameLuckyController : MonoBehaviour
     public List<GameObject> playerList;
     public List<Button> buttonsList;
     private bool isRandom = false;
-    public TextMeshProUGUI message;
+    // public TextMeshProUGUI message;
     private GameObject selectedPlayer;
     private Button selectedButton;
 
     // Start is called before the first frame update
     void Start()
     {
-        // random 1 player trong playerList, nếu player đã random rồi thì loại bỏ
-        if (isRandom)
-        {
-            RandomlySelectPlayer();
-        }
-        // random 1 button trong buttonsList
+        RandomlySelectPlayer();
         RandomButton();
 
         // Đăng ký sự kiện click cho các button
@@ -34,12 +29,7 @@ public class GameLuckyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Kiểm tra nếu cần thực hiện random khi nhấn phím R
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            RandomlySelectPlayer();
-            RandomButton();
-        }
+
     }
 
     void RandomButton()
@@ -53,7 +43,6 @@ public class GameLuckyController : MonoBehaviour
         int randomIndex = Random.Range(0, buttonsList.Count);
         selectedButton = buttonsList[randomIndex];
         Debug.Log("Selected Button: " + selectedButton.name);
-        message.text = "Selected Button: " + selectedButton.name;
     }
 
     void RandomlySelectPlayer()
@@ -89,16 +78,24 @@ public class GameLuckyController : MonoBehaviour
         if (clickedButton == selectedButton)
         {
             ShowMessage("You clicked the selected button: " + clickedButton.name);
+            //random lại button
+            RandomButton();
+            //bật tất cả các button click
+            foreach (Button button in buttonsList)
+            {
+                button.interactable = true;
+            }
         }
         else
         {
             Debug.Log("Clicked Button: " + clickedButton.name);
+            //hủy button click
+            clickedButton.interactable = false;
         }
     }
 
     void ShowMessage(string text)
     {
-        message.text = text;
         Debug.Log(text);
     }
 }
