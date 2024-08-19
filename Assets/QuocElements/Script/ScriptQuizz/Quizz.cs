@@ -26,7 +26,6 @@ public class Quizz : NetworkBehaviour
     private int playerOrder = 0;
     public List<Player> playerLose = new List<Player>();
 
-    public bool isEndGame;
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
     // private bool timerIsRunning = false;
@@ -247,7 +246,6 @@ public class Quizz : NetworkBehaviour
 
     private IEnumerator EndGame()
     {
-        isEndGame = true;
         Player playerWin = PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value != null ? PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value : null;
         Debug.Log("PlayerWin:" + playerWin.ownerClientID.Value);
         if (playerWin != null)

@@ -10,6 +10,7 @@ public class ItemAttack : ItemBase
 {
     public override void Effect()
     {
+        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(); return; }
         int attackDamage = UnityEngine.Random.Range(0, 4);
         SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value, attackDamage);
     }
@@ -58,10 +59,6 @@ public class ItemAttack : ItemBase
             yield return waitForSeconds;
         } while (posCount >= -attackDamage);
 
-        GameManager.Singleton.playerIndex = GameManager.Singleton.playerIndex >= GameManager.Singleton.playerList.Count - 1 ? 0 : GameManager.Singleton.playerIndex + 1;
-        var oldGameTurn = GameManager.Singleton.gameTurn;
-        GameManager.Singleton.gameTurn = GameManager.Singleton.playerIndex == 0 ? GameManager.Singleton.gameTurn + 1 : GameManager.Singleton.gameTurn;
-        GameManager.Singleton.OnGameTurnChange(oldGameTurn, GameManager.Singleton.gameTurn);
-        GameManager.Singleton.SwitchCam();
+        GameManager.Singleton.NextPlayerTurn_ServerRPC();
     }
 }

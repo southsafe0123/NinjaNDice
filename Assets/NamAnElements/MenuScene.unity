@@ -36392,7 +36392,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f267e68cfa695cd4f9029005527c1f08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _apiUrl: http://172.16.90.43:3000
+  _apiUrl: https://retstudio.io.vn
   message: {fileID: 0}
   uiController: {fileID: 1244948564}
   friendIngame: []

@@ -7,6 +7,7 @@ public class Deffend : ItemBase
 {
     public override void Effect()
     {
+        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend();}
         // Gửi ID người chơi có khiên
         SendDeffendPlayer_ServerRPC(targetPlayer.ownerClientID.Value);
     }
@@ -15,33 +16,21 @@ public class Deffend : ItemBase
     public void SendDeffendPlayer_ServerRPC(ulong targetID)
     {
         // Kích hoạt coroutine trên client của người có khiên
-        StartDeffendPlayerCoroutine_ClientRPC(targetID);
+        StartCoroutine(DeffendPlayerCoroutine(targetID));
     }
 
-    [ClientRpc]
-    private void StartDeffendPlayerCoroutine_ClientRPC(ulong targetID)
-    {
-        // Nếu ID người chơi khớp với ID được gửi từ server, bắt đầu coroutine khiên
-        if (NetworkManager.Singleton.LocalClientId == targetID)
-        {
-            StartCoroutine(DeffendPlayerCoroutine());
-        }
-    }
 
-    private IEnumerator DeffendPlayerCoroutine()
+    private IEnumerator DeffendPlayerCoroutine(ulong targetID)
     {
         // Lấy đối tượng người chơi từ ID local
-        var targetPlayer = PlayerList.Instance.GetPlayerDic_Value(NetworkManager.Singleton.LocalClientId);
+        var targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetID);
         targetPlayer.isPlayerDeffend.Value = true;  // Thêm khiên người chơi
 
 
-        yield return new WaitForSeconds(2f);  // Đợi 2 giây (hoặc thời gian mong muốn)
+        yield return new WaitForSeconds(1f);  // Đợi 2 giây (hoặc thời gian mong muốn)
 
 
         // Cập nhật vòng lặp gameTurn và chuyển camera khi hết vòng chơi
-        var oldGameTurn = GameManager.Singleton.gameTurn;
-        GameManager.Singleton.gameTurn = GameManager.Singleton.playerIndex == 0 ? GameManager.Singleton.gameTurn + 1 : GameManager.Singleton.gameTurn;
-        GameManager.Singleton.OnGameTurnChange(oldGameTurn, GameManager.Singleton.gameTurn);
-        GameManager.Singleton.SwitchCam();
+        GameManager.Singleton.NextPlayerTurn_ServerRPC();
     }
 }
