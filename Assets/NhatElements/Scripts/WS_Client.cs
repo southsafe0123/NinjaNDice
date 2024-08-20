@@ -8,6 +8,12 @@ using UnityEngine.SceneManagement;
 public class WS_Client : MonoBehaviour
 {
     private WebSocket ws;
+    private enum SslProtocolsHack
+    {
+        Tls = 192,
+        Tls11 = 768,
+        Tls12 = 3072
+    }
 
     [SerializeField] private string url = "retstudio.io.vn";
     //[SerializeField] private string url = "mrxgame.loca.lt";
@@ -17,15 +23,20 @@ public class WS_Client : MonoBehaviour
     [SerializeField] private string myID;
 
     [SerializeField] private bool isConnect = false;
+
     // Start is called before the first frame update
 
     void Start()
     {
-        
-        StartCoroutine(TryReconnect());
-        //connect to ws server and send name
-        ws = new WebSocket("ws://" + url + "?userId=" + UserSessionManager.Instance._id);
 
+        //connect to ws server and send name
+        //var ws = new WebSocket ("wss://example.com");
+        //'wss://retstudio.io.vn/?userId=66aa283a7093a0984b7188e5'
+        //WebSocket(string url, params string[] protocols)
+        ws = new WebSocket("wss://" + url + "/?userId=" + UserSessionManager.Instance._id);
+        ws.Log.File = "Assets/log/WebSocketLog.txt";
+        ws.Log.Level = LogLevel.Debug;
+        //ws = new WebSocket("wss://" + url + "/?userId=" + myID);
         myID = UserSessionManager.Instance._id;
         ws.OnOpen += (sender, e) =>
         {
@@ -54,7 +65,8 @@ public class WS_Client : MonoBehaviour
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
                     UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateFriend());
-                }else if (e.Data == "money")
+                }
+                else if (e.Data == "money")
                 {
                     UnityMainThreadDispatcher.Instance().Enqueue(() => reloadData());
                     UnityMainThreadDispatcher.Instance().Enqueue(() => UI_Controller.Instance.UpdateMoney());
@@ -87,7 +99,7 @@ public class WS_Client : MonoBehaviour
 
                         }
                     });
-                    
+
 
                 }
             }
@@ -110,22 +122,31 @@ public class WS_Client : MonoBehaviour
             };
         ws.OnClose += (sender, e) =>
         {
+            var sslProtocolHack = (System.Security.Authentication.SslProtocols)(SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
+            //TlsHandshakeFailure
+            if (e.Code == 1015 && ws.SslConfiguration.EnabledSslProtocols != sslProtocolHack)
+            {
+                ws.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
+                ws.Connect();
+            }
+
             isConnect = false;
             Debug.Log("disconnected");
         };
         ws.Connect();
-
+        StartCoroutine(TryReconnect());
     }
 
     private IEnumerator TryReconnect()
     {
         WaitUntil waitUntill = new WaitUntil(() => !isConnect);
-        WaitForSeconds wait = new WaitForSeconds(3f);
+        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(5f);
         while (true)
         {
             yield return null;
             yield return waitUntill;
             ws.Connect();
+            Debug.Log("Reconnect: " + ws.Url);
             yield return wait;
         }
         //if (ws == null)
@@ -170,7 +191,7 @@ public class WS_Client : MonoBehaviour
 
     public void SendButton(string _id, string code)
     {
-        ws.Send("invite:"+ApiHandle.Instance.user._id+":"+_id+":"+code);
+        ws.Send("invite:" + ApiHandle.Instance.user._id + ":" + _id + ":" + code);
     }
 
     //close connection when application is closed

@@ -24,9 +24,9 @@ public class ApiHandle : MonoBehaviour
          //}
     public static ApiHandle Instance { get; private set; }
 
-    [SerializeField] private string _apiUrl = "http://172.16.90.43:3000";
+    [SerializeField] private string _apiUrl = "https://retstudio.io.vn";
     //https://retstudio.io.vn
-    //[SerializeField] private string _apiUrl = "https://mrxgame.loca.lt";
+    // [SerializeField] private string _apiUrl = "http://localhost:3000";
     [SerializeField] private TMP_Text message;
     [SerializeField] private UI_Controller uiController;
 
