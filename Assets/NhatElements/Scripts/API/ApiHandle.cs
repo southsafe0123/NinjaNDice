@@ -14,9 +14,9 @@ public class ApiHandle : MonoBehaviour
 {
     public static ApiHandle Instance { get; private set; }
 
-    [SerializeField] private string _apiUrl = "http://172.16.90.43:3000";
+    [SerializeField] private string _apiUrl = "https://retstudio.io.vn";
     //https://retstudio.io.vn
-    //[SerializeField] private string _apiUrl = "https://mrxgame.loca.lt";
+    // [SerializeField] private string _apiUrl = "http://localhost:3000";
     [SerializeField] private TMP_Text message;
     [SerializeField] private UI_Controller uiController;
 
@@ -117,9 +117,9 @@ public class ApiHandle : MonoBehaviour
 
     }
 
-    public void BuySkinButton(string userId,string skinId)
+    public void BuySkinButton(string userId, string skinId)
     {
-        StartCoroutine(BuySkin(userId,skinId));
+        StartCoroutine(BuySkin(userId, skinId));
     }
 
     public skin skisn1(skin s1)
@@ -986,7 +986,7 @@ public class ApiHandle : MonoBehaviour
             {
                 LoadingPanel.Instance.SetDisplayLoading(true);
                 yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(BuySkin(userId,skinId));
+                yield return StartCoroutine(BuySkin(userId, skinId));
                 LoadingPanel.Instance.SetDisplayLoading(false);
             }
             if (www.downloadHandler != null)
