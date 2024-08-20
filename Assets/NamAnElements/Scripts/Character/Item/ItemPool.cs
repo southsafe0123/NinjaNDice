@@ -132,14 +132,14 @@ public class ItemPool : NetworkBehaviour
     [ServerRpc(RequireOwnership =false)]
     private void SendInfoItemToMiniEndGame_ServerRPC(ulong clientID, string itemName)
     {
-        if (MiniEndGamePanel.instance == null) return;
+        if (MiniEndGamePanel.Instance == null) return;
         UpdatePlayerItem_ClientRPC(clientID,itemName);
     }
 
     [ClientRpc]
     public void UpdatePlayerItem_ClientRPC(ulong playerID, string itemName)
     {
-        foreach (PlayerMiniEndGameItem playerItem in MiniEndGamePanel.instance.playerEndList)
+        foreach (PlayerMiniEndGameItem playerItem in MiniEndGamePanel.Instance.playerEndList)
         {
             if (playerItem.player != null && playerItem.player.ownerClientID.Value == playerID)
             {

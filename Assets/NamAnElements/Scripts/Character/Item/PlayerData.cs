@@ -8,7 +8,7 @@ using WebSocketSharp;
 public class PlayerData : NetworkBehaviour
 {
     public NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>();
-    public NetworkVariable<FixedString4096Bytes> playerSkin = new NetworkVariable<FixedString4096Bytes>();
+    //public NetworkVariable<FixedString4096Bytes> playerSkin = new NetworkVariable<FixedString4096Bytes>();
     public GameObject playerNamePanel;
     public TextMeshProUGUI txtPlayerName;
     public Player myPlayer;
@@ -25,7 +25,7 @@ public class PlayerData : NetworkBehaviour
     {
         Debug.Log(clientPlayerName + clientPlayerSkin);
         PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerName.Value = clientPlayerName;
-        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerSkin.Value = clientPlayerSkin;
+        //PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerSkin.Value = clientPlayerSkin;
     }
 
     private void Update()

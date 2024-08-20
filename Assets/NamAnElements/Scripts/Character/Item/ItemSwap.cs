@@ -23,10 +23,10 @@ public class ItemSwap : ItemBase
         // Lấy đối tượng người chơi từ ID local và ID người gửi
         var targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetID);
         var senderPlayer = PlayerList.Instance.GetPlayerDic_Value(senderID);
-        var targetTemp = targetPlayer;
+        var targetTemp = targetPlayer.transform.position;
 
         targetPlayer.transform.position = senderPlayer.transform.position;
-        senderPlayer.transform.position = targetTemp.transform.position;
+        senderPlayer.transform.position = targetTemp;
 
         yield return new WaitForSeconds(1f);  // Đợi 1 giây (hoặc thời gian mong muốn)
 
