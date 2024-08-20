@@ -2,31 +2,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
+using Unity.Services.Lobbies.Models;
 public class GameManagerRPK : NetworkBehaviour
 {
+    public static GameManagerRPK instance;
     public Map map;
     public Map mapFight;
     public int index, indexInFight;
-    public GameObject myResult;
-    public GameObject theirResult;
     public GameObject gameInput;
-    Result theirResultTemp;
-    Result myResultTemp;
+    
     List<Player> players = new List<Player>();
-    // Start is called before the first frame update
+    public List<Player> playerRange = new List<Player>();
+    HashSet<int> selectedIndices = new HashSet<int>();
+    public Player playerInFight;
+    public List<Player> checkPlayerInFight;
+
+    private void Awake()
+    {
+        instance = this;
+    }
+
     void Start()
     {
-        index = 0;
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
+            player.AddComponent<PlayerHeath>().health = 3;
+        }
+        PickingPlayerList();
+        TelePlayerToFightMap(playerRange);
+    }
+
+    IEnumerator waitGameStart()
+    {
+        yield return new WaitForSeconds(3);
+    }
+    
+    public void PickingPlayerList()
+    {
+        index = 0;
+        players.Clear();
+        playerRange.Clear();
+        selectedIndices.Clear();
+        checkPlayerInFight.Clear();
+        foreach (Player player in PlayerList.Instance.playerDic.Values)
+        {
+
             player.gameObject.transform.position = map.movePos[index].position;
             players.Add(player);
             index++;
         }
-        Debug.Log("so player " + players.Count);
-
-        List<Player> playerRange = new List<Player>();
-        HashSet<int> selectedIndices = new HashSet<int>();
 
         while (playerRange.Count < 2)
         {
@@ -38,9 +63,6 @@ public class GameManagerRPK : NetworkBehaviour
             }
         }
 
-        Debug.Log("so playerRange " + playerRange.Count);
-        TelePlayerToFightMap(playerRange);
-
     }
 
     public void TelePlayerToFightMap(List<Player> playerRange)
@@ -51,9 +73,17 @@ public class GameManagerRPK : NetworkBehaviour
         {
             if (indexInFight < mapFight.movePos.Count)
             {
-                playerInFight.gameObject.transform.position = mapFight.movePos[indexInFight].position;
-                indexInFight++;
-                CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value);
+                if (playerInFight.GetComponent<PlayerHeath>().health > 0)
+                {
+                    playerInFight.gameObject.transform.position = mapFight.movePos[indexInFight].position;
+                    CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value, indexInFight);
+                    checkPlayerInFight.Add(playerInFight);
+                    indexInFight++;
+                }
+                else
+                {
+                    checkPlayerInFight.Remove(playerInFight);
+                }
             }
             else
             {
@@ -64,113 +94,38 @@ public class GameManagerRPK : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void CheckPlayerInFightMap_ClientRPC(ulong playerID)
+    public void CheckPlayerInFightMap_ClientRPC(ulong playerID, int indexInFight)
     {
         if(NetworkManager.Singleton.LocalClientId == playerID)
         {
-            Debug.Log("ok");
             gameInput.SetActive(true);
+            gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+            gameInput.GetComponent<RpkButton>().ConnetResult(indexInFight);
         }
     }
 
-    public enum Result
+    [ServerRpc(RequireOwnership = false)]
+    public void ShowResult_ServerRPC(int index, string resultName)
     {
-        Rock, Paper, Kunai 
+        ShowResult_ClientRPC(index, resultName);
     }
 
-    public void OnClickCheckResult()
+    [ClientRpc]
+    public void ShowResult_ClientRPC(int index, string resultName)
     {
-        foreach(Transform child in theirResult.transform)
-        {
-            if (child.gameObject.activeInHierarchy)
-            {
-                switch (child.gameObject.name)
-                {
-                    case "Scroll": theirResultTemp = Result.Paper; break;
-                    case "Rock": theirResultTemp = Result.Rock; break;
-                    case "Kunai": theirResultTemp = Result.Kunai; break;
-                }
-                break;
-            }
-        }
-
-        foreach (Transform child in myResult.transform)
-        {
-            if (child.gameObject.activeInHierarchy)
-            {
-                switch (child.gameObject.name)
-                {
-                    case "Scroll": myResultTemp = Result.Paper; break;
-                    case "Rock": myResultTemp = Result.Rock; break;
-                    case "Kunai": myResultTemp = Result.Kunai; break;
-                }
-                break;
-            }
-        }
-
-        switch (myResultTemp)
-        {
-            case Result.Rock:
-                switch (theirResultTemp)
-                {
-                    case Result.Rock:
-                        Debug.Log("Draw !!");
-                        break;
-                    case Result.Paper:
-                        Debug.Log("Lose !!");
-                        break;
-                    case Result.Kunai:
-                        Debug.Log("Win !!");
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case Result.Paper:
-                switch (theirResultTemp)
-                {
-                    case Result.Rock:
-                        Debug.Log("Win !!");
-                        break;
-                    case Result.Paper:
-                        Debug.Log("Draw !!");
-                        break;
-                    case Result.Kunai:
-                        Debug.Log("Lose !!");
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case Result.Kunai:
-                switch (theirResultTemp)
-                {
-                    case Result.Rock:
-                        Debug.Log("Lose !!");
-                        break;
-                    case Result.Paper:
-                        Debug.Log("Win !!");
-                        break;
-                    case Result.Kunai:
-                        Debug.Log("Draw !!");
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            default:
-                break;
-        }
-
-        foreach (Transform child in theirResult.transform)
-        {
-            child.gameObject.SetActive(false);
-        }
-
-        foreach (Transform child in myResult.transform)
-        {
-            child.gameObject.SetActive(false);
-        }
+        if (gameInput.GetComponent<RpkButton>().indexInFight == index) return;
+        gameInput.GetComponent<RpkButton>().DisplayTheirResult(resultName);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void ShowHPPlayer_ServerRPC(int health, ulong playerID)
+    {
+        ShowHPPlayer_ClientRPC(health, playerID);
+    }
+
+    [ClientRpc]
+    public void ShowHPPlayer_ClientRPC(int health, ulong playerID)
+    {
+        PlayerList.Instance.GetPlayerDic_Value(playerID).GetComponent<PlayerHeath>().health = health;
+    }
 }
