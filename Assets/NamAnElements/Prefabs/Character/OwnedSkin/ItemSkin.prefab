@@ -66,7 +66,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 100g
+  m_text: equip
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
   m_sharedMaterial: {fileID: -5361591186681043168, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 11.1
   m_fontSizeMax: 18.5
-  m_fontStyle: 17
+  m_fontStyle: 33
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -365,6 +365,11 @@ MonoBehaviour:
   skinId: 
   skinName: 
   avatar: {fileID: 0}
+  skinData: {fileID: 0}
+  txtName: {fileID: 7294001225069884182}
+  imgAvatar: {fileID: 8290837315544610210}
+  isSkinEquiped: 0
+  btnEquip: {fileID: 9091287029558231540}
 --- !u!1 &8290837315544610204
 GameObject:
   m_ObjectHideFlags: 0
@@ -563,9 +568,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ItemShop, Assembly-CSharp
-        m_MethodName: BuySkin
+      - m_Target: {fileID: 5003223381114874354}
+        m_TargetAssemblyTypeName: ItemSkin, Assembly-CSharp
+        m_MethodName: OnClickEquipSkin
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

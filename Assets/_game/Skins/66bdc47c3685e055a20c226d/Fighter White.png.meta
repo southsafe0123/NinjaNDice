@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 88e120ae9f1296842bfe1bc30fdffe7d
+guid: 5f12a8b06a2ed6146842243520fc7a97
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -117,7 +117,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Skin_0
+      name: Fighter White_0
       rect:
         serializedVersion: 2
         x: 0
@@ -131,14 +131,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e2c081b5a1648e1449d0788a8407ff7e
-      internalID: 1364852448
+      spriteID: 1ed0547b2fc0c7f4e973f99870a220f8
+      internalID: -486904146
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Skin_1
+      name: Fighter White_1
       rect:
         serializedVersion: 2
         x: 16
@@ -152,14 +152,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: bec09470fd0c27c47b7628a2b0f66a62
-      internalID: 1771154960
+      spriteID: d5da7f66f1329b94d8f0202abc383e9b
+      internalID: -274980020
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Skin_2
+      name: Fighter White_2
       rect:
         serializedVersion: 2
         x: 32
@@ -173,14 +173,14 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a0008d708d4944540b09e96908093f47
-      internalID: 1774515770
+      spriteID: 912989dcb3fdee443957705ae97af786
+      internalID: 738786799
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Skin_3
+      name: Fighter White_3
       rect:
         serializedVersion: 2
         x: 48
@@ -194,8 +194,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 86d19504a3c3a1949ab37f346691a3d8
-      internalID: 1688789985
+      spriteID: f484df8f782eb904ca97f63cd4dce722
+      internalID: 122409973
       vertices: []
       indices: 
       edges: []
@@ -211,10 +211,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Skin_0: 1364852448
-      Skin_1: 1771154960
-      Skin_2: 1774515770
-      Skin_3: 1688789985
+      Fighter White_0: -486904146
+      Fighter White_1: -274980020
+      Fighter White_2: 738786799
+      Fighter White_3: 122409973
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0

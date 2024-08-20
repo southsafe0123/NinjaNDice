@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using Newtonsoft.Json;
+using UnityEngine.UI;
 
 public class ItemShop : MonoBehaviour
 {
     public string skinId;
-    [SerializeField] private TextAsset skinInfoJson;
-    public TMP_Text skinName;
-    [SerializeField] private TMP_Text skinPrice;
+    public string skinName;
+    public Sprite skinData;
+    public Sprite skinAvatar;
+    public TMP_Text txtSkinName;
+    [SerializeField] private TMP_Text txtSkinPrice;
     // Start is called before the first frame update
     // void Start()
     // {
@@ -24,8 +27,9 @@ public class ItemShop : MonoBehaviour
 
     public void DisplayData(skin s1)
     {
-        skinName.text = s1.name;
-        skinPrice.text = s1.price.ToString();
+        skinName = s1.name;
+        txtSkinName.text = s1.name;
+        txtSkinPrice.text = s1.price.ToString()+"G";
     }
 
     public void BuySkin()
@@ -33,8 +37,5 @@ public class ItemShop : MonoBehaviour
         CheckBuySkinPanel.instance.DisplayCheck(true);
         CheckBuySkinPanel.instance.SetDataSkinConfirmBuy(ApiHandle.Instance.user._id, skinId);
     }
-
-
-
 
 }

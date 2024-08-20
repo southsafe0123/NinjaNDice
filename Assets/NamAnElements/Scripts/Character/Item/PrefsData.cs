@@ -6,6 +6,7 @@ public static class PrefsData
     public const string PLAYER_USERNAME_LOGIN = "username";
     public const string PLAYER_PASSWORD_LOGIN = "password";
     public const string PLAYER_ID_UNITY_LOGIN = "unityId";
+    public const string PLAYER_SKIN_ID = "skinID";
 
     public static string GetData(string key)
     {

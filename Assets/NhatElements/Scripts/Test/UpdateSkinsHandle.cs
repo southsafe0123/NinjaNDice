@@ -14,14 +14,17 @@ using Unity.VisualScripting;
 
 public class UpdateSkinsHandle : MonoBehaviour
 {
-
+    public static UpdateSkinsHandle instance;
     // [SerializeField] private List<skin> skinsInfo;
     [SerializeField] private Dictionary<string, GameObject> itemSkins;
 
     [SerializeField] private Transform content;
     [SerializeField] private AssetLabelReference assetLabelReference;
 
-
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
@@ -95,7 +98,7 @@ public class UpdateSkinsHandle : MonoBehaviour
         LoadPrefab();
 
     }
-
+    [ContextMenu("test")]
     public void LoadPrefab()
     {
         foreach (Transform child in content)
@@ -117,6 +120,7 @@ public class UpdateSkinsHandle : MonoBehaviour
                     GameObject prefab = obj.Result;
                     GameObject item = Instantiate(prefab, content);
                     item.GetComponent<ItemShop>().UpdateData(s,s._id);
+                    SkinPool.instance.CallUpdateSkinPool();
                 }
                 else
                 {
@@ -124,6 +128,10 @@ public class UpdateSkinsHandle : MonoBehaviour
                 }
             };
         }
+
+        
+       
+        
     }
 
 

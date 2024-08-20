@@ -31,6 +31,8 @@ public class LobbyGameManager : NetworkBehaviour
     private void Start()
     {
         playerSlots[0].SetActive(true);
+        playerSlots[0].transform.GetComponentInChildren<Image>().sprite = SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
+
         RegisterDisconnectButton();
         NetworkManager.Singleton.OnClientConnectedCallback += OnConnectedClient;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnectedClient;
@@ -64,9 +66,9 @@ public class LobbyGameManager : NetworkBehaviour
         LoadListPlayerDic(clientID);
         LoadPlayerOrder(clientID);
         SetActiveButton_ClientRPC(true);
+        
         Debug.LogError("userjoin: " + clientID);
     }
-
     private void LoadPlayerOrder(ulong clientID)
     {
         var plInstance = PlayerList.Instance;
@@ -113,11 +115,15 @@ public class LobbyGameManager : NetworkBehaviour
             {
                 int slotIndex = playerSlots.IndexOf(player.Value);
                 SetActiveInClient_ClientRPC(slotIndex, true);
+                SetAvatarInClient_ClientRPC(slotIndex,clientID);
             }
         }
     }
-
-
+    [ClientRpc]
+    private void SetAvatarInClient_ClientRPC(int slotIndex,ulong clientID)
+    {
+        playerSlots[slotIndex].GetComponentInChildren<Image>().sprite = SkinPool.instance.GetSkin(NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<PlayerData>().playerSkin.Value.ToString()).skinAvatar;
+    }
 
     private static void AddOwnerClientID(ulong clientID)
     {

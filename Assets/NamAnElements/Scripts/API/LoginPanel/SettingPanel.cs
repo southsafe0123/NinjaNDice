@@ -8,6 +8,7 @@ using WebSocketSharp;
 
 public class SettingPanel : MonoBehaviour
 {
+    public static SettingPanel instance;
     public TextMeshProUGUI txtPlayerName;
     public GameObject btnLogin;
     public GameObject btnLogout;
@@ -15,6 +16,16 @@ public class SettingPanel : MonoBehaviour
     public Button btnChangeNameConfirm;
     public TMP_InputField guestName;
     public GameObject changeNamePanel;
+    public Sprite defaultImage;
+    public Image avatarImage;
+    private void Awake()
+    {
+        instance = this;
+    }
+    private void OnEnable()
+    {
+        SetAvatar();
+    }
     private void Start()
     {
         btnConfirmLogout.GetComponent<Button>().onClick.AddListener(() =>
@@ -28,7 +39,7 @@ public class SettingPanel : MonoBehaviour
 
             if (UserSessionManager.Instance.username.IsNullOrEmpty())
             {
-                PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, guestName.text);    
+                PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, guestName.text);
                 changeNamePanel.SetActive(false);
             }
             else
@@ -39,6 +50,12 @@ public class SettingPanel : MonoBehaviour
             }
         });
     }
+
+    public void SetAvatar()
+    {
+        avatarImage.sprite = ApiHandle.Instance.user.avatar.IsNullOrEmpty() ? defaultImage : SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
+    }
+
     private void Update()
     {
         if (UserSessionManager.Instance._id.IsNullOrEmpty())
@@ -52,6 +69,7 @@ public class SettingPanel : MonoBehaviour
             btnLogout.SetActive(true);
         }
         txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
+        
     }
 
     private IEnumerator LogoutCoroutine()
@@ -65,8 +83,22 @@ public class SettingPanel : MonoBehaviour
         PrefsData.DeleteData(PrefsData.PLAYER_ID_UNITY_LOGIN);
         PrefsData.DeleteData(PrefsData.PLAYER_USERNAME_LOGIN);
         PrefsData.DeleteData(PrefsData.PLAYER_PASSWORD_LOGIN);
+        PrefsData.SetData(PrefsData.PLAYER_SKIN_ID, "Default");
+        if (SkinPanel.instance != null)
+        {
+            foreach (Transform itemSKin in SkinPanel.instance.skinContent.transform)
+            {
+                itemSKin.GetComponent<ItemSkin>().CheckDisplay();
+                if (itemSKin.GetComponent<ItemSkin>().isSkinEquiped == true)
+                {
+                    break;
+                }
+            }
+        }
+        
         yield return new WaitForSeconds(UnityEngine.Random.Range(0.3f, 1.3f));
         ApiHandle.Instance.AddComponent<LoginManager>();
+        PlayerSkin.instance.UpdateSkin();
         yield return new WaitUntil(() => UserSessionManager.Instance.username.IsNullOrEmpty());
         LoadingPanel.Instance.SetDisplayLoading(false);
     }

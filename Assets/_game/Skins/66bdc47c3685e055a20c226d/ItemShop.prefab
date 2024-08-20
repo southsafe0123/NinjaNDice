@@ -325,9 +325,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skinId: 
-  skinInfoJson: {fileID: 4900000, guid: 887cb89d47ce769438eea340d159e3ca, type: 3}
-  skinName: {fileID: 7294001225069884182}
-  skinPrice: {fileID: 5286042886935263014}
+  skinName: 
+  skinData: {fileID: -486904146, guid: 5f12a8b06a2ed6146842243520fc7a97, type: 3}
+  skinAvatar: {fileID: 21300000, guid: 2136f14a0cd1b5e4e83a4c3b4b9452d4, type: 3}
+  txtSkinName: {fileID: 7294001225069884182}
+  txtSkinPrice: {fileID: 5286042886935263014}
 --- !u!222 &1672572601449800018
 CanvasRenderer:
   m_ObjectHideFlags: 0

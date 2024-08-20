@@ -201,7 +201,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Name
+  m_text: Default
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
   m_sharedMaterial: {fileID: -5361591186681043168, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
@@ -283,7 +283,7 @@ GameObject:
   - component: {fileID: 1672572601449800018}
   - component: {fileID: 1672572601449800019}
   m_Layer: 5
-  m_Name: ItemShop
+  m_Name: DefaultSkin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -324,11 +324,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e7c1f9090beb24397acb82d6d4fcf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skinId: 
-  skinName: 
-  skinData: {fileID: 1364852448, guid: 88e120ae9f1296842bfe1bc30fdffe7d, type: 3}
-  skinAvatar: {fileID: 21300000, guid: 6f8922f1d970c984aa74882edf611924, type: 3}
-  skinInfoJson: {fileID: 4900000, guid: 887cb89d47ce769438eea340d159e3ca, type: 3}
+  skinId: Default
+  skinName: Default
+  skinData: {fileID: -749729045, guid: 1235a49738e509946984f7bedecd2abe, type: 3}
+  skinAvatar: {fileID: 21300000, guid: e3923de8a4f100a41b118a619f24842f, type: 3}
+  skinInfoJson: {fileID: 0}
   txtSkinName: {fileID: 7294001225069884182}
   txtSkinPrice: {fileID: 5286042886935263014}
 --- !u!222 &1672572601449800018
@@ -435,7 +435,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6f8922f1d970c984aa74882edf611924, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e3923de8a4f100a41b118a619f24842f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

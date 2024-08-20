@@ -212,8 +212,12 @@ public class UI_Controller : MonoBehaviour
         if (skinContent == null || skinPrefab == null) return;
         foreach (Transform child in skinContent.transform)
         {
+            if(child.GetComponent<ItemSkin>().skinName == "Default")
+            {
+                continue;
+            }
             Destroy(child.gameObject);
-            Debug.Log("Destroy friend item");
+            Debug.Log("Destroy skin item");
         }
         //do something
         try
@@ -222,6 +226,7 @@ public class UI_Controller : MonoBehaviour
             {
                 GameObject skin = Instantiate(skinPrefab, skinContent.transform);
                 skin.GetComponent<ItemSkin>().skinId = skinPurchased._id;
+                skin.GetComponent<ItemSkin>().UpdateInfoSkin();
             }
             
       
