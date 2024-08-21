@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
+using WebSocketSharp;
 
 public class PlayerSkin : MonoBehaviour
 {
@@ -10,22 +12,21 @@ public class PlayerSkin : MonoBehaviour
     }
     private void Start()
     {
-
         UpdateSkin();
-
-
     }
     public void UpdateSkin()
     {
-        try
+        if (ApiHandle.Instance == null) return;
+        if (ApiHandle.Instance.user.avatar.IsNullOrEmpty())
         {
-            spriteRenderer.sprite = SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinData==null? SkinPool.instance.GetSkin("Default").skinData: SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinData;
+            spriteRenderer.sprite = SkinPool.instance.GetSkin(0).skinData;
         }
-        catch (System.Exception)
+        else
         {
+            spriteRenderer.sprite = SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinData;
+        }
 
-            Debug.LogError("something wrong here? or not :))");
-        }
-        
+
+
     }
 }

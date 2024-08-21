@@ -20,7 +20,7 @@ public class ApiHandle : MonoBehaviour
          //    {
          //        timer += 1;
          //        yield return wait1sec;
-         //    }
+         //    } 
          //}
     public static ApiHandle Instance { get; private set; }
 
@@ -32,7 +32,7 @@ public class ApiHandle : MonoBehaviour
 
     [SerializeField] public List<friendIngame> friendIngame;
 
-    [SerializeField] public UserResponse user;
+     public UserResponse user;
 
     [SerializeField] public bool isNewData = false;
 
@@ -40,6 +40,8 @@ public class ApiHandle : MonoBehaviour
     [SerializeField] public List<whoRequest> wRequest;
 
     [SerializeField] public List<skin> skins;
+
+    bool isCoroutineDone = false;
 
     public int maxLoadTime = 5;
 
@@ -61,33 +63,41 @@ public class ApiHandle : MonoBehaviour
             PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, "Player_" + UnityEngine.Random.Range(1000, 9000));
         }
 
-        bool isCoroutineDone = false;
-        StartCoroutineWithTimeout(CheckUrlConnection(isCoroutineDone), isCoroutineDone);
+
+        StartCoroutineWithTimeout(CheckUrlConnection());
 
         GetAllSkin();
     }
-    public void StartCoroutineWithTimeout(IEnumerator coroutine, bool isCoroutineDone)
+    public void StartCoroutineWithTimeout(IEnumerator coroutine)
     {
         Coroutine coroutineToStop = StartCoroutine(coroutine);
-        StartCoroutine(CheckGetDataTimeout(coroutineToStop, isCoroutineDone));
+        StartCoroutine(CheckGetDataTimeout(coroutineToStop));
     }
-    IEnumerator CheckGetDataTimeout(Coroutine coroutine, bool isCoroutineDone)
+    IEnumerator CheckGetDataTimeout(Coroutine coroutine)
     {
         float i = 0f;
 
         while (i < maxLoadTime)
         {
             i += Time.deltaTime;
+            if (isCoroutineDone)
+            {
+                break;
+            }
             // No timeout yet.
             yield return null;
         }
         // Request timeout.
-        if (isCoroutineDone) yield break;
+        if (isCoroutineDone)
+        {
+            isCoroutineDone = false;
+            yield break;
+        }
         StopCoroutine(coroutine);
         AnouncementManager.instance.DisplayAnouncement("Connection timeout!");
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
-    IEnumerator CheckUrlConnection(bool isCoroutineDone)
+    IEnumerator CheckUrlConnection()
     {
         LoadingPanel.Instance.SetDisplayLoading(true);
         yield return null;
@@ -107,11 +117,16 @@ public class ApiHandle : MonoBehaviour
 
                 if (PrefsData.HaveData(PrefsData.PLAYER_USERNAME_LOGIN) || PrefsData.HaveData(PrefsData.PLAYER_PASSWORD_LOGIN))
                 {
-                    LoginButton(PrefsData.GetData(PrefsData.PLAYER_USERNAME_LOGIN), PrefsData.GetData(PrefsData.PLAYER_PASSWORD_LOGIN));
+                    StartCoroutine(Login(PrefsData.GetData(PrefsData.PLAYER_USERNAME_LOGIN), PrefsData.GetData(PrefsData.PLAYER_PASSWORD_LOGIN)));
                 }
                 else if (PrefsData.HaveData(PrefsData.PLAYER_ID_UNITY_LOGIN))
                 {
-                    Loginid(PrefsData.GetData(PrefsData.PLAYER_ID_UNITY_LOGIN), "", "Unity");
+                    StartCoroutine(LoginID(PrefsData.GetData(PrefsData.PLAYER_ID_UNITY_LOGIN), "", "Unity"));
+                }
+                else
+                {
+                    LoadingPanel.Instance.SetDisplayLoading(false);
+                    isCoroutineDone = true;
                 }
             }
             else
@@ -119,6 +134,7 @@ public class ApiHandle : MonoBehaviour
                 AnouncementManager.instance.DisplayAnouncement("Login failed, check your internet connection");
                 Debug.Log("Connected to database failed!");
                 LoadingPanel.Instance.SetDisplayLoading(false);
+                isCoroutineDone = true;
             }
         }
         catch (Exception)
@@ -126,7 +142,6 @@ public class ApiHandle : MonoBehaviour
 
         }
 
-        isCoroutineDone = true;
     }
 
     // Update is called once per frame
@@ -134,20 +149,21 @@ public class ApiHandle : MonoBehaviour
     // {
 
     // }
-
+    public void SetSkinButton(string skinId)
+    {
+        StartCoroutineWithTimeout(SetSkin(skinId));
+    }
     public void GetAllSkin()
     {
-        bool isDone = false;
-        StartCoroutine(getAllSkins(isDone));
+        StartCoroutine(getAllSkins());
     }
     public void ChangeNameButton(string name)
     {
-        StartCoroutine(ChangeNameIngame(name));
+        StartCoroutineWithTimeout(ChangeNameIngame(name));
     }
     public void LoginButton(string usernameLogin, string passwordLogin)
     {
-        bool isDone = false;
-        StartCoroutineWithTimeout(Login(usernameLogin, passwordLogin, isDone), isDone);
+        StartCoroutineWithTimeout(Login(usernameLogin, passwordLogin));
 
     }
 
@@ -163,8 +179,7 @@ public class ApiHandle : MonoBehaviour
     }
     public void Loginid(string ID, string username, string type)
     {
-        bool isDone = false;
-        StartCoroutineWithTimeout(LoginID(ID, username, type, isDone), isDone);
+        StartCoroutineWithTimeout(LoginID(ID, username, type));
     }
     public void LogoutButton()
     {
@@ -193,7 +208,60 @@ public class ApiHandle : MonoBehaviour
     {
         StartCoroutine(getMe());
     }
+    public IEnumerator SetSkin(string skinId)
+    {
+        LoadingPanel.Instance.SetDisplayLoading(true);
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        PlayerAvatar playerAvatar = new PlayerAvatar();
+        playerAvatar.userId = user._id;
+        playerAvatar.avatar = skinId;
+        string json = JsonUtility.ToJson(playerAvatar);
+        Debug.Log(json);
 
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/changeAvatar", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            AnouncementManager.instance.DisplayAnouncement("Skin equiped");
+
+            user.avatar = skinId;
+
+            if (message != null) { message.text = "Send request success"; }
+            else { Debug.Log("Send request success"); }
+        }
+
+        LoadingPanel.Instance.SetDisplayLoading(false);
+        isCoroutineDone = true;
+
+    }
     public void RegisterButton(TMP_InputField usernameRegister, TMP_InputField EmailRegister, TMP_InputField passwordRegister, TMP_InputField RepasswordRegister)
     {
         if (passwordRegister == null) return;
@@ -206,7 +274,7 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
-    public IEnumerator LoginID(string ID, string username, string type = "Unity", bool isDone = false)
+    public IEnumerator LoginID(string ID, string username, string type = "Unity")
     {
         if (ID == null)
         {
@@ -249,19 +317,12 @@ public class ApiHandle : MonoBehaviour
                     if (message != null)
                     {
                         message.text = errorRp.message;
-                        if (message.text.Contains("login"))
-                        {
-                            AnouncementManager.instance.DisplayAnouncement("User already login!");
-                        }
-                        else
-                        {
-                            AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
-                        }
+
                     }
                     else
                     {
                         Debug.Log(errorRp.message);
-                        AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                        AnouncementManager.instance.DisplayAnouncement(errorRp.message);
                     }
                 }
                 else
@@ -312,6 +373,7 @@ public class ApiHandle : MonoBehaviour
                     uiController.UpdateFriend();
                     uiController.UpdateSkin();
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
+                    PlayerSkin.instance.UpdateSkin();
                 }
                 AnouncementManager.instance.DisplayAnouncement("Welcome back, " + username);
                 break;
@@ -320,7 +382,7 @@ public class ApiHandle : MonoBehaviour
             yield return null;
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
-        isDone = true;
+        isCoroutineDone = true;
     }
 
     public IEnumerator ChangeNameIngame(string name)
@@ -356,7 +418,11 @@ public class ApiHandle : MonoBehaviour
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
             }
             else
             {
@@ -366,13 +432,16 @@ public class ApiHandle : MonoBehaviour
         else
         {
             Debug.Log(www.downloadHandler.text);
+
             yield return StartCoroutine(getMe());
             if (message != null) { message.text = "Change Success!"; }
+            AnouncementManager.instance.DisplayAnouncement("Change Success!");
 
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
+        isCoroutineDone = true;
     }
-    public IEnumerator Login(string usernameLogin, string passwordLogin, bool isDone)
+    public IEnumerator Login(string usernameLogin, string passwordLogin)
     {
         if (usernameLogin == null || passwordLogin == null)
         {
@@ -412,17 +481,19 @@ public class ApiHandle : MonoBehaviour
                 if (www.downloadHandler != null)
                 {
                     ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                    if (message != null) { message.text = errorRp.message; }
-                    else { Debug.Log(errorRp.message); }
-
-                    if (message.text.Contains("login"))
+                    if (message != null)
                     {
-                        AnouncementManager.instance.DisplayAnouncement("User already login!");
+                        message.text = errorRp.message;
+
+
                     }
                     else
                     {
-                        AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                        Debug.Log(errorRp.message);
+                        AnouncementManager.instance.DisplayAnouncement(errorRp.message);
                     }
+
+
                 }
                 else
                 {
@@ -471,6 +542,7 @@ public class ApiHandle : MonoBehaviour
                     uiController.UpdateFriend();
                     uiController.UpdateSkin();
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
+                    PlayerSkin.instance.UpdateSkin();
                 }
 
                 AnouncementManager.instance.DisplayAnouncement("Welcome back, " + usernameLogin);
@@ -479,7 +551,7 @@ public class ApiHandle : MonoBehaviour
 
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
-        isDone = true;
+        isCoroutineDone = true;
     }
 
     public IEnumerator GetAllFriendsStatus(List<friend> friends)
@@ -988,7 +1060,7 @@ public class ApiHandle : MonoBehaviour
 
     //get all skins, endpoint: /skins , method: GET
 
-    public IEnumerator getAllSkins(bool isDone)
+    public IEnumerator getAllSkins()
     {
         for (int i = 0; i < 2; i++)
         {
@@ -1020,13 +1092,21 @@ public class ApiHandle : MonoBehaviour
 
         }
 
-        isDone = true;
-
     }
 
 
     public IEnumerator BuySkin(string userId, string skinId)
     {
+        foreach (skinpurchase skin in user.skinpurchase)
+        {
+            if (skin._id == skinId)
+            {
+                AnouncementManager.instance.DisplayAnouncement("Skin Already Buy!");
+                CheckBuySkinPanel.instance.DisplayCheck(false);
+                yield break;
+            }
+        }
+        LoadingPanel.Instance.SetDisplayLoading(true);
         // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
         BuySkinRequest buySkinrq = new BuySkinRequest();
         buySkinrq.userId = userId;
@@ -1046,18 +1126,16 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(BuySkin(userId, skinId));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
+
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
             }
             else
             {
@@ -1068,7 +1146,12 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Send request success"; }
-            else { Debug.Log("Send request success"); }
+            else
+            {
+                Debug.Log("Send request success");
+            }
+
+            AnouncementManager.instance.DisplayAnouncement("Buying Success");
             CheckBuySkinPanel.instance.DisplayCheck(false);
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
@@ -1091,7 +1174,12 @@ public class AddFriendRequest
     public string from;
     public string to;
 }
-
+[System.Serializable]
+public class PlayerAvatar
+{
+    public string userId;
+    public string avatar;
+}
 [System.Serializable]
 public class whoRequest
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mono.CSharp;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 public class LobbyGameManager : NetworkBehaviour
 {
@@ -23,16 +25,24 @@ public class LobbyGameManager : NetworkBehaviour
     //use to set playerOrder that login into this server
     private int playerOrder = 0;
 
+    public List<Player> playerListTest = new List<Player>();
     private void Awake()
     {
-       Instance = this;
+        Instance = this;
     }
 
     private void Start()
     {
         playerSlots[0].SetActive(true);
-        //playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
-
+        if(ApiHandle.Instance.user.avatar == "")
+        {
+            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(0).skinAvatar;
+        }
+        else
+        {
+            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinAvatar;
+        }
+         
         RegisterDisconnectButton();
         NetworkManager.Singleton.OnClientConnectedCallback += OnConnectedClient;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnectedClient;
@@ -48,7 +58,7 @@ public class LobbyGameManager : NetworkBehaviour
         {
             Debug.LogError("Lobbygamemanager_ Cant remove call back");
         }
-       
+
     }
 
     private void RegisterDisconnectButton()
@@ -63,10 +73,6 @@ public class LobbyGameManager : NetworkBehaviour
     {
         if (!IsHost) return;
         LoadPlayer(clientID);
-        LoadListPlayerDic(clientID);
-        LoadPlayerOrder(clientID);
-        SetActiveButton_ClientRPC(true);
-        
         Debug.LogError("userjoin: " + clientID);
     }
     private void LoadPlayerOrder(ulong clientID)
@@ -90,12 +96,33 @@ public class LobbyGameManager : NetworkBehaviour
         if (!IsHost) return;
         UnloadPlayer(clientID);
         SetActiveButton_ClientRPC(true);
+        UpdateLobby_ClientRPC();
         Debug.LogError("userout: " + clientID);
     }
 
 
     //below is detail of all function mean
+    [ClientRpc]
+    public void UpdateLobby_ClientRPC()
+    {
+        playerListTest.Clear();
+        foreach (var item in playerSlots)
+        {
+            item.SetActive(false);
+        }
 
+        foreach (Player player in PlayerList.Instance.playerDic.Values)
+        {
+            playerListTest.Add(player);
+        }
+        for (int i = 0; i < playerListTest.Count; i++)
+        {
+            playerSlots[i].SetActive(true);
+            var playerSkinSlot = playerListTest[i].GetComponent<PlayerData>().playerSkin.Value.ToString();
+            var playerSprite =  SkinPool.instance.GetSkin(int.Parse(playerSkinSlot)).skinAvatar;
+            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = playerSprite;
+        }
+    }
     private void LoadPlayer(ulong clientID)
     {
         //PlayerList.Instance.UpdatePlayerList();
@@ -106,35 +133,39 @@ public class LobbyGameManager : NetworkBehaviour
             return;
         }
         sv_dicPlayer[clientID] = emptyPlayerSlot;
-        AddOwnerClientID(clientID);
-        sv_dicPlayer[clientID].SetActive(true);
-
-        foreach (var player in sv_dicPlayer)
+        
+        int slotIndex = 0;
+        for (int i = 0; i < playerSlots.Count; i++)
         {
-            if (player.Value.activeSelf)
+            if (playerSlots[i] == emptyPlayerSlot)
             {
-                int slotIndex = playerSlots.IndexOf(player.Value);
-                SetActiveInClient_ClientRPC(slotIndex, true);
-                //SetAvatarInClient_ClientRPC(slotIndex,clientID);
+                slotIndex = i;
+                break;
             }
         }
+
+        AddOwnerClientID(clientID);
+        StartCoroutine(WaitUntilHaveData(slotIndex, clientID));
+        LoadListPlayerDic(clientID);
+        LoadPlayerOrder(clientID);
+        SetActiveButton_ClientRPC(true);
+        UpdateLobby_ClientRPC();
+
     }
-    [ClientRpc]
-    private void SetAvatarInClient_ClientRPC(int slotIndex,ulong clientID)
+    private IEnumerator WaitUntilHaveData(int slotIndex, ulong clientID)
     {
-        //var thisPlayerSkin = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<PlayerData>().playerSkin.Value.ToString();
-        //Debug.Log("thisPlayerSkinId: " + thisPlayerSkin);
-        //playerSlots[slotIndex].GetComponentInChildren<Image>().sprite = SkinPool.instance.GetSkin(thisPlayerSkin).skinAvatar;
+        yield return new WaitUntil(() => PlayerList.Instance.GetPlayerDic_Value(clientID));
+        SetActiveInClient_ClientRPC(slotIndex, true, clientID);
     }
 
-    private static void AddOwnerClientID(ulong clientID)
+    private void AddOwnerClientID(ulong clientID)
     {
         var playerInClient = NetworkManager.Singleton.ConnectedClients[clientID].PlayerObject.GetComponent<Player>();
         playerInClient.ownerClientID.Value = clientID;
     }
 
-    [ClientRpc]
-    public void SetActiveInClient_ClientRPC(int slotIndex, bool isActive)
+    [ClientRpc] 
+    public void SetActiveInClient_ClientRPC(int slotIndex, bool isActive, ulong clientID)
     {
         playerSlots[slotIndex].SetActive(isActive);
     }
@@ -166,7 +197,7 @@ public class LobbyGameManager : NetworkBehaviour
             if (player.Key.Equals(clientID))
             {
                 int slotIndex = playerSlots.IndexOf(sv_dicPlayer[clientID]);
-                SetActiveInClient_ClientRPC(slotIndex, false);
+                SetActiveInClient_ClientRPC(slotIndex, false,clientID);
             };
         }
 
@@ -238,11 +269,11 @@ public class LobbyGameManager : NetworkBehaviour
     public void ButtonClickStartGame()
     {
         StartGame_ClientRPC();
-       
+
     }
     [ClientRpc]
     private void StartGame_ClientRPC()
     {
-        LoadScene.Instance.StartLoadSceneMultiplayer("NamAn",IsHost);
+        LoadScene.Instance.StartLoadSceneMultiplayer("NamAn", IsHost);
     }
 }

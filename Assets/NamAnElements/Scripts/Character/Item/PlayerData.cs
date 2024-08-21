@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using TMPro;
 using Unity.Collections;
 using Unity.Netcode;
@@ -8,7 +9,7 @@ using WebSocketSharp;
 public class PlayerData : NetworkBehaviour
 {
     public NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>();
-    //public NetworkVariable<FixedString4096Bytes> playerSkin = new NetworkVariable<FixedString4096Bytes>();
+    public NetworkVariable<FixedString128Bytes> playerSkin = new NetworkVariable<FixedString128Bytes>();
     public Sprite gameplaySprite;
     public GameObject playerNamePanel;
     public TextMeshProUGUI txtPlayerName;
@@ -17,7 +18,8 @@ public class PlayerData : NetworkBehaviour
     private void Start()
     {
         string myPlayerName = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
-        string myPlayerSkin = PrefsData.GetData(PrefsData.PLAYER_SKIN_ID);
+        string myPlayerSkin = ApiHandle.Instance.user.avatar.IsNullOrEmpty()? 0.ToString(): ApiHandle.Instance.user.avatar;
+        
         SetPlayerPlayerData_ServerRPC(myPlayerName, myPlayerSkin,NetworkManager.LocalClientId);
         
     }
@@ -25,8 +27,22 @@ public class PlayerData : NetworkBehaviour
     private void SetPlayerPlayerData_ServerRPC(string clientPlayerName,string clientPlayerSkin, ulong clientID)
     {
         Debug.Log(clientPlayerName + clientPlayerSkin);
+        SetPlayerSkin_ClientRPC(clientID,clientPlayerSkin,clientPlayerName);
+    }
+    [ClientRpc]
+    private void SetPlayerSkin_ClientRPC(ulong clientID, string clientPlayerSkin, string clientPlayerName)
+    {
+        StartCoroutine(WaitPlayerListLoaded(clientID, clientPlayerSkin,clientPlayerName));
+       
+    }
+
+    private IEnumerator WaitPlayerListLoaded(ulong clientID, string clientPlayerSkin,string clientPlayerName)
+    {
+        yield return new WaitUntil(() => PlayerList.Instance.GetPlayerDic_Value(clientID) != null);
         PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerName.Value = clientPlayerName;
-        //PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerSkin.Value = clientPlayerSkin;
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerSkin.Value = clientPlayerSkin;
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().gameplaySprite = SkinPool.instance.GetSkin(int.Parse(clientPlayerSkin)).skinData;
+        PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<SpriteRenderer>().sprite = PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().gameplaySprite;
     }
 
     private void Update()

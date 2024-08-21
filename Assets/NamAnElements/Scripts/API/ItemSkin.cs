@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using WebSocketSharp;
 
 public class ItemSkin : MonoBehaviour
 {
@@ -30,7 +33,10 @@ public class ItemSkin : MonoBehaviour
             }
         }
     }
-
+    private void OnEnable()
+    {
+        CheckDisplay();
+    }
     private void Start()
     {
         CheckDisplay();
@@ -38,35 +44,44 @@ public class ItemSkin : MonoBehaviour
 
     public void CheckDisplay()
     {
-        if (skinId == PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)) isSkinEquiped = true;
-        if (isSkinEquiped)
+
+        if (ApiHandle.Instance == null) return;
+        if (ApiHandle.Instance.user.avatar == "")
         {
-            btnEquip.interactable = false;
-            btnEquip.GetComponentInChildren<TextMeshProUGUI>().text = "Equiped";
+            if(skinId == "Default")
+            {
+                btnEquip.interactable = false;
+                btnEquip.GetComponentInChildren<TextMeshProUGUI>().text = "Equiped";
+            }
         }
         else
         {
-            btnEquip.interactable = true;
-            btnEquip.GetComponentInChildren<TextMeshProUGUI>().text = "Equip";
+            if (skinId == SkinPool.instance.GetSkin_Id(int.Parse(ApiHandle.Instance.user.avatar)))
+            {
+                btnEquip.interactable = false;
+                btnEquip.GetComponentInChildren<TextMeshProUGUI>().text = "Equiped";
+            }
+            else
+            {
+                btnEquip.interactable = true;
+                btnEquip.GetComponentInChildren<TextMeshProUGUI>().text = "Equip";
+            }
         }
+        
     }
 
     public void OnClickEquipSkin()
     {
-        isSkinEquiped = true;
-        PrefsData.SetData(PrefsData.PLAYER_SKIN_ID, skinId);
-        CheckDisplay();
+        StartCoroutine(EquipCoroutine());
+
+    }
+
+    private IEnumerator EquipCoroutine()
+    {
+        ApiHandle.Instance.SetSkinButton(SkinPool.instance.GetSkin_Slot(skinId).ToString());
+        yield return new WaitUntil(() => !LoadingPanel.Instance.IsDisplaying());
         PlayerSkin.instance.UpdateSkin();
-        if (PrefsData.HaveData(PrefsData.PLAYER_SKIN_ID))
-        {
-            foreach (Transform skinItem in SkinPanel.instance.skinContent.transform)
-            {
-                if (skinItem.GetComponent<ItemSkin>().skinId != PrefsData.GetData(PrefsData.PLAYER_SKIN_ID))
-                {
-                    skinItem.GetComponent<ItemSkin>().isSkinEquiped = false;
-                    skinItem.GetComponent<ItemSkin>().CheckDisplay();
-                }
-            }
-        }
+        GameObject.Find("SkinPanelGroup").SetActive(false);
+        
     }
 }

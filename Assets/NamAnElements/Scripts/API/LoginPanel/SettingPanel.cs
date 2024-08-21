@@ -53,7 +53,12 @@ public class SettingPanel : MonoBehaviour
 
     public void SetAvatar()
     {
-        avatarImage.sprite = ApiHandle.Instance.user.avatar.IsNullOrEmpty() ? defaultImage : SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
+
+        if (ApiHandle.Instance == null) return;
+
+        avatarImage.sprite = ApiHandle.Instance.user.avatar.IsNullOrEmpty() ? defaultImage : SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinAvatar;
+
+
     }
 
     private void Update()
@@ -69,7 +74,7 @@ public class SettingPanel : MonoBehaviour
             btnLogout.SetActive(true);
         }
         txtPlayerName.text = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
-        
+
     }
 
     private IEnumerator LogoutCoroutine()
@@ -77,7 +82,7 @@ public class SettingPanel : MonoBehaviour
         LoadingPanel.Instance.SetDisplayLoading(true);
         yield return null;
         ApiHandle.Instance.GetComponent<WS_Client>().DisconnectWS();
-        yield return new WaitUntil(()=>!ApiHandle.Instance.GetComponent<WS_Client>().isConnect);
+        yield return new WaitUntil(() => !ApiHandle.Instance.GetComponent<WS_Client>().isConnect);
         Destroy(ApiHandle.Instance.GetComponent<WS_Client>());
         UserSessionManager.Instance.ClearSession();
         ApiHandle.Instance.user = null;
@@ -85,7 +90,6 @@ public class SettingPanel : MonoBehaviour
         PrefsData.DeleteData(PrefsData.PLAYER_ID_UNITY_LOGIN);
         PrefsData.DeleteData(PrefsData.PLAYER_USERNAME_LOGIN);
         PrefsData.DeleteData(PrefsData.PLAYER_PASSWORD_LOGIN);
-        PrefsData.SetData(PrefsData.PLAYER_SKIN_ID, "Default");
         if (SkinPanel.instance != null)
         {
             foreach (Transform itemSKin in SkinPanel.instance.skinContent.transform)
@@ -97,7 +101,7 @@ public class SettingPanel : MonoBehaviour
                 }
             }
         }
-        
+
         yield return new WaitForSeconds(UnityEngine.Random.Range(0.3f, 1.3f));
         ApiHandle.Instance.AddComponent<LoginManager>();
         PlayerSkin.instance.UpdateSkin();

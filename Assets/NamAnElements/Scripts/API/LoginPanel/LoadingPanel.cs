@@ -14,4 +14,8 @@ public class LoadingPanel : MonoBehaviour
             child.gameObject.SetActive(isDisplay);
         }
     }
+    public bool IsDisplaying()
+    {
+        return gameObject.transform.GetChild(0).gameObject.activeSelf;
+    }
 }

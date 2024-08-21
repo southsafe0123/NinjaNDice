@@ -14,10 +14,5 @@ public class SkinPanel: MonoBehaviour
         UI_Controller.Instance.skinContent = skinContent;
         UI_Controller.Instance.skinPrefab = skinPrefab;
         UI_Controller.Instance.UpdateSkin();
-
-        if (skinContent.transform.childCount == 1)
-        {
-            PrefsData.SetData(PrefsData.PLAYER_SKIN_ID, "Default");
-        }
     }
 }
