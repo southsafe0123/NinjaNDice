@@ -129,12 +129,16 @@ public class WS_Client : MonoBehaviour
                 ws.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
                 ws.Connect();
             }
+            else
+            {
+                Debug.Log("WebSocket Close: " + e.Code + " " + e.Reason);
+                isConnect = false;
+                Debug.Log("disconnected");
+            }
 
-            isConnect = false;
-            Debug.Log("disconnected");
         };
         ws.Connect();
-        StartCoroutine(TryReconnect());
+        // StartCoroutine(TryReconnect());
     }
 
     private IEnumerator TryReconnect()
