@@ -9,7 +9,7 @@ public class AudioManager : MonoBehaviour
     public AudioSource sfxSource;
 
     [Header("----------- Audio Clip -----------")]
-    public AudioClip backgroud;
+    public AudioClip[] backgroud;
     public AudioClip button;
     public AudioClip success;
     public AudioClip claim;
@@ -32,11 +32,13 @@ public class AudioManager : MonoBehaviour
     }
     private void Start()
     {
-       
         musicSource.volume = 0.3f;
         sfxSource.volume = 0.3f;
-        musicSource.clip = backgroud;
-        musicSource.Play();
+        if (LoadScene.Instance.enabled)
+        {
+            musicSource.clip = backgroud[Random.Range(0, backgroud.Length)];
+            musicSource.PlayOneShot(musicSource.clip);
+        }
     }
 
     public void PlaySFXButton()
