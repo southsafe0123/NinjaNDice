@@ -165,7 +165,7 @@ public class Quizz : NetworkBehaviour
 
     private IEnumerator WaitAndDisplayCorrectAnswer(Question randomQuestion)
     {
-        yield return new WaitUntil(()=>AnswerPanel.instance.isPlayerClick);
+        yield return new WaitUntil(() => AnswerPanel.instance.isPlayerClick);
         AnswerPanel.instance.isPlayerClick = false;
         // Call ChooseCorrectAnswer to display correct answer
         ChooseCorrectAnswer(randomQuestion);
@@ -233,38 +233,51 @@ public class Quizz : NetworkBehaviour
                 CallThisPlayerIsDead_ServerRPC(playerID);
             }
         }
-       
+
     }
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
-        MiniEndGamePanel.instance.AddPlayerLose(player);
+        MiniEndGamePanel.Instance.AddPlayerLose(player);
 
-        if (MiniEndGamePanel.instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
+        if (MiniEndGamePanel.Instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
     }
 
     private IEnumerator EndGame()
     {
-        Player playerWin = PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value != null ? PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value : null;
+        WaitForSeconds wait1f = new WaitForSeconds(1.15f);
+        Player playerWin = PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.Instance.playerLose.Contains(player.Value)).Value != null ? PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.Instance.playerLose.Contains(player.Value)).Value : null;
         Debug.Log("PlayerWin:" + playerWin.ownerClientID.Value);
         if (playerWin != null)
         {
-            MiniEndGamePanel.instance.SetPlayerWin(playerWin);
+            MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
             EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
         }
-        MiniEndGamePanel.instance.playerLose.Reverse();
-        yield return null;
-        foreach (Player player in MiniEndGamePanel.instance.playerLose)
+        MiniEndGamePanel.Instance.playerLose.Reverse();
+        yield return wait1f;
+        foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
             EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
-            yield return null;
+            yield return wait1f;
         }
 
         RemovedComponent_ClientRPC();
+        int i = 3;
+        while (i > -1)
+        {
+            CallToLeave_ClientRPC(i);
+            yield return wait1f;
+            i--;
+        }
 
-        yield return new WaitForSeconds(3.5f);
         StartLoadScene_ClientRPC();
+    }
+
+    [ClientRpc]
+    private void CallToLeave_ClientRPC(int i)
+    {
+        MiniEndGamePanel.Instance.SettextWaitToLeave(i.ToString());
     }
     [ClientRpc]
     private void StartLoadScene_ClientRPC()
@@ -275,8 +288,8 @@ public class Quizz : NetworkBehaviour
     [ClientRpc]
     private void EndGameAnouncement_ClientRPC(ulong playerID)
     {
-        MiniEndGamePanel.instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
+        MiniEndGamePanel.Instance.DisplayEndMinigame(true);
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
     }
     [ClientRpc]
     private void RemovedComponent_ClientRPC()

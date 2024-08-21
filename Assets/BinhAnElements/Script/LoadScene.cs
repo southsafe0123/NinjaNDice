@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class LoadScene : MonoBehaviour
 {
     public static LoadScene Instance;
+    public int turnIngamePlay = 0;
     public Animator trasition;
     public float transitionTime;
     public GameObject waitForPlayerPanel;
@@ -46,6 +47,15 @@ public class LoadScene : MonoBehaviour
             {
                 StartCoroutine(PlayStartScene());
             }
+        }
+        if (arg1.name == "MenuScene")
+        {
+            turnIngamePlay = 0;
+        }
+        if(arg1.name == "NamAn")
+        {
+            turnIngamePlay++;
+            TurnBackground.instance.txtTurn.text = "Turn: " + turnIngamePlay;
         }
     }
     

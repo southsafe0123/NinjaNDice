@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
 public class MiniEndGamePanel : MonoBehaviour
 {
-    public static MiniEndGamePanel instance;
+    public static MiniEndGamePanel Instance;
     public GameObject endMinigamePanelGroup;
     public List<PlayerMiniEndGameItem> playerEndList = new List<PlayerMiniEndGameItem>();
     public List<Player> playerLose = new List<Player>();
     public Player playerWin;
     public int indexTopPlayer = 1;
+    public TextMeshProUGUI txtWaitToLeave;
     private void Awake()
     {
-        instance = this;
+        Instance = this;
     }
     private void Start()
     {
@@ -25,6 +27,10 @@ public class MiniEndGamePanel : MonoBehaviour
     public void DisplayEndMinigame(bool isDisplay)
     {
         endMinigamePanelGroup.SetActive(isDisplay);
+    }
+    public void SettextWaitToLeave(string text)
+    {
+        txtWaitToLeave.text = "LEAVE IN " + text + "...";
     }
     public void AddPlayerLose(Player player)
     {
@@ -55,6 +61,7 @@ public class MiniEndGamePanel : MonoBehaviour
                     }
                     PlayerList.Instance.SetPlayerOrder(indexTopPlayer, player);
                 }
+                Debug.Log("top: " + indexTopPlayer);
                 indexTopPlayer++;
                 break;
             }

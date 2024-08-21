@@ -95274,6 +95274,7 @@ GameObject:
   - component: {fileID: 1918736423}
   - component: {fileID: 1918736422}
   - component: {fileID: 1918736424}
+  - component: {fileID: 1918736425}
   m_Layer: 5
   m_Name: Turn Background
   m_TagString: Untagged
@@ -95352,6 +95353,19 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1918736425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1918736420}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8889009d0d9f1ae42815a5c64258ab59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  txtTurn: {fileID: 1960331672}
 --- !u!1 &1926825886
 GameObject:
   m_ObjectHideFlags: 0
@@ -95770,7 +95784,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'T U R N:   1'
+  m_text: 'turn: 1'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
   m_sharedMaterial: {fileID: -5361591186681043168, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
@@ -95803,7 +95817,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

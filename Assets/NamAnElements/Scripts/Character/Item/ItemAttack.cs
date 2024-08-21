@@ -18,7 +18,6 @@ public class ItemAttack : ItemBase
     [ServerRpc(RequireOwnership = false)]
     public void SendAttackDamage_ServerRPC(ulong targetID, int attackDamage)
     {
-
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetID);
         StartCoroutine(MoveBackCoroutine(targetPlayer, attackDamage));
     }

@@ -31,7 +31,7 @@ public class LobbyGameManager : NetworkBehaviour
     private void Start()
     {
         playerSlots[0].SetActive(true);
-        playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
+        //playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(PrefsData.GetData(PrefsData.PLAYER_SKIN_ID)).skinAvatar;
 
         RegisterDisconnectButton();
         NetworkManager.Singleton.OnClientConnectedCallback += OnConnectedClient;
@@ -115,7 +115,7 @@ public class LobbyGameManager : NetworkBehaviour
             {
                 int slotIndex = playerSlots.IndexOf(player.Value);
                 SetActiveInClient_ClientRPC(slotIndex, true);
-                SetAvatarInClient_ClientRPC(slotIndex,clientID);
+                //SetAvatarInClient_ClientRPC(slotIndex,clientID);
             }
         }
     }
