@@ -21,8 +21,8 @@ public class WS_Client : MonoBehaviour
     [SerializeField] private TMP_InputField ID;
     [SerializeField] private TMP_Text message;
     [SerializeField] private string myID;
-
-    [SerializeField] private bool isConnect = false;
+    private Coroutine reConnectCoroutine;
+    public bool isConnect = false;
 
     // Start is called before the first frame update
 
@@ -138,7 +138,7 @@ public class WS_Client : MonoBehaviour
 
         };
         ws.Connect();
-        StartCoroutine(TryReconnect());
+        reConnectCoroutine = StartCoroutine(TryReconnect());
     }
 
     private IEnumerator TryReconnect()
@@ -201,26 +201,29 @@ public class WS_Client : MonoBehaviour
     //close connection when application is closed
     private void OnApplicationQuit()
     {
-        isConnect = false;
-        ws.Close();
-        Debug.Log("Application ending after " + Time.time + " seconds");
-
+        DisconnectWS();
     }
 
     private void OnDestroy()
     {
-        isConnect = false;
-        ws.Close();
-        Debug.Log("Destroy");
+        DisconnectWS();
     }
 
     private void OnDisable()
     {
-        isConnect = false;
+        DisconnectWS();
+    }
+    public void DisconnectWS()
+    {
         ws.Close();
+        if(reConnectCoroutine != null)
+        {
+            StopCoroutine(reConnectCoroutine);
+            reConnectCoroutine = null;
+        }
+        AnouncementManager.instance.DisplayAnouncement("Logged out!");
         Debug.Log("Disable");
     }
-
     public void reloadData()
     {
         ApiHandle.Instance.reloadData();

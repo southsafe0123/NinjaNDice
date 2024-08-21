@@ -111,6 +111,7 @@ public class GameLuckyController : NetworkBehaviour
         // Ngẫu nhiên chọn một index từ danh sách playerList
         int randomIndex = Random.Range(0, playerList.Count);
         selectedPlayer = playerList[randomIndex];
+        if (selectedPlayer == null) return;
         previousPlayerStandPos = standPos.movePos.FirstOrDefault(pos => pos.position == selectedPlayer.transform.position);
 
         // Hiển thị hoặc sử dụng player đã chọn theo yêu cầu của bạn

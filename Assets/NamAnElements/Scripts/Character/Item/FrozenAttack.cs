@@ -5,9 +5,10 @@ using UnityEngine;
 
 public class FrozenAttack : ItemBase
 {
+    public GameObject prefabEffect;
     public override void Effect()
     {
-        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(); return; }
+        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(targetPlayer); return; }
         // Gửi ID người chơi bị đóng băng lên server
         SendFrozenPlayer_ServerRPC(targetPlayer.ownerClientID.Value);
     }
@@ -16,6 +17,7 @@ public class FrozenAttack : ItemBase
     public void SendFrozenPlayer_ServerRPC(ulong targetID)
     {
         // Kích hoạt coroutine trên client của người chơi bị đóng băng
+        SpawnAttackEffect_ClientRPC(targetID);
         StartCoroutine(FrozenPlayerCoroutine(targetID));
     }
 
@@ -30,5 +32,11 @@ public class FrozenAttack : ItemBase
 
         // Cập nhật vòng lặp gameTurn và chuyển camera khi hết vòng chơi
         GameManager.Singleton.NextPlayerTurn_ServerRPC();
+    }
+    [ClientRpc]
+    private void SpawnAttackEffect_ClientRPC(ulong targetPlayerID)
+    {
+        Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
+        Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
     }
 }

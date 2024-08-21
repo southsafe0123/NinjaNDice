@@ -9,6 +9,7 @@ public class PlayerData : NetworkBehaviour
 {
     public NetworkVariable<FixedString128Bytes> playerName = new NetworkVariable<FixedString128Bytes>();
     //public NetworkVariable<FixedString4096Bytes> playerSkin = new NetworkVariable<FixedString4096Bytes>();
+    public Sprite gameplaySprite;
     public GameObject playerNamePanel;
     public TextMeshProUGUI txtPlayerName;
     public Player myPlayer;

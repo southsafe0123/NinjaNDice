@@ -14,8 +14,9 @@ public abstract class ItemBase : NetworkBehaviour
     {
         return targetPlayer.isPlayerDeffend.Value;
     }
-    public void BreakTargetPlayerDeffend()
+    public void BreakTargetPlayerDeffend(Player targetPlayer)
     {
-        targetPlayer.isPlayerDeffend.Value = false;
+        GameObject.Find("cutShield").GetComponent<UnDeffend>().targetPlayer = targetPlayer;
+        GameObject.Find("cutShield").GetComponent<UnDeffend>().Effect();
     }
 }

@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2818176548
+  GlobalObjectIdHash: 2222402023
   InScenePlacedSourceGlobalObjectIdHash: 3793740948
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -69,6 +69,7 @@ MonoBehaviour:
   itemName: Swap
   icon: {fileID: -1658563410, guid: 3045c060c716e344e87217c243f3cc31, type: 3}
   targetPlayer: {fileID: 0}
+  prefabEffect: {fileID: 2879602054611977993, guid: b64e405afabe2734f8276d15fd705c56, type: 3}
 --- !u!1 &1253298634
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,7 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3428765584
+  GlobalObjectIdHash: 3313573710
   InScenePlacedSourceGlobalObjectIdHash: 3793740948
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -138,6 +139,7 @@ MonoBehaviour:
   itemName: Deffend
   icon: {fileID: -15832494, guid: 3045c060c716e344e87217c243f3cc31, type: 3}
   targetPlayer: {fileID: 0}
+  deffendSprite: {fileID: 1651695736, guid: b4a40ac832df0c747bde9faacc12cf3a, type: 3}
 --- !u!1 &1609496327
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +185,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1167518106
+  GlobalObjectIdHash: 164099487
   InScenePlacedSourceGlobalObjectIdHash: 3793740948
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -207,6 +209,7 @@ MonoBehaviour:
   itemName: DeffendBreak
   icon: {fileID: -1055414561, guid: 3045c060c716e344e87217c243f3cc31, type: 3}
   targetPlayer: {fileID: 0}
+  prefabEffect: {fileID: 3990165972384263685, guid: 9b49a29c6faea0a479a1f0de73d75194, type: 3}
 --- !u!1 &1216461599188528379
 GameObject:
   m_ObjectHideFlags: 0
@@ -276,6 +279,7 @@ MonoBehaviour:
   itemName: Freeze
   icon: {fileID: -128563545, guid: 3045c060c716e344e87217c243f3cc31, type: 3}
   targetPlayer: {fileID: 0}
+  prefabEffect: {fileID: 1799512138057033193, guid: 91fec2e81bdd11c47985b76029142bf1, type: 3}
 --- !u!1 &1216461599369155201
 GameObject:
   m_ObjectHideFlags: 0
@@ -425,3 +429,4 @@ MonoBehaviour:
   itemName: NormalAttack
   icon: {fileID: 389242037, guid: 3045c060c716e344e87217c243f3cc31, type: 3}
   targetPlayer: {fileID: 0}
+  prefabEffect: {fileID: 5149812202924459091, guid: df8ef54201399054fa7b2f7837b5a92d, type: 3}

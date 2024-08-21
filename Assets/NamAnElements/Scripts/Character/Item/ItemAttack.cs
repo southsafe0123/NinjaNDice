@@ -8,9 +8,10 @@ using UnityEngine.UIElements;
 
 public class ItemAttack : ItemBase
 {
+    public GameObject prefabEffect;
     public override void Effect()
     {
-        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(); return; }
+        if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(targetPlayer); return; }
         int attackDamage = UnityEngine.Random.Range(0, 4);
         SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value, attackDamage);
     }
@@ -19,6 +20,7 @@ public class ItemAttack : ItemBase
     public void SendAttackDamage_ServerRPC(ulong targetID, int attackDamage)
     {
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetID);
+        SpawnAttackEffect_ClientRPC(targetID);
         StartCoroutine(MoveBackCoroutine(targetPlayer, attackDamage));
     }
 
@@ -31,7 +33,7 @@ public class ItemAttack : ItemBase
         //     targetPlayer.isPlayerDeffend.Value = false;
         //     yield break;
         // }
-
+        
         int posCount = -1;
         WaitUntil waitUntil = new WaitUntil(() => targetPlayer.gameObject.transform.position == GameManager.Singleton.map.movePos[targetPlayer.currentPos.Value].position);
         WaitForSeconds waitForSeconds = new WaitForSeconds(0.15f);
@@ -59,5 +61,11 @@ public class ItemAttack : ItemBase
         } while (posCount >= -attackDamage);
 
         GameManager.Singleton.NextPlayerTurn_ServerRPC();
+    }
+    [ClientRpc]
+    private void SpawnAttackEffect_ClientRPC(ulong targetPlayerID)
+    {
+        Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
+        Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
     }
 }

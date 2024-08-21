@@ -41,8 +41,13 @@ public class GameManager : NetworkBehaviour
         for (int i = 0; i < playerList.Count; i++)
         {
             playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
+            if (playerList[i].isPlayerFrozen.Value)
+            {
+                Instantiate(GameObject.Find("freeze").GetComponent<FrozenAttack>().prefabEffect, playerList[i].transform.position,Quaternion.identity);
+            }
         }
-        playerList[playerIndex].isPlayerTurn.Value = true;
+
+        SetPlayerTurn_ServerRPC(playerList[playerIndex].ownerClientID.Value,true);
         SetCamFollowPlayer_ClientRPC(playerList[playerIndex].ownerClientID.Value);
     }
 
@@ -180,7 +185,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 3;
+        var randomvalue = UnityEngine.Random.Range(0,3);
         switch (randomvalue)
         {
             case 0:
@@ -190,10 +195,10 @@ public class GameManager : NetworkBehaviour
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
                 break;
             case 2:
-                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
                 break;
             case 3:
-                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
                 break;
             default:
                 Debug.LogError("isminigame now");
@@ -228,10 +233,20 @@ public class GameManager : NetworkBehaviour
             Debug.Log(player.ownerClientID.Value + "turn =" + false);
             player.isPlayerFrozen.Value = false;
             player.isPlayerTurn.Value = false;
+            UnfreezeThisPlayerAnim_ClientRPC();
             NextPlayerTurn_ServerRPC();
         }
     }
-
+    [ClientRpc]
+    private void UnfreezeThisPlayerAnim_ClientRPC()
+    {
+        List<FreezeEffect> freezeEffect = GameObject.FindObjectsByType<FreezeEffect>(sortMode:FindObjectsSortMode.None).ToList();
+        if (freezeEffect == null||freezeEffect.Count==0) return;
+        foreach (var item in freezeEffect)
+        {
+            item.UnFreezeAnimation();
+        }
+    }
 
     private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
     {

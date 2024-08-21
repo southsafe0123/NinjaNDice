@@ -61,13 +61,17 @@ public class ApiHandle : MonoBehaviour
             PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, "Player_" + UnityEngine.Random.Range(1000, 9000));
         }
 
-        Coroutine coroutine = StartCoroutine(CheckUrlConnection());
-        StartCoroutine(CheckGetDataTimeout(coroutine));
+        bool isCoroutineDone = false;
+        StartCoroutineWithTimeout(CheckUrlConnection(isCoroutineDone), isCoroutineDone);
 
         GetAllSkin();
     }
-
-    IEnumerator CheckGetDataTimeout(Coroutine coroutine)
+    public void StartCoroutineWithTimeout(IEnumerator coroutine, bool isCoroutineDone)
+    {
+        Coroutine coroutineToStop = StartCoroutine(coroutine);
+        StartCoroutine(CheckGetDataTimeout(coroutineToStop, isCoroutineDone));
+    }
+    IEnumerator CheckGetDataTimeout(Coroutine coroutine, bool isCoroutineDone)
     {
         float i = 0f;
 
@@ -77,13 +81,13 @@ public class ApiHandle : MonoBehaviour
             // No timeout yet.
             yield return null;
         }
-
         // Request timeout.
+        if (isCoroutineDone) yield break;
         StopCoroutine(coroutine);
-        Debug.Log("Connected Timeout!");
+        AnouncementManager.instance.DisplayAnouncement("Connection timeout!");
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
-    IEnumerator CheckUrlConnection()
+    IEnumerator CheckUrlConnection(bool isCoroutineDone)
     {
         LoadingPanel.Instance.SetDisplayLoading(true);
         yield return null;
@@ -112,6 +116,7 @@ public class ApiHandle : MonoBehaviour
             }
             else
             {
+                AnouncementManager.instance.DisplayAnouncement("Login failed, check your internet connection");
                 Debug.Log("Connected to database failed!");
                 LoadingPanel.Instance.SetDisplayLoading(false);
             }
@@ -121,10 +126,7 @@ public class ApiHandle : MonoBehaviour
 
         }
 
-
-
-
-
+        isCoroutineDone = true;
     }
 
     // Update is called once per frame
@@ -135,8 +137,8 @@ public class ApiHandle : MonoBehaviour
 
     public void GetAllSkin()
     {
-        Coroutine coroutine = StartCoroutine(getAllSkins());
-        StartCoroutine(CheckGetDataTimeout(coroutine));
+        bool isDone = false;
+        StartCoroutine(getAllSkins(isDone));
     }
     public void ChangeNameButton(string name)
     {
@@ -144,8 +146,8 @@ public class ApiHandle : MonoBehaviour
     }
     public void LoginButton(string usernameLogin, string passwordLogin)
     {
-        Coroutine coroutine = StartCoroutine(Login(usernameLogin, passwordLogin));
-        StartCoroutine(CheckGetDataTimeout(coroutine));
+        bool isDone = false;
+        StartCoroutineWithTimeout(Login(usernameLogin, passwordLogin, isDone), isDone);
 
     }
 
@@ -161,8 +163,8 @@ public class ApiHandle : MonoBehaviour
     }
     public void Loginid(string ID, string username, string type)
     {
-        Coroutine coroutine = StartCoroutine(LoginID(ID, username, type));
-        StartCoroutine(CheckGetDataTimeout(coroutine));
+        bool isDone = false;
+        StartCoroutineWithTimeout(LoginID(ID, username, type, isDone), isDone);
     }
     public void LogoutButton()
     {
@@ -204,7 +206,7 @@ public class ApiHandle : MonoBehaviour
         StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
-    public IEnumerator LoginID(string ID, string username, string type = "Unity")
+    public IEnumerator LoginID(string ID, string username, string type = "Unity", bool isDone = false)
     {
         if (ID == null)
         {
@@ -237,34 +239,37 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.Log(www.error);
                 //if HTTP/1.1 502 Bad Gateway try again two times
-                if (www.responseCode == 502)
-                {
-                    LoadingPanel.Instance.SetDisplayLoading(true);
-                    yield return new WaitForSeconds(1.5f);
-                    yield return StartCoroutine(LoginID(ID, username, type));
-                    LoadingPanel.Instance.SetDisplayLoading(false);
-                }
                 if (www.downloadHandler != null)
                 {
                     Debug.Log(www.downloadHandler.text);
                     ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                    if (www.responseCode == 404)
+
+
+
+                    if (message != null)
                     {
-                        LoadingPanel.Instance.SetDisplayLoading(false);
-                        WelcomePanel.instance.DisplayPanel(true);
-                        yield return new WaitUntil(() => !WelcomePanel.instance.welcomePanel.activeInHierarchy);
+                        message.text = errorRp.message;
+                        if (message.text.Contains("login"))
+                        {
+                            AnouncementManager.instance.DisplayAnouncement("User already login!");
+                        }
+                        else
+                        {
+                            AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                        }
                     }
-
-
-                    if (message != null) { message.text = errorRp.message; }
-                    else { Debug.Log(errorRp.message); }
+                    else
+                    {
+                        Debug.Log(errorRp.message);
+                        AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                    }
                 }
                 else
                 {
                     Debug.LogError("Download handler is null");
                 }
 
-
+                AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again");
             }
             else
             {
@@ -308,12 +313,14 @@ public class ApiHandle : MonoBehaviour
                     uiController.UpdateSkin();
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
                 }
+                AnouncementManager.instance.DisplayAnouncement("Welcome back, " + username);
                 break;
             }
 
             yield return null;
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
+        isDone = true;
     }
 
     public IEnumerator ChangeNameIngame(string name)
@@ -365,7 +372,7 @@ public class ApiHandle : MonoBehaviour
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
-    public IEnumerator Login(string usernameLogin, string passwordLogin)
+    public IEnumerator Login(string usernameLogin, string passwordLogin, bool isDone)
     {
         if (usernameLogin == null || passwordLogin == null)
         {
@@ -407,11 +414,22 @@ public class ApiHandle : MonoBehaviour
                     ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                     if (message != null) { message.text = errorRp.message; }
                     else { Debug.Log(errorRp.message); }
+
+                    if (message.text.Contains("login"))
+                    {
+                        AnouncementManager.instance.DisplayAnouncement("User already login!");
+                    }
+                    else
+                    {
+                        AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                    }
                 }
                 else
                 {
                     Debug.LogError("Download handler is null");
+                    AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
                 }
+
             }
             else
             {
@@ -454,11 +472,14 @@ public class ApiHandle : MonoBehaviour
                     uiController.UpdateSkin();
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
                 }
+
+                AnouncementManager.instance.DisplayAnouncement("Welcome back, " + usernameLogin);
                 break;
             }
 
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
+        isDone = true;
     }
 
     public IEnumerator GetAllFriendsStatus(List<friend> friends)
@@ -967,7 +988,7 @@ public class ApiHandle : MonoBehaviour
 
     //get all skins, endpoint: /skins , method: GET
 
-    public IEnumerator getAllSkins()
+    public IEnumerator getAllSkins(bool isDone)
     {
         for (int i = 0; i < 2; i++)
         {
@@ -993,11 +1014,13 @@ public class ApiHandle : MonoBehaviour
                 skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
                 Debug.Log(skins.Count);
                 UpdateSkinsHandle.instance.LoadPrefab();
-               
+
                 break;
             }
 
         }
+
+        isDone = true;
 
     }
 

@@ -76,6 +76,8 @@ public class SettingPanel : MonoBehaviour
     {
         LoadingPanel.Instance.SetDisplayLoading(true);
         yield return null;
+        ApiHandle.Instance.GetComponent<WS_Client>().DisconnectWS();
+        yield return new WaitUntil(()=>!ApiHandle.Instance.GetComponent<WS_Client>().isConnect);
         Destroy(ApiHandle.Instance.GetComponent<WS_Client>());
         UserSessionManager.Instance.ClearSession();
         ApiHandle.Instance.user = null;
