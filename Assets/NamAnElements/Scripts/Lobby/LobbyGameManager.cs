@@ -34,7 +34,7 @@ public class LobbyGameManager : NetworkBehaviour
     private void Start()
     {
         playerSlots[0].SetActive(true);
-        if(ApiHandle.Instance.user.avatar == "")
+        if(ApiHandle.Instance.user.avatar.IsNullOrEmpty())
         {
             playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(0).skinAvatar;
         }
@@ -105,24 +105,38 @@ public class LobbyGameManager : NetworkBehaviour
     [ClientRpc]
     public void UpdateLobby_ClientRPC()
     {
+        StartCoroutine(WaitUntilHaveData());
+    }
+
+    private IEnumerator WaitUntilHaveData()
+    {
+        yield return new WaitForSeconds(0.15f);
+        Debug.Log("Cllear=>?>>>>>>");
         playerListTest.Clear();
         foreach (var item in playerSlots)
         {
             item.SetActive(false);
         }
-
+        yield return new WaitForSeconds(0.15f);
+        Debug.Log("Add=>?>>>>>>");
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
+            Debug.Log("=>>>>>P: " + player.ownerClientID.Value);
             playerListTest.Add(player);
         }
+        yield return new WaitForSeconds(0.15f);
+        Debug.Log("Done=>?>>>>>>");
         for (int i = 0; i < playerListTest.Count; i++)
         {
+            yield return new WaitUntil(() => !playerListTest[i].GetComponent<PlayerData>().playerSkin.Value.ToString().IsNullOrEmpty());
             playerSlots[i].SetActive(true);
             var playerSkinSlot = playerListTest[i].GetComponent<PlayerData>().playerSkin.Value.ToString();
-            var playerSprite =  SkinPool.instance.GetSkin(int.Parse(playerSkinSlot)).skinAvatar;
-            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = playerSprite;
+            Debug.Log("AvatarSlot: "+playerSkinSlot);
+            var playerSprite = SkinPool.instance.GetSkin(int.Parse(playerSkinSlot)).skinAvatar;
+            playerSlots[i].transform.Find("Image").GetComponent<Image>().sprite = playerSprite;
         }
     }
+
     private void LoadPlayer(ulong clientID)
     {
         //PlayerList.Instance.UpdatePlayerList();
@@ -133,23 +147,13 @@ public class LobbyGameManager : NetworkBehaviour
             return;
         }
         sv_dicPlayer[clientID] = emptyPlayerSlot;
-        
-        int slotIndex = 0;
-        for (int i = 0; i < playerSlots.Count; i++)
-        {
-            if (playerSlots[i] == emptyPlayerSlot)
-            {
-                slotIndex = i;
-                break;
-            }
-        }
 
         AddOwnerClientID(clientID);
-        StartCoroutine(WaitUntilHaveData(slotIndex, clientID));
         LoadListPlayerDic(clientID);
         LoadPlayerOrder(clientID);
-        SetActiveButton_ClientRPC(true);
         UpdateLobby_ClientRPC();
+        SetActiveButton_ClientRPC(true);
+       
 
     }
     private IEnumerator WaitUntilHaveData(int slotIndex, ulong clientID)

@@ -3475,3 +3475,399 @@
                              received: True
 8/22/2024 4:44:40 AM|Info |WebSocket.close|The connection has already been closed.
 8/22/2024 4:44:40 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 4:51:47 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 4:51:47 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 4:51:47 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 4:51:47 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: 0fTxYLyWW50Fo6lffAIO7Q==
+                           Sec-WebSocket-Version: 13
+8/22/2024 4:51:48 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 21:51:50 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: iyprQkxrq3oZfz35LF9aV51e1I4=
+                           CF-Ray: 8b6dd8c51e7d85c1-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 4:51:51 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 4:51:51 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 4:51:51 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 4:51:51 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 4:52:15 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 4:52:15 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 4:52:15 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 4:52:15 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: K5Qtxzv44cMntBz6R8u9Nw==
+                           Sec-WebSocket-Version: 13
+8/22/2024 4:52:15 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 21:52:18 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: nrpWTG57869DplIhyu7ZS0+RD1U=
+                           CF-Ray: 8b6dd96fff7d5ded-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 4:52:20 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 4:52:20 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 4:52:20 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 4:52:20 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:08:20 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:08:20 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:08:20 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:08:21 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: rkLnGXiuE9fN2lyyo82Kpg==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:08:21 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:08:23 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: y5qFedY3MRzrRkOhSoNNuZpNoqk=
+                           CF-Ray: 8b6df1043a9f2308-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:09:26 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:09:26 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:09:26 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:09:26 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:11:48 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:11:48 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:11:48 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:11:48 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: 1DmtMT4oPE9ChQLTrXvffA==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:11:49 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:11:51 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: /7IeOWvpTy/sR+V+6XqSrB9B0yU=
+                           CF-Ray: 8b6df616ee2004e4-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:19:35 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:19:35 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:19:35 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:19:35 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:20:31 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:20:31 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:20:31 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:20:32 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: YO8koi1m7O1zteXGVVk1SQ==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:20:32 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:20:34 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: EgWndMkj8lJlqasRZlaZlt8X0Nw=
+                           CF-Ray: 8b6e02dd1d2f0427-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:26:47 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:26:47 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:26:47 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:26:47 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:28:18 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:28:18 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:28:18 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:28:19 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: DiwbsBSPim3kWN3bC0y2RQ==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:28:19 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:28:21 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: psW3LA8atW3mPcNAVpkbqt+aRec=
+                           CF-Ray: 8b6e0e43d84b84c3-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:29:26 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:29:26 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:29:26 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:29:26 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:30:05 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:30:05 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:30:05 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:30:05 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: d3Qu4n2WlNfuE4zk/VpLzg==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:30:05 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:30:08 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: KBnVYJm/fDQAt9x6YA6O3pZAtWQ=
+                           CF-Ray: 8b6e10de3cc1211d-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:30:09 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:30:09 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:30:09 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:30:09 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:30:22 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:30:22 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:30:22 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:30:23 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: xl+6mwC9w4T1lZzlIKP1Tg==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:30:23 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:30:25 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: s7eqKx/8gwGEbU/cAHsQUdT6EIc=
+                           CF-Ray: 8b6e114b4bac8530-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:30:44 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:30:44 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:30:44 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:30:44 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:30:59 AM|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+8/22/2024 5:30:59 AM|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                             at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                             at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                              --- End of inner exception stack trace ---
+                             at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                             at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                              --- End of inner exception stack trace ---
+                             at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                             at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+8/22/2024 5:30:59 AM|Debug|WebSocket.closeHandshake|Was clean?: False
+                             sent: False
+                             received: False
+8/22/2024 5:30:59 AM|Debug|WebSocket.sendHttpRequest|A request to the server:
+                           GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                           User-Agent: websocket-sharp/1.0
+                           Host: retstudio.io.vn
+                           Upgrade: websocket
+                           Connection: Upgrade
+                           Sec-WebSocket-Key: AZbREHJ3y/CdMukFYl0iOQ==
+                           Sec-WebSocket-Version: 13
+8/22/2024 5:31:00 AM|Debug|WebSocket.sendHttpRequest|A response to this request:
+                           HTTP/1.1 101 Switching Protocols
+                           Date: Wed, 21 Aug 2024 22:31:02 GMT
+                           Connection: upgrade
+                           Upgrade: websocket
+                           Sec-WebSocket-Accept: o7tTMilcoQvZ2bMSEJyHh2OPXXc=
+                           CF-Ray: 8b6e12303fb1b419-HKG
+                           CF-Cache-Status: DYNAMIC
+                           Server: cloudflare
+                           alt-svc: h3=":443"; ma=86400
+8/22/2024 5:32:54 AM|Info |WebSocket.close|The closing is already in progress.
+8/22/2024 5:32:54 AM|Debug|WebSocket.closeHandshake|Was clean?: True
+                             sent: True
+                             received: True
+8/22/2024 5:32:54 AM|Info |WebSocket.close|The connection has already been closed.
+8/22/2024 5:32:54 AM|Info |WebSocket.close|The connection has already been closed.

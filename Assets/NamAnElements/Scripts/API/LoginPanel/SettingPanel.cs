@@ -105,6 +105,8 @@ public class SettingPanel : MonoBehaviour
         yield return new WaitForSeconds(UnityEngine.Random.Range(0.3f, 1.3f));
         ApiHandle.Instance.AddComponent<LoginManager>();
         PlayerSkin.instance.UpdateSkin();
+        UI_Controller.Instance.UpdateMoney();
+        avatarImage.sprite = defaultImage;
         yield return new WaitUntil(() => UserSessionManager.Instance.username.IsNullOrEmpty());
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
