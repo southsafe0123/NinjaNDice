@@ -9,13 +9,24 @@ using Newtonsoft.Json;
 using System.Linq;
 using System;
 using Google.MiniJSON;
+using System.Threading;
 
 public class ApiHandle : MonoBehaviour
-{
+{        //int timer = 0;
+         //WaitForSeconds wait1sec = new WaitForSeconds(1);
+         //while (timer < maxLoadTime)
+         //{
+         //    while (!www.downloadHandler.isDone && timer < maxLoadTime)
+         //    {
+         //        timer += 1;
+         //        yield return wait1sec;
+         //    }
+         //}
     public static ApiHandle Instance { get; private set; }
 
-    [SerializeField] private string _apiUrl = "https://mrxgame.loca.lt";
-
+    [SerializeField] private string _apiUrl = "https://retstudio.io.vn";
+    //https://retstudio.io.vn
+    // [SerializeField] private string _apiUrl = "http://localhost:3000";
     [SerializeField] private TMP_Text message;
     [SerializeField] private UI_Controller uiController;
 
@@ -28,6 +39,9 @@ public class ApiHandle : MonoBehaviour
     //list name of user request
     [SerializeField] public List<whoRequest> wRequest;
 
+    [SerializeField] public List<skin> skins;
+
+    public int maxLoadTime = 5;
 
     // Start is called before the first frame update
     void Start()
@@ -42,13 +56,37 @@ public class ApiHandle : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        if (!PrefsData.HaveData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN))
+        {
+            PrefsData.SetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN, "Player_" + UnityEngine.Random.Range(1000, 9000));
+        }
 
-        StartCoroutine(CheckUrlConnection());
+        Coroutine coroutine = StartCoroutine(CheckUrlConnection());
+        StartCoroutine(CheckGetDataTimeout(coroutine));
+
+        GetAllSkin();
+    }
+
+    IEnumerator CheckGetDataTimeout(Coroutine coroutine)
+    {
+        float i = 0f;
+
+        while (i < maxLoadTime)
+        {
+            i += Time.deltaTime;
+            // No timeout yet.
+            yield return null;
+        }
+
+        // Request timeout.
+        StopCoroutine(coroutine);
+        Debug.Log("Connected Timeout!");
+        LoadingPanel.Instance.SetDisplayLoading(false);
     }
     IEnumerator CheckUrlConnection()
     {
         LoadingPanel.Instance.SetDisplayLoading(true);
-        yield return new WaitForSeconds(1);
+        yield return null;
         UnityWebRequest www = new UnityWebRequest(_apiUrl + "/ping", "GET");
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("Content-Type", "application/json");
@@ -63,7 +101,6 @@ public class ApiHandle : MonoBehaviour
                 Debug.Log("Connected to database successfully!");
                 Debug.Log(PlayerPrefs.HasKey("username") + "/playerPrefs/" + PlayerPrefs.HasKey("unityId"));
 
-
                 if (PrefsData.HaveData(PrefsData.PLAYER_USERNAME_LOGIN) || PrefsData.HaveData(PrefsData.PLAYER_PASSWORD_LOGIN))
                 {
                     LoginButton(PrefsData.GetData(PrefsData.PLAYER_USERNAME_LOGIN), PrefsData.GetData(PrefsData.PLAYER_PASSWORD_LOGIN));
@@ -72,23 +109,21 @@ public class ApiHandle : MonoBehaviour
                 {
                     Loginid(PrefsData.GetData(PrefsData.PLAYER_ID_UNITY_LOGIN), "", "Unity");
                 }
-                else
-                {
-                    LoadingPanel.Instance.SetDisplayLoading(false);
-                }
             }
             else
             {
                 Debug.Log("Connected to database failed!");
                 LoadingPanel.Instance.SetDisplayLoading(false);
             }
-
         }
         catch (Exception)
         {
 
-            throw;
         }
+
+
+
+
 
     }
 
@@ -97,18 +132,37 @@ public class ApiHandle : MonoBehaviour
     // {
 
     // }
+
+    public void GetAllSkin()
+    {
+        Coroutine coroutine = StartCoroutine(getAllSkins());
+        StartCoroutine(CheckGetDataTimeout(coroutine));
+    }
     public void ChangeNameButton(string name)
     {
         StartCoroutine(ChangeNameIngame(name));
     }
     public void LoginButton(string usernameLogin, string passwordLogin)
     {
-        StartCoroutine(Login(usernameLogin, passwordLogin));
+        Coroutine coroutine = StartCoroutine(Login(usernameLogin, passwordLogin));
+        StartCoroutine(CheckGetDataTimeout(coroutine));
+
     }
 
+    public void BuySkinButton(string userId, string skinId)
+    {
+        StartCoroutine(BuySkin(userId, skinId));
+    }
+
+    public skin skisn1(skin s1)
+    {
+        StartCoroutine(getSkin(s1));
+        return s1;
+    }
     public void Loginid(string ID, string username, string type)
     {
-        StartCoroutine(LoginID(ID, username, type));
+        Coroutine coroutine = StartCoroutine(LoginID(ID, username, type));
+        StartCoroutine(CheckGetDataTimeout(coroutine));
     }
     public void LogoutButton()
     {
@@ -158,101 +212,107 @@ public class ApiHandle : MonoBehaviour
             yield break;
         }
 
-        LoadingPanel.Instance.SetDisplayLoading(true);
-
-        userIDrequest userRq = new userIDrequest();
-        userRq.type = type;
-        userRq.username = username;
-        userRq.id = ID;
-
-        string json = JsonUtility.ToJson(userRq);
-        Debug.Log(json);
-
-        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/loginId", "POST");
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        www.downloadHandler = new DownloadHandlerBuffer();
-        www.SetRequestHeader("Content-Type", "application/json");
-
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
+        for (int i = 0; i < 3; i++)
         {
-            Debug.Log(www.error);
-            //if HTTP/1.1 502 Bad Gateway try again two times
-            if (www.responseCode == 502)
+            LoadingPanel.Instance.SetDisplayLoading(true);
+
+            userIDrequest userRq = new userIDrequest();
+            userRq.type = type;
+            userRq.username = username;
+            userRq.id = ID;
+
+            string json = JsonUtility.ToJson(userRq);
+            Debug.Log(json);
+
+            UnityWebRequest www = new UnityWebRequest(_apiUrl + "/loginId", "POST");
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
             {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(LoginID(ID, username, type));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
-            if (www.downloadHandler != null)
-            {
-                Debug.Log(www.downloadHandler.text);
-                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                if (www.responseCode == 404)
+                Debug.Log(www.error);
+                //if HTTP/1.1 502 Bad Gateway try again two times
+                if (www.responseCode == 502)
                 {
+                    LoadingPanel.Instance.SetDisplayLoading(true);
+                    yield return new WaitForSeconds(1.5f);
+                    yield return StartCoroutine(LoginID(ID, username, type));
                     LoadingPanel.Instance.SetDisplayLoading(false);
-                    WelcomePanel.instance.DisplayPanel(true);
-                    yield return new WaitUntil(() => !WelcomePanel.instance.welcomePanel.activeInHierarchy);
+                }
+                if (www.downloadHandler != null)
+                {
+                    Debug.Log(www.downloadHandler.text);
+                    ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                    if (www.responseCode == 404)
+                    {
+                        LoadingPanel.Instance.SetDisplayLoading(false);
+                        WelcomePanel.instance.DisplayPanel(true);
+                        yield return new WaitUntil(() => !WelcomePanel.instance.welcomePanel.activeInHierarchy);
+                    }
+
+
+                    if (message != null) { message.text = errorRp.message; }
+                    else { Debug.Log(errorRp.message); }
+                }
+                else
+                {
+                    Debug.LogError("Download handler is null");
                 }
 
 
-                if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
             }
             else
             {
-                Debug.LogError("Download handler is null");
-            }
-
-
-        }
-        else
-        {
-            Debug.Log(www.downloadHandler.text);
-            UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
-            user = userRp;
-            //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
-            if (message != null) { message.text = "Login success"; }
-            else { Debug.Log("Login success"); }
-            try
-            {
-                //luu du lieu autologin
-                PrefsData.SetData(PrefsData.PLAYER_ID_UNITY_LOGIN, ID);
-
-                if (UserSessionManager.Instance != null)
+                Debug.Log(www.downloadHandler.text);
+                UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
+                user = userRp;
+                //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
+                if (message != null) { message.text = "Login success"; }
+                else { Debug.Log("Login success"); }
+                try
                 {
-                    UserSessionManager.Instance.SetData(userRp);
-                }
+                    //luu du lieu autologin
+                    PrefsData.SetData(PrefsData.PLAYER_ID_UNITY_LOGIN, ID);
 
-                else
+                    if (UserSessionManager.Instance != null)
+                    {
+                        UserSessionManager.Instance.SetData(userRp);
+                    }
+
+                    else
+                    {
+                        Debug.LogError("UserSessionManager instance is null");
+                    }
+                }
+                catch (System.Exception)
                 {
-                    Debug.LogError("UserSessionManager instance is null");
+                    Debug.Log("Can't set data to UserSessionManager");
                 }
-            }
-            catch (System.Exception)
-            {
-                Debug.Log("Can't set data to UserSessionManager");
-            }
-            Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
+                Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
 
-            yield return new WaitForSeconds(1);
-            gameObject.AddComponent<WS_Client>();
+                yield return new WaitForSeconds(1);
+                gameObject.AddComponent<WS_Client>();
 
-            WelcomePanel.instance.DisplayPanel(false);
+                WelcomePanel.instance.DisplayPanel(false);
 
-            if (uiController != null)
-            {
-                uiController.UpdateMoney();
-                StartCoroutine(GetAllRequestname(user.request));
-                uiController.UpdateFriend();
-                uiController.UpdateSkin();
+                if (uiController != null)
+                {
+                    uiController.UpdateMoney();
+                    StartCoroutine(GetAllRequestname(user.request));
+                    uiController.UpdateFriend();
+                    uiController.UpdateSkin();
+                    if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
+                }
+                break;
             }
+
+            yield return null;
         }
-        yield return null;
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
@@ -313,88 +373,91 @@ public class ApiHandle : MonoBehaviour
             yield break;
         }
 
-        LoadingPanel.Instance.SetDisplayLoading(true);
-
-        UserRequest userRq = new UserRequest();
-        userRq.username = usernameLogin;
-        userRq.password = passwordLogin;
-        string json = JsonUtility.ToJson(userRq);
-        Debug.Log(json);
-
-        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/login", "POST");
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-
-        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
-        www.downloadHandler = new DownloadHandlerBuffer();
-        www.SetRequestHeader("Content-Type", "application/json");
-
-        yield return www.SendWebRequest();
-
-        if (www.isNetworkError || www.isHttpError)
+        for (int i = 0; i < 3; i++)
         {
-            Debug.Log(www.error);
-            if (www.responseCode == 502)
+            LoadingPanel.Instance.SetDisplayLoading(true);
+
+            UserRequest userRq = new UserRequest();
+            userRq.username = usernameLogin;
+            userRq.password = passwordLogin;
+            string json = JsonUtility.ToJson(userRq);
+            Debug.Log(json);
+
+            UnityWebRequest www = new UnityWebRequest(_apiUrl + "/login", "POST");
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+            www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type", "application/json");
+            yield return www.SendWebRequest();
+
+
+            if (www.isNetworkError || www.isHttpError)
             {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(Login(usernameLogin, passwordLogin));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
-            if (www.downloadHandler != null)
-            {
-                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                Debug.Log(www.error);
+                //if (www.responseCode == 502)
+                //{
+                //    LoadingPanel.Instance.SetDisplayLoading(true);
+                //    yield return new WaitForSeconds(1.5f);
+                //    yield return StartCoroutine(Login(usernameLogin, passwordLogin));
+                //    LoadingPanel.Instance.SetDisplayLoading(false);
+                //}
+                if (www.downloadHandler != null)
+                {
+                    ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                    if (message != null) { message.text = errorRp.message; }
+                    else { Debug.Log(errorRp.message); }
+                }
+                else
+                {
+                    Debug.LogError("Download handler is null");
+                }
             }
             else
             {
-                Debug.LogError("Download handler is null");
-            }
+                Debug.Log(www.downloadHandler.text);
+                UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
+                user = userRp;
+                //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
+                if (message != null) { message.text = "Login success"; }
+                else { Debug.Log("Login success"); }
+                try
+                {
+                    //luu du lieu autologin
+                    PrefsData.SetData(PrefsData.PLAYER_USERNAME_LOGIN, usernameLogin);
+                    PrefsData.SetData(PrefsData.PLAYER_PASSWORD_LOGIN, passwordLogin);
 
+                    if (UserSessionManager.Instance != null)
+                    {
+                        UserSessionManager.Instance.SetData(userRp);
+                    }
+
+                    else
+                    {
+                        Debug.LogError("UserSessionManager instance is null");
+                    }
+                }
+                catch (System.Exception)
+                {
+
+                    Debug.Log("Can't set data to UserSessionManager");
+                }
+                Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
+
+                yield return new WaitForSeconds(1);
+                gameObject.AddComponent<WS_Client>();
+                if (uiController != null)
+                {
+                    uiController.UpdateMoney();
+                    StartCoroutine(GetAllRequestname(user.request));
+                    uiController.UpdateFriend();
+                    uiController.UpdateSkin();
+                    if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
+                }
+                break;
+            }
 
         }
-        else
-        {
-            Debug.Log(www.downloadHandler.text);
-            UserResponse userRp = JsonConvert.DeserializeObject<UserResponse>(www.downloadHandler.text);
-            user = userRp;
-            //Debug.Log("username: " + userRp.username + " money: " + userRp.money + " email: " + userRp.email + " role: " + userRp.role + "numrequest: " + userRp.request.Count);
-            if (message != null) { message.text = "Login success"; }
-            else { Debug.Log("Login success"); }
-            try
-            {
-                //luu du lieu autologin
-                PrefsData.SetData(PrefsData.PLAYER_USERNAME_LOGIN, usernameLogin);
-                PrefsData.SetData(PrefsData.PLAYER_PASSWORD_LOGIN, passwordLogin);
-
-                if (UserSessionManager.Instance != null)
-                {
-                    UserSessionManager.Instance.SetData(userRp);
-                }
-
-                else
-                {
-                    Debug.LogError("UserSessionManager instance is null");
-                }
-            }
-            catch (System.Exception)
-            {
-
-                Debug.Log("Can't set data to UserSessionManager");
-            }
-            Debug.Log("username: " + UserSessionManager.Instance.username + " money: " + UserSessionManager.Instance.money + " email: " + UserSessionManager.Instance.email + "numrequest: " + UserSessionManager.Instance.request.Count);
-
-            yield return new WaitForSeconds(1);
-            gameObject.AddComponent<WS_Client>();
-            if (uiController != null)
-            {
-                uiController.UpdateMoney();
-                StartCoroutine(GetAllRequestname(user.request));
-                uiController.UpdateFriend();
-                uiController.UpdateSkin();
-            }
-        }
-        yield return null;
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
 
@@ -443,6 +506,7 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
+            Debug.Log(www.downloadHandler.text);
             if (www.responseCode == 502)
             {
                 LoadingPanel.Instance.SetDisplayLoading(true);
@@ -496,8 +560,7 @@ public class ApiHandle : MonoBehaviour
         }
         else
         {
-            friendSearch friend = JsonConvert.DeserializeObject<friendSearch>(www.downloadHandler.text);
-            Debug.Log(friend.username);
+            List<friendSearch> friend = JsonConvert.DeserializeObject<List<friendSearch>>(www.downloadHandler.text);
 
             uiController.UpdateSearch(friend);
         }
@@ -739,6 +802,35 @@ public class ApiHandle : MonoBehaviour
     }
 
 
+    //get skin by id, endpoint: /skin/:id , method: GET , id la id cua skin
+    public IEnumerator getSkin(skin s1)
+    {
+        UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skin/" + s1._id);
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            skin skin = JsonConvert.DeserializeObject<skin>(www.downloadHandler.text);
+            //so sanh s1 va skin xem co giong nhau khong
+            s1 = skin;
+        }
+    }
+
+
 
     public IEnumerator getStatus(string id)
     {
@@ -873,8 +965,94 @@ public class ApiHandle : MonoBehaviour
         uiController.UpdateRequest();
     }
 
-}
+    //get all skins, endpoint: /skins , method: GET
 
+    public IEnumerator getAllSkins()
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skins");
+            yield return www.SendWebRequest();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                if (www.downloadHandler != null)
+                {
+                    ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                    if (message != null) { message.text = errorRp.message; }
+                    else { Debug.Log(errorRp.message); }
+                }
+                else
+                {
+                    Debug.LogError("Download handler is null");
+                }
+            }
+            else
+            {
+                Debug.Log(www.downloadHandler.text);
+                skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
+                Debug.Log(skins.Count);
+                UpdateSkinsHandle.instance.LoadPrefab();
+               
+                break;
+            }
+
+        }
+
+    }
+
+
+    public IEnumerator BuySkin(string userId, string skinId)
+    {
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        BuySkinRequest buySkinrq = new BuySkinRequest();
+        buySkinrq.userId = userId;
+        buySkinrq.skinId = skinId;
+        string json = JsonUtility.ToJson(buySkinrq);
+        Debug.Log(json);
+
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/buySkin", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+            if (www.responseCode == 502)
+            {
+                LoadingPanel.Instance.SetDisplayLoading(true);
+                yield return new WaitForSeconds(1.5f);
+                yield return StartCoroutine(BuySkin(userId, skinId));
+                LoadingPanel.Instance.SetDisplayLoading(false);
+            }
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            if (message != null) { message.text = "Send request success"; }
+            else { Debug.Log("Send request success"); }
+            CheckBuySkinPanel.instance.DisplayCheck(false);
+        }
+        LoadingPanel.Instance.SetDisplayLoading(false);
+    }
+
+
+}
 
 
 
@@ -902,6 +1080,7 @@ public class friendSearch
 {
     public string _id;
     public string username;
+    public string nameingame;
     public string avatar;
 }
 [System.Serializable]
@@ -1006,16 +1185,27 @@ public class request
 [System.Serializable]
 public class skinpurchase
 {
-    public string skin; // id of skin
+    public string _id; // id of skin
     public string datePurchased;
 }
 [System.Serializable]
 public class skin
 {
+
+    //     {
+    //   "_id": "66bc57c5ea0484839ae5c2c1",
+    //   "name": "thành quốc",
+    //   "price": 222,
+    //   "skinImage": "skins/thành quốc/LionOrange.png",
+    //   "status": "available",
+    //   "createdAt": "2024-08-14T07:07:49.756Z",
+    //   "__v": 0
+    // }
     public string _id;
     public string name;
     public int price;
     public string skinImage;
+    public string status;
     public string createdAt;
 
 }
@@ -1032,5 +1222,9 @@ public class UserChangeNameData
     public string userId;
     public string nameingame;
 }
-
+public class BuySkinRequest
+{
+    public string userId;
+    public string skinId;
+}
 

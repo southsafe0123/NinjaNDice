@@ -13,6 +13,7 @@ public class LoadScene : MonoBehaviour
     public float transitionTime;
     public GameObject waitForPlayerPanel;
     public bool isMultiplayerScene;
+    public bool isAllPlayerReady = false;
     private void Awake()
     {
         if (Instance == null)
@@ -53,7 +54,6 @@ public class LoadScene : MonoBehaviour
     {
         waitForPlayerPanel.SetActive(true);
         WaitForSeconds waithalfsecond = new WaitForSeconds(0.5f);
-        bool isAllPlayerReady = false;
         while (true)
         {
             yield return waithalfsecond;

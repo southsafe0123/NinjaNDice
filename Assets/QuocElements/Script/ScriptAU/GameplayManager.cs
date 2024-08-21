@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,34 @@ public class GameplayManager : NetworkBehaviour
     public Slider sliderTime;
     public GameObject gameInput;
     public bool isEndGame;
+
+    bool isAllPlayerReady = false;
+    private IEnumerator WaitForPlayer()
+    {
+        WaitForSeconds waithalfsecond = new WaitForSeconds(0.5f);
+        isAllPlayerReady = false;
+        while (true)
+        {
+            yield return waithalfsecond;
+            foreach (Player player in PlayerList.Instance.playerDic.Values)
+            {
+                if (player.isReadySceneLoaded.Value == false)
+                {
+                    isAllPlayerReady = false;
+                    break;
+                }
+                else
+                {
+                    yield return new WaitForSeconds(0.5f);
+                    isAllPlayerReady = true;
+                    break;
+                }
+
+            }
+
+        }
+
+    }
     private void Awake()
     {
         Instance = this;
@@ -43,15 +72,18 @@ public class GameplayManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(WaitForPlayer());
         playerOrder = 0;
         objectMoveSpeed = defaultObjectMoveSpeed;
         LoadPlayer();
         GenerateRandomListNumber();
         Display();
+        
     }
 
     private void LoadPlayer()
     {
+        
         if (!IsHost) return;
         playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
@@ -85,18 +117,33 @@ public class GameplayManager : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isEndGame) return;
-        // tái sử dụng đối tượng
-        if (objectPrefabs.Count(x => x.activeSelf) <= 1)
+        if (!isAllPlayerReady) return;
+        if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>() == null)
         {
-            RecycleObject(currentObjectIndex);
+            canInput = false; // Không cho phép nhập thêm
+            foreach (Transform child in gameInput.transform)
+            {
+                child.GetComponent<Button>().interactable = false;
+            }
+        }
+        if (!isEndGame)
+        {
+            // tái sử dụng đối tượng
+            if (objectPrefabs.Count(x => x.activeSelf) <= 1)
+            {
+                RecycleObject(currentObjectIndex);
+            }
+
+            // xử lý đầu vào khi canInput là true
+            if (canInput)
+            {
+                HandleInput();
+            }
         }
 
-        // xử lý đầu vào khi canInput là true
         if (canInput)
         {
-            HandleInput();
-            if (listUserInput.Count == 4 || (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>()!= null&& NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().isDead))
+            if (listUserInput.Count == 4 || (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>() != null && NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().isDead))
             {
                 canInput = false; // Không cho phép nhập thêm
                 foreach (Transform child in gameInput.transform)
@@ -105,6 +152,7 @@ public class GameplayManager : NetworkBehaviour
                 }
             }
         }
+
     }
 
     // hàm xử lý đầu vào
@@ -154,7 +202,7 @@ public class GameplayManager : NetworkBehaviour
         //objectPrefabs[index].SetActive(true);
         //objectPrefabs[index].transform.Translate(Vector3.left * objectMoveSpeed * Time.deltaTime);
 
-        if(sliderTime.value == 0)
+        if (sliderTime.value == 0)
         {
             ClearDisplayLists();
             GenerateRandomListNumber();
@@ -162,7 +210,7 @@ public class GameplayManager : NetworkBehaviour
             canInput = true;
         }
         sliderTime.value += objectMoveSpeed / 100 * Time.deltaTime;
-        if(sliderTime.value >= 1)
+        if (sliderTime.value >= 1)
         {
             sliderTime.value = 0;
             objectMoveSpeed += objectMoveSpeedPlus;
@@ -190,7 +238,7 @@ public class GameplayManager : NetworkBehaviour
         listNumber.Clear();
         for (int i = 0; i < 4; i++)
         {
-            listNumber.Add(Random.Range(0, 4));
+            listNumber.Add(UnityEngine.Random.Range(0, 4));
         }
         //Debug.Log(string.Join(" ", listNumber));
     }
@@ -200,8 +248,12 @@ public class GameplayManager : NetworkBehaviour
     {
         if (!listUserInput.SequenceEqual(listNumber) || listUserInput.Count != 4 || listUserInput == null)
         {
-            Debug.Log("-1 health");
-            TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>()== null) return;
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health <1) return;
+                Debug.Log("-1 health");
+                TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
+           
+
         }
     }
     [ServerRpc(RequireOwnership = false)]
@@ -220,53 +272,56 @@ public class GameplayManager : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
-        if (player.GetComponent<PlayerHeath>().health == 0)
+        if (playerID == NetworkManager.Singleton.LocalClientId)
         {
-            player.GetComponent<PlayerHeath>().isDead = true;
-            CallThisPlayerIsDead_ServerRPC(playerID);
+            if (player.GetComponent<PlayerHeath>().health == 0)
+            {
+                player.GetComponent<PlayerHeath>().isDead = true;
+                isEndGame = true;
+                CallThisPlayerIsDead_ServerRPC(playerID);
+            }
         }
+
     }
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
+
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
-        playerLose.Add(player);
-        if (playerLose.Count >= playerList.Count - 1) StartCoroutine(EndGame());
+        MiniEndGamePanel.instance.AddPlayerLose(player);
+
+        if (MiniEndGamePanel.instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
     }
 
     private IEnumerator EndGame()
     {
         isEndGame = true;
-        yield return new WaitForSeconds(0.5f);
-        foreach (Player player in playerList)
+        Player playerWin = PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value != null ? PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value : null;
+        Debug.Log("PlayerWin:" + playerWin.ownerClientID.Value);
+        if (playerWin != null)
         {
-            if (!player.GetComponent<PlayerHeath>().isDead)
-            {
-                PlayerList.Instance.SetPlayerOrder(playerOrder, player);
-                playerOrder++;
-                EndGameAnouncement_ClientRPC(player.ownerClientID.Value, true);
-                ItemPool.Instance.GivePlayerRandomItem();
-            }
+            MiniEndGamePanel.instance.SetPlayerWin(playerWin);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
         }
-        foreach (Player player in playerLose)
+        MiniEndGamePanel.instance.playerLose.Reverse();
+        yield return null;
+        foreach (Player player in MiniEndGamePanel.instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, false);
-        }
-
-        var reversePlayerList = playerLose.ToArray().Reverse();
-        foreach (Player player in reversePlayerList)
-        {
-            PlayerList.Instance.SetPlayerOrder(playerOrder, player);
-            playerOrder++;
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            yield return null;
         }
 
         RemovedComponent_ClientRPC();
 
-        if (NetworkManager.Singleton.IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(MAIN_GAMEPLAY_SCENE, LoadSceneMode.Single);
-        }
+        yield return new WaitForSeconds(3.5f);
+        StartLoadScene_ClientRPC();
     }
+    [ClientRpc]
+    private void StartLoadScene_ClientRPC()
+    {
+            LoadScene.Instance.StartLoadSceneMultiplayer(MAIN_GAMEPLAY_SCENE, IsHost);
+    }
+
     [ClientRpc]
     private void RemovedComponent_ClientRPC()
     {
@@ -277,10 +332,10 @@ public class GameplayManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID, bool isWin)
+    private void EndGameAnouncement_ClientRPC(ulong playerID)
     {
-        if (isWin) Debug.LogError("Player Win: " + playerID);
-        if (!isWin) Debug.LogError("Player lose: " + playerID);
+        MiniEndGamePanel.instance.DisplayEndMinigame(true);
+        MiniEndGamePanel.instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
     }
 
 

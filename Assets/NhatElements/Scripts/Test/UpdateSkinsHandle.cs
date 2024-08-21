@@ -5,44 +5,31 @@ using UnityEngine;
 using System.IO;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using Unity.VisualScripting;
 
 
 
-public class SkinInfo
-{
-    //     {
-    //     "id": "001",
-    //     "name": "Ninja Mage Black",
-    //     "version": "1.0",
-    //     "description": "Ninja Mage Black Skin",
-    //     "author": "Nhat Nguyen",
-    //     "updateDate": "2019-07-01",
-    //     "price": 100,
-    //     "currency": "USD"
-    //      }
 
-    public string id;
-    public string name;
-    public string version;
-    public string description;
-    public string author;
-    public string updateDate;
-    public int price;
-    public string currency;
-
-}
 
 
 public class UpdateSkinsHandle : MonoBehaviour
 {
-    [SerializeField] private string folderPath;
-    [SerializeField] private string[] skinsFolderPaths;
-    [SerializeField] private SkinInfo[] skinsInfo;
-    // [SerializeField] private GameObject skinPrefab;
+    public static UpdateSkinsHandle instance;
+    // [SerializeField] private List<skin> skinsInfo;
+    [SerializeField] private Dictionary<string, GameObject> itemSkins;
 
     [SerializeField] private Transform content;
     [SerializeField] private AssetLabelReference assetLabelReference;
 
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    private void Start()
+    {
+
+    }
 
     // get name all folder in path
     public void RenewData()
@@ -52,63 +39,101 @@ public class UpdateSkinsHandle : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        Addressables.LoadAssetsAsync<GameObject>(assetLabelReference, (gameObject) =>
-        {
-            if (gameObject.name == "ItemShop")
-            {
-                Instantiate(gameObject, content);
-            }
-        });
+
     }
 
-    public SkinInfo GetInfoSkin(string id)
-    {
-        SkinInfo S = new SkinInfo();
-        string path = skinsFolderPaths.FirstOrDefault(x => x.Contains(id));
-        if (System.IO.Directory.Exists(path))
-        {
-            string jsonPath = path + "/SkinInfo.json";
-            if (System.IO.File.Exists(jsonPath))
-            {
-                string json = System.IO.File.ReadAllText(jsonPath);
-                S = JsonUtility.FromJson<SkinInfo>(json);
+    // public skin GetInfoSkin(string id)
+    // {
+    //     skin S = new skin();
+    //     string path = skinsFolderPaths.FirstOrDefault(x => x.Contains(id));
+    //     if (System.IO.Directory.Exists(path))
+    //     {
+    //         string jsonPath = path + "/SkinInfo.json";
+    //         if (System.IO.File.Exists(jsonPath))
+    //         {
+    //             string json = System.IO.File.ReadAllText(jsonPath);
+    //             S = JsonUtility.FromJson<skin>(json);
 
-                Debug.Log("Get info skin success: " + S.name);
-            }
-            else
-            {
-                Debug.Log("Info file not found");
-                return null;
-            }
+    //             Debug.Log("Get info skin success: " + S.name);
+    //         }
+    //         else
+    //         {
+    //             Debug.Log("Info file not found");
+    //             return null;
+    //         }
+    //     }
+
+    //     return S;
+    // }
+
+    // public void UpdateSkins()
+    // {
+    //     if (skinsInfo.Length > 0)
+    //     {
+    //         foreach (Transform child in content)
+    //         {
+    //             Destroy(child.gameObject);
+    //         }
+
+    //         for (int i = 0; i < skinsInfo.Length; i++)
+    //         {
+    //             //Assets/NhatElements/Prefabs/Character/Skins/001/ItemShop.prefab
+    //             Addressables.LoadAssetsAsync<GameObject>(assetLabelReference, (gameObject) =>
+    //             {
+    //                 if (gameObject.name == "ItemShop")
+    //                 {
+    //                     Instantiate(gameObject, content);
+    //                 }
+
+    //                 // skin.GetComponent<SkinItem>().SetData(skinsInfo[i], skin.GetComponentInChildren<SpriteRenderer>().sprite);
+    //             });
+    //         }
+    //     }
+    // }
+
+    // Tải một asset từ remote
+    public void LoadRemoteAsset()
+    {
+        //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab
+        LoadPrefab();
+
+    }
+    [ContextMenu("test")]
+    public void LoadPrefab()
+    {
+        foreach (Transform child in content)
+        {
+            Destroy(child.gameObject);
         }
 
-        return S;
-    }
-
-    public void UpdateSkins()
-    {
-        if (skinsInfo.Length > 0)
+        List<skin> skins = new List<skin>();
+        skins = ApiHandle.Instance.skins;
+        foreach (skin s in skins)
         {
-            foreach (Transform child in content)
+            //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab
+            string path = "Skins/" + s._id + "/ItemShop.prefab";
+            //load tu addressable
+            Addressables.LoadAssetAsync<GameObject>(path).Completed += (obj) =>
             {
-                Destroy(child.gameObject);
-            }
-
-            for (int i = 0; i < skinsInfo.Length; i++)
-            {
-                //Assets/NhatElements/Prefabs/Character/Skins/001/ItemShop.prefab
-                Addressables.LoadAssetsAsync<GameObject>(assetLabelReference, (gameObject) =>
+                if (obj.Status == AsyncOperationStatus.Succeeded)
                 {
-                    if (gameObject.name == "ItemShop")
-                    {
-                        Instantiate(gameObject, content);
-                    }
-
-                    // skin.GetComponent<SkinItem>().SetData(skinsInfo[i], skin.GetComponentInChildren<SpriteRenderer>().sprite);
-                });
-            }
+                    GameObject prefab = obj.Result;
+                    GameObject item = Instantiate(prefab, content);
+                    item.GetComponent<ItemShop>().UpdateData(s,s._id);
+                    SkinPool.instance.CallUpdateSkinPool();
+                }
+                else
+                {
+                    Debug.LogError("Failed to load prefab");
+                }
+            };
         }
+
+        
+       
+        
     }
+
 
 
     // private void OnPrefabLoaded(AsyncOperationHandle<GameObject> obj)

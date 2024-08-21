@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ItemTargetPanel : MonoBehaviour
@@ -7,6 +8,8 @@ public class ItemTargetPanel : MonoBehaviour
     public List<Player> players = new List<Player>();
     public int playerIndex;
     public CamToPlayer camToPlayer;
+    public TextMeshProUGUI txtPlayerName;
+    public CanvasGroup checkingPanel;
     private void OnEnable()
     {
         players.Clear();
@@ -15,6 +18,7 @@ public class ItemTargetPanel : MonoBehaviour
         {
             players.Add(player);
         }
+        DisplayPlayerCamera();
     }
     public void OnClickNextPlayer()
     {
@@ -31,6 +35,7 @@ public class ItemTargetPanel : MonoBehaviour
     public void DisplayPlayerCamera()
     {
         camToPlayer.playerToFollow = players[playerIndex];
+        txtPlayerName.text = players[playerIndex].GetComponent<PlayerData>().playerName.Value.ToString();
     }
     public void OnClickExitTarget()
     {
@@ -39,6 +44,10 @@ public class ItemTargetPanel : MonoBehaviour
     private void OnDisable()
     {
         OnClickExitTarget();
+    }
+    public void SetAlphaView(int alpha)
+    {
+        checkingPanel.alpha = alpha;
     }
     public void OnClickUseOnPlayer()
     {

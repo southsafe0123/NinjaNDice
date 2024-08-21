@@ -8,6 +8,7 @@ using Unity.Netcode;
 using System.Linq;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using UnityEngine.UI;
 
 public class Quizz : NetworkBehaviour
 {
@@ -16,12 +17,7 @@ public class Quizz : NetworkBehaviour
     public NetworkVariable<int> numQ = new NetworkVariable<int>();
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
 
-
-    public GameObject answer1;
-    public GameObject answer2;
-    public GameObject answer3;
-    public GameObject answer4;
-    public List<NetworkObject> networkObjects;
+    public List<GameObject> answerObjects;
 
     public List<GameObject> standPos = new List<GameObject>();
     public List<Player> playerList = new List<Player>();
@@ -29,7 +25,6 @@ public class Quizz : NetworkBehaviour
     private List<Question> questions = new List<Question>();
     private int playerOrder = 0;
     public List<Player> playerLose = new List<Player>();
-
 
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
@@ -51,10 +46,6 @@ public class Quizz : NetworkBehaviour
     }
     void Start()
     {
-        networkObjects.Add(answer1.GetComponent<NetworkObject>());
-        networkObjects.Add(answer2.GetComponent<NetworkObject>());
-        networkObjects.Add(answer3.GetComponent<NetworkObject>());
-        networkObjects.Add(answer4.GetComponent<NetworkObject>());
         Debug.Log(NetworkManager.LocalClientId);
         player = PlayerList.Instance.GetPlayerDic_Value(NetworkManager.LocalClientId).gameObject;
 
@@ -69,6 +60,7 @@ public class Quizz : NetworkBehaviour
             for (int i = 0; i < PlayerList.Instance.playerDic.Count; i++)
             {
                 TeleportPlayer(playerList[i], i);
+                playerList[i].isPlayerTurn.Value = false;
                 AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
             }
         }
@@ -82,7 +74,7 @@ public class Quizz : NetworkBehaviour
         yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
         while (true)
         {
-            yield return new WaitForSeconds(7f); // Wait 15 seconds before loading a new question
+            yield return new WaitForSeconds(3f); // Wait 15 seconds before loading a new question
             LoadRandomQuestion();
             ResetGameObjectAnswer();
         }
@@ -163,52 +155,53 @@ public class Quizz : NetworkBehaviour
         }
 
         questionText.text = randomQuestion.text;
-        answerTexts.text = " A : " + randomQuestion.answers[0] + " B : " + randomQuestion.answers[1] + " C : " + randomQuestion.answers[2] + " D : " + randomQuestion.answers[3];
-
+        AnswerPanel.instance.txtAnswer1.text = randomQuestion.answers[0];
+        AnswerPanel.instance.txtAnswer2.text = randomQuestion.answers[1];
+        AnswerPanel.instance.txtAnswer3.text = randomQuestion.answers[2];
+        AnswerPanel.instance.txtAnswer4.text = randomQuestion.answers[3];
 
         StartCoroutine(WaitAndDisplayCorrectAnswer(randomQuestion));
     }
 
     private IEnumerator WaitAndDisplayCorrectAnswer(Question randomQuestion)
     {
-        yield return new WaitForSeconds(5f);
-
+        yield return new WaitUntil(()=>AnswerPanel.instance.isPlayerClick);
+        AnswerPanel.instance.isPlayerClick = false;
         // Call ChooseCorrectAnswer to display correct answer
         ChooseCorrectAnswer(randomQuestion);
     }
 
     private void ChooseCorrectAnswer(Question randomQuestion)
     {
-        ShowAnswer(networkObjects[randomQuestion.correctAnswer - 1]);
+        ShowAnswer(answerObjects[randomQuestion.correctAnswer - 1]);
 
         if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer == null)
         {
             TakeDamage_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-
         };
-
         lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
-
     }
-
-
-
 
     private void ResetGameObjectAnswer()
     {
-        for (int i = 0; i < networkObjects.Count; i++)
+        for (int i = 0; i < answerObjects.Count; i++)
         {
-            networkObjects[i].gameObject.SetActive(true);
+            answerObjects[i].gameObject.SetActive(true);
+            answerObjects[i].GetComponent<Button>().interactable = true;
         }
     }
 
-    public void ShowAnswer(NetworkObject answer)
+    public void ShowAnswer(GameObject answer)
     {
-        for (int i = 0; i < networkObjects.Count; i++)
+        for (int i = 0; i < answerObjects.Count; i++)
         {
-            if (networkObjects[i].NetworkObjectId != answer.NetworkObjectId)
+            if (answerObjects[i] != answer)
             {
-                networkObjects[i].gameObject.SetActive(false);
+                answerObjects[i].gameObject.SetActive(false);
+            }
+            else
+            {
+                answerObjects[i].GetComponent<Button>().interactable = false;
             }
         }
     }
@@ -229,50 +222,61 @@ public class Quizz : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
-        if (player.GetComponent<PlayerHeath>().health == 0)
+
+        if (playerID == NetworkManager.Singleton.LocalClientId)
         {
-            player.GetComponent<PlayerHeath>().isDead = true;
-            Debug.Log("Player: " + playerID + " lose");
-            CallThisPlayerIsDead_ServerRPC(playerID);
+            Debug.Log("Myplayer: " + NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health);
+            if (player.GetComponent<PlayerHeath>().health == 0)
+            {
+                player.GetComponent<PlayerHeath>().isDead = true;
+                Debug.Log("Player: " + playerID + " lose");
+                CallThisPlayerIsDead_ServerRPC(playerID);
+            }
         }
+       
     }
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
-        playerLose.Add(player);
-        if (playerLose.Count >= playerList.Count - 1) EndGame();
+        MiniEndGamePanel.instance.AddPlayerLose(player);
+
+        if (MiniEndGamePanel.instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
     }
 
-    private void EndGame()
+    private IEnumerator EndGame()
     {
-        foreach (Player player in playerList)
+        Player playerWin = PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value != null ? PlayerList.Instance.playerDic.First(player => !MiniEndGamePanel.instance.playerLose.Contains(player.Value)).Value : null;
+        Debug.Log("PlayerWin:" + playerWin.ownerClientID.Value);
+        if (playerWin != null)
         {
-            if (!player.GetComponent<PlayerHeath>().isDead)
-            {
-                PlayerList.Instance.SetPlayerOrder(playerOrder, player);
-                playerOrder++;
-                CallEndGame_ClientRPC(player.ownerClientID.Value, true);
-            }
+            MiniEndGamePanel.instance.SetPlayerWin(playerWin);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
         }
-        foreach (Player player in playerLose)
+        MiniEndGamePanel.instance.playerLose.Reverse();
+        yield return null;
+        foreach (Player player in MiniEndGamePanel.instance.playerLose)
         {
-            CallEndGame_ClientRPC(player.ownerClientID.Value, false);
-        }
-
-        var reversePlayerList = playerLose.ToArray().Reverse();
-        foreach (Player player in reversePlayerList)
-        {
-            PlayerList.Instance.SetPlayerOrder(playerOrder, player);
-            playerOrder++;
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            yield return null;
         }
 
         RemovedComponent_ClientRPC();
 
-        if (NetworkManager.Singleton.IsServer)
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(MAIN_GAMEPLAY_SCENE, LoadSceneMode.Single);
-        }
+        yield return new WaitForSeconds(3.5f);
+        StartLoadScene_ClientRPC();
+    }
+    [ClientRpc]
+    private void StartLoadScene_ClientRPC()
+    {
+        LoadScene.Instance.StartLoadSceneMultiplayer(MAIN_GAMEPLAY_SCENE, IsHost);
+    }
+
+    [ClientRpc]
+    private void EndGameAnouncement_ClientRPC(ulong playerID)
+    {
+        MiniEndGamePanel.instance.DisplayEndMinigame(true);
+        MiniEndGamePanel.instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
     }
     [ClientRpc]
     private void RemovedComponent_ClientRPC()

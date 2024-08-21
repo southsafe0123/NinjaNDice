@@ -26,9 +26,6 @@ public class PlayerDisconnectManager : NetworkBehaviour
     private void UnloadPlayer(ulong clientID)
     {
         if (!PlayerList.Instance.playerDic.ContainsKey(clientID)) return;
-        PlayerList.PlayerOrder playerNeedToRemove = PlayerList.Instance.playerOrders.First(playerOrder => playerOrder.player.Equals(PlayerList.Instance.GetPlayerDic_Value(clientID)));
-
-        PlayerList.Instance.playerOrders.Remove(playerNeedToRemove);
         PlayerList.Instance.playerDic.Remove(clientID);
 
         PlayerList.Instance.ResetPlayerOrder();

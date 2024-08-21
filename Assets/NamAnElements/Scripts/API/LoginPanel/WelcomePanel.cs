@@ -10,7 +10,7 @@ public class WelcomePanel : MonoBehaviour
 {
     public static WelcomePanel instance;
     public GameObject welcomePanel;
-    public TextMeshProUGUI txtNewName;
+    public TMP_InputField txtNewName;
     public Button btnConfirm;
     private void Awake()
     {

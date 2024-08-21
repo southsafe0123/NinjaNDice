@@ -17,8 +17,8 @@ public class UI_Controller : MonoBehaviour
     public GameObject searchPrefab;
     public GameObject inviteContent;
     public GameObject invitePrefab;
-    [SerializeField] private GameObject skinContent;
-    [SerializeField] private GameObject skinPrefab;
+    public GameObject skinContent;
+    public GameObject skinPrefab;
     public TextMeshProUGUI moneyText;
 
     public static UI_Controller Instance;
@@ -146,7 +146,7 @@ public class UI_Controller : MonoBehaviour
 
     }
 
-    public void UpdateSearch(friendSearch friend)
+    public void UpdateSearch(List<friendSearch> friend)
     {
         if (searchContent == null || searchPrefab == null) return;
         foreach (Transform child in searchContent.transform)
@@ -156,13 +156,23 @@ public class UI_Controller : MonoBehaviour
         }
         try
         {
-            if (friend._id.Contains(UserSessionManager.Instance._id)) return;
-            GameObject searchItem = Instantiate(searchPrefab, searchContent.transform);
-            searchItem.GetComponent<SearchFriendItem>().SetData(friend.username, friend._id);
-            if (UserSessionManager.Instance.friends.First(ingameFriend => friend._id.Contains(ingameFriend._id)) != null)
+            foreach (friendSearch friendsearch in friend)
             {
-                searchItem.GetComponent<SearchFriendItem>().btnAddFriend.interactable = false;
+                Debug.Log(friendsearch.nameingame);
+                if (friendsearch._id.Contains(UserSessionManager.Instance._id)) return;
+                GameObject searchItem = Instantiate(searchPrefab, searchContent.transform);
+                searchItem.GetComponent<SearchFriendItem>().SetData(friendsearch.username, friendsearch._id);
+
+                foreach (friend myFriend in ApiHandle.Instance.user.friends)
+                {
+                    if (myFriend._id == friendsearch._id)
+                    {
+                        searchItem.GetComponent<SearchFriendItem>().btnAddFriend.interactable = false;
+                        break;
+                    }
+                }
             }
+           
 
         }
         catch (System.Exception e)
@@ -199,8 +209,32 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateSkin()
     {
-        // Clear all skin
+        if (skinContent == null || skinPrefab == null) return;
+        foreach (Transform child in skinContent.transform)
+        {
+            if(child.GetComponent<ItemSkin>().skinName == "Default")
+            {
+                continue;
+            }
+            Destroy(child.gameObject);
+            Debug.Log("Destroy skin item");
+        }
         //do something
+        try
+        {
+            foreach (skinpurchase skinPurchased in ApiHandle.Instance.user.skinpurchase)
+            {
+                GameObject skin = Instantiate(skinPrefab, skinContent.transform);
+                skin.GetComponent<ItemSkin>().skinId = skinPurchased._id;
+                skin.GetComponent<ItemSkin>().UpdateInfoSkin();
+            }
+            
+      
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log("Can't get search invite list: " + e);
+        }
     }
 
 

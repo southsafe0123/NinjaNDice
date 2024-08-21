@@ -27,10 +27,16 @@ public class GameManager : NetworkBehaviour
 
         // playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
     }
-    private void Start()
+
+
+
+    private IEnumerator Start()
     {
         dice.OnValueChanged += OnDiceValueChanged;
-        if (!IsHost) return;
+        if (!IsHost) yield break;
+
+        yield return new WaitUntil(() => LoadScene.Instance != null && LoadScene.Instance.isAllPlayerReady);
+
         playerList = PlayerList.Instance.GetPlayerOrder();
         for (int i = 0; i < playerList.Count; i++)
         {
@@ -87,61 +93,68 @@ public class GameManager : NetworkBehaviour
 
         if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) CheckEndGame_ClientRPC(clientPlayer.ownerClientID.Value);
 
+        NextPlayerTurn_ServerRPC();
+    }
+    [ServerRpc(RequireOwnership = false)]
+    public void NextPlayerTurn_ServerRPC()
+    {
         playerIndex = playerIndex >= playerList.Count - 1 ? 0 : playerIndex + 1;
         var oldGameTurn = gameTurn;
         gameTurn = playerIndex == 0 ? gameTurn + 1 : gameTurn;
-        OnGameTurnChange(oldGameTurn, gameTurn);
-        StartCoroutine(SwitchCamCoroutine());
+        bool isGameTurnChange = OnGameTurnChange(oldGameTurn, gameTurn);
+        StartCoroutine(SwitchCamCoroutine(isGameTurnChange));
     }
+
     [ClientRpc]
     private void CheckEndGame_ClientRPC(ulong clientPlayerID)
     {
         if (PlayerList.Instance.playerOrders.Count > 2)
         {
             EndGamePanel.Instance.btnBack.interactable = true;
-            if (IsHost)
-            {
-                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
-            }
             EndGamePanel.Instance.DisplayEndGamePanel(true);
             EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
             //setplayerWin;
-            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            //updatePlayerOrder
-            PlayerList.Instance.ResetPlayerOrder();
+            if (IsHost)
+            {
+                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
+                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            }
         }
         else
         {
             EndGamePanel.Instance.btnBack.interactable = false;
             EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
             EndGamePanel.Instance.DisplayEndGamePanel(true);
-            PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
-            foreach(Player player in PlayerList.Instance.playerDic.Values)
+            if (IsHost)
             {
-                if(player.isPlayerDoneGame.Value == false)
+                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+            }
+            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
+            foreach (Player player in PlayerList.Instance.playerDic.Values)
+            {
+                if (player.isPlayerDoneGame.Value == false)
                 {
-                    player.isPlayerDoneGame.Value = true;
+                    if (IsHost)
+                    {
+                        player.isPlayerDoneGame.Value = true;
+                    }
                     EndGamePanel.Instance.UpdateRankingList(player.ownerClientID.Value);
-                    break; 
+                    break;
                 }
             }
-           
+
+
         }
     }
 
-    public void SwitchCam()
-    {
-        StartCoroutine(SwitchCamCoroutine());
-    }
-
-    private IEnumerator SwitchCamCoroutine()
+    private IEnumerator SwitchCamCoroutine(bool isGameTurnChange)
     {
         yield return new WaitForSeconds(1f);
         var playerID = playerList[playerIndex].ownerClientID.Value;
         SetCamFollowPlayer_ClientRPC(PlayerList.Instance.GetPlayerDic_Value(playerID).ownerClientID.Value);
         yield return null;
-        SetPlayerTurn_ClientRPC(playerList[playerIndex].OwnerClientId, true);
+        if (isGameTurnChange) yield break;
+        SetPlayerTurn_ServerRPC(playerList[playerIndex].OwnerClientId, true);
     }
 
     [ClientRpc]
@@ -151,13 +164,14 @@ public class GameManager : NetworkBehaviour
         camToPlayer.playerInTurn = PlayerList.Instance.GetPlayerDic_Value(playerID);
     }
 
-    public void OnGameTurnChange(int oldGameTurn, int newGameTurn)
+    public bool OnGameTurnChange(int oldGameTurn, int newGameTurn)
     {
-        if (oldGameTurn == newGameTurn) return;
+        if (oldGameTurn == newGameTurn) return false;
         ChangeScene_ClientRPC();
+        return true;
         //Debug.LogError("isminigame now");
     }
-    [ClientRpc]
+    [ClientRpc, ContextMenu("GotoMinigame")]
     private void ChangeScene_ClientRPC()
     {
         StartCoroutine(ChangeSceneCoroutine());
@@ -166,7 +180,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 2;
+        var randomvalue = 3;
         switch (randomvalue)
         {
             case 0:
@@ -177,6 +191,9 @@ public class GameManager : NetworkBehaviour
                 break;
             case 2:
                 LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+                break;
+            case 3:
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
                 break;
             default:
                 Debug.LogError("isminigame now");
@@ -201,24 +218,27 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void SetPlayerTurn_ServerRPC(ulong clientID, bool isPlayerTurn)
     {
-        SetPlayerTurn_ClientRPC(clientID, isPlayerTurn);
-    }
-    [ClientRpc]
-    public void SetPlayerTurn_ClientRPC(ulong clientID, bool isPlayerTurn)
-    {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
-        if (IsHost)
+        Debug.Log(player.ownerClientID.Value + "turn ="+ isPlayerTurn);
+        player.isPlayerTurn.Value = isPlayerTurn;
+        // Check player frozen
+
+        if (player.isPlayerFrozen.Value&&player.isPlayerTurn.Value)
         {
-            player.isPlayerTurn.Value = isPlayerTurn;
+            Debug.Log(player.ownerClientID.Value + "turn =" + false);
+            player.isPlayerFrozen.Value = false;
+            player.isPlayerTurn.Value = false;
+            NextPlayerTurn_ServerRPC();
         }
     }
+
 
     private IEnumerator RollDiceCoroutine(int diceValue, ulong clientID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
         var playerDice = player.GetComponentInChildren<Animator>();
 
-        SetPlayerTurn_ClientRPC(clientID, false);
+        SetPlayerTurn_ServerRPC(clientID, false);
         PlayDiceAnimation(diceValue, playerDice);
         yield return new WaitUntil(() => dice.Value == diceValue);
         yield return new WaitForSeconds(1.5f);

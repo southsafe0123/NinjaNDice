@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+// using static UnityEditor.Progress;
 
 public class PlayerList : NetworkBehaviour
 {
@@ -71,8 +72,8 @@ public class PlayerList : NetworkBehaviour
 
     public void SetPlayerOrder(int newOrder, Player player)
     {
-       var query = playerOrders.First(playerOrder => playerOrder.player.ownerClientID.Value == player.ownerClientID.Value);
-       query.order = newOrder;
+        var query = playerOrders.First(playerOrder => playerOrder.player.ownerClientID.Value == player.ownerClientID.Value);
+        query.order = newOrder;
     }
 
     public List<Player> GetPlayerOrder()
@@ -86,12 +87,13 @@ public class PlayerList : NetworkBehaviour
     public void ResetPlayerOrder()
     {
         int i = 1;
-       
-        var playerOrdersTemp = playerOrders.Where(item => item.player.gameObject != null|| item.player.isPlayerDoneGame.Value == false).ToList();
+
+        var playerOrdersTemp = playerOrders.Where(item => item.player.gameObject != null).ToList();
+        playerOrdersTemp = playerOrdersTemp.Where(item => item.player.isPlayerDoneGame.Value == false).ToList();
         foreach (PlayerOrder playerOrder in playerOrdersTemp)
         {
-            playerOrder.order= i;
-            Debug.Log("ResetOrder: Player: "+playerOrder.order);
+            playerOrder.order = i;
+            Debug.Log("ResetOrder: Player: " + playerOrder.order);
             i++;
         }
         playerOrders = playerOrdersTemp;
