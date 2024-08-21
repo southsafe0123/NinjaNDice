@@ -17,11 +17,12 @@ public class PlayerData : NetworkBehaviour
     {
         string myPlayerName = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
         string myPlayerSkin = PrefsData.GetData(PrefsData.PLAYER_SKIN_ID);
-        SetPlayerPlayerData_ServerRPC(myPlayerName, myPlayerSkin,NetworkManager.LocalClientId);
+        SetPlayerPlayerData_ServerRPC(myPlayerName, myPlayerSkin, NetworkManager.LocalClientId);
     }
-    [ServerRpc(RequireOwnership =false)]
-    private void SetPlayerPlayerData_ServerRPC(string clientPlayerName,string clientPlayerSkin, ulong clientID)
-    {   if (!IsHost) return;
+    [ServerRpc(RequireOwnership = false)]
+    private void SetPlayerPlayerData_ServerRPC(string clientPlayerName, string clientPlayerSkin, ulong clientID)
+    {
+        if (!IsHost) return;
         PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerName.Value = clientPlayerName;
         PlayerList.Instance.GetPlayerDic_Value(clientID).GetComponent<PlayerData>().playerSkin.Value = clientPlayerSkin;
     }

@@ -138,7 +138,7 @@ public class WS_Client : MonoBehaviour
 
         };
         ws.Connect();
-        // StartCoroutine(TryReconnect());
+        StartCoroutine(TryReconnect());
     }
 
     private IEnumerator TryReconnect()
