@@ -180,7 +180,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 3;
+        var randomvalue = UnityEngine.Random.Range(0, 3);
         switch (randomvalue)
         {
             case 0:
@@ -189,10 +189,10 @@ public class GameManager : NetworkBehaviour
             case 1:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
                 break;
+            // case 2:
+            //     LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+            //     break;
             case 2:
-                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
-                break;
-            case 3:
                 LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
                 break;
             default:
@@ -219,11 +219,11 @@ public class GameManager : NetworkBehaviour
     public void SetPlayerTurn_ServerRPC(ulong clientID, bool isPlayerTurn)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
-        Debug.Log(player.ownerClientID.Value + "turn ="+ isPlayerTurn);
+        Debug.Log(player.ownerClientID.Value + "turn =" + isPlayerTurn);
         player.isPlayerTurn.Value = isPlayerTurn;
         // Check player frozen
 
-        if (player.isPlayerFrozen.Value&&player.isPlayerTurn.Value)
+        if (player.isPlayerFrozen.Value && player.isPlayerTurn.Value)
         {
             Debug.Log(player.ownerClientID.Value + "turn =" + false);
             player.isPlayerFrozen.Value = false;

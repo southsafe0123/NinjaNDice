@@ -1,7 +1,7 @@
 fileFormatVersion: 2
-guid: d3fdf6312ba27164ab5b5ef2986f36ff
+guid: 1c395439e78945a9b2b5d9af1252676e
 labels:
-- NuGetForUnity
+- gvh
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -16,19 +16,39 @@ PluginImporter:
   - first:
       Any: 
     second:
-      enabled: 0
+      enabled: 1
       settings: {}
   - first:
       Editor: Editor
     second:
       enabled: 0
       settings:
+        CPU: x86_64
         DefaultValueInitialized: true
   - first:
-      Windows Store Apps: WindowsStoreApps
+      Standalone: Linux64
     second:
       enabled: 1
-      settings: {}
+      settings:
+        CPU: AnyCPU
+  - first:
+      Standalone: OSXUniversal
+    second:
+      enabled: 1
+      settings:
+        CPU: x86_64
+  - first:
+      Standalone: Win
+    second:
+      enabled: 0
+      settings:
+        CPU: None
+  - first:
+      Standalone: Win64
+    second:
+      enabled: 1
+      settings:
+        CPU: x86_64
   userData: 
   assetBundleName: 
   assetBundleVariant: 

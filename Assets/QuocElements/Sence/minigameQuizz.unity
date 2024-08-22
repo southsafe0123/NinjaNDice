@@ -18599,6 +18599,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questionText: {fileID: 899590194}
   answerTexts: {fileID: 2070219408}
+  textFile: {fileID: 4900000, guid: 1a11ffbebaf9c4c46a73a74f39f92315, type: 3}
   numQ:
     m_InternalValue: 0
   answerObjects:
@@ -18614,7 +18615,6 @@ MonoBehaviour:
   playerList: []
   player: {fileID: 0}
   playerLose: []
-  isEndGame: 0
   lifeText: {fileID: 1263897488}
 --- !u!1 &1800562590
 GameObject:

@@ -14,6 +14,7 @@ public class Quizz : NetworkBehaviour
 {
     public TMP_Text questionText;
     public TMP_Text answerTexts;
+    public TextAsset textFile;
     public NetworkVariable<int> numQ = new NetworkVariable<int>();
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
 
@@ -65,7 +66,7 @@ public class Quizz : NetworkBehaviour
             }
         }
         lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
-        LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
+        LoadQuestionsFromFile(textFile);
         StartCoroutine(AutoLoadQuestions());
     }
 
@@ -105,8 +106,8 @@ public class Quizz : NetworkBehaviour
     // [MenuItem("Tools/Read file")]
     public void ReadString()
     {
-        string path = "Assets/QuocElements/Resources/test.txt";
-        LoadQuestionsFromFile(path);
+        // string path = "Assets/QuocElements/Resources/test.txt";
+        LoadQuestionsFromFile(textFile);
         LoadRandomQuestion();
     }
 
@@ -115,10 +116,10 @@ public class Quizz : NetworkBehaviour
         player.transform.position = standPos[value].transform.position;
     }
 
-    private void LoadQuestionsFromFile(string path)
+    private void LoadQuestionsFromFile(TextAsset file)
     {
         questions.Clear();
-        string[] lines = File.ReadAllLines(path);
+        string[] lines = file.text.Split('\n');
         foreach (string line in lines)
         {
             string[] parts = line.Split(',');
@@ -165,7 +166,7 @@ public class Quizz : NetworkBehaviour
 
     private IEnumerator WaitAndDisplayCorrectAnswer(Question randomQuestion)
     {
-        yield return new WaitUntil(()=>AnswerPanel.instance.isPlayerClick);
+        yield return new WaitUntil(() => AnswerPanel.instance.isPlayerClick);
         AnswerPanel.instance.isPlayerClick = false;
         // Call ChooseCorrectAnswer to display correct answer
         ChooseCorrectAnswer(randomQuestion);
@@ -233,7 +234,7 @@ public class Quizz : NetworkBehaviour
                 CallThisPlayerIsDead_ServerRPC(playerID);
             }
         }
-       
+
     }
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
