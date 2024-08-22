@@ -4047,3 +4047,191 @@
                               received: True
 8/22/2024 11:07:13 AM|Info |WebSocket.close|The connection has already been closed.
 8/22/2024 11:07:13 AM|Info |WebSocket.close|The connection has already been closed.
+22/08/2024 11:24:57 SA|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+22/08/2024 11:24:57 SA|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                               at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                               at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                                --- End of inner exception stack trace ---
+                               at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                               at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                                --- End of inner exception stack trace ---
+                               at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:24:57 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:24:57 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66bdc0a7d350f8cc2ab9068e HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: UlhEnCAzVMmWwsPcB5jN7w==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:24:58 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:26:01 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: QjFTKF+l/dLC9kmuoStaA2pNnrU=
+                             CF-Ray: 8b701a2dfae3247f-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:25:30 SA|Warn |Logger.set_Level|The current logging level has been changed to Debug.
+22/08/2024 11:25:30 SA|Fatal|WebSocket.connect|WebSocketSharp.WebSocketException: An error has occurred during a TLS handshake. ---> System.Security.Authentication.AuthenticationException: Authentication failed, see inner exception. ---> Mono.Security.Interface.TlsException: Handshake failed - error code: UNITYTLS_INTERNAL_ERROR, verify result: UNITYTLS_X509VERIFY_NOT_DONE
+                               at Mono.Unity.Debug.CheckAndThrow (Mono.Unity.UnityTls+unitytls_errorstate errorState, Mono.Unity.UnityTls+unitytls_x509verify_result verifyResult, System.String context, Mono.Security.Interface.AlertDescription defaultAlert) [0x00036] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Unity.UnityTlsContext.ProcessHandshake () [0x00082] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake (Mono.Net.Security.AsyncOperationStatus status, System.Boolean renegotiate) [0x000da] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.ProcessHandshake(Mono.Net.Security.AsyncOperationStatus,bool)
+                               at Mono.Net.Security.AsyncHandshakeRequest.Run (Mono.Net.Security.AsyncOperationStatus status) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at Mono.Net.Security.AsyncProtocolRequest.ProcessOperation (System.Threading.CancellationToken cancellationToken) [0x000fc] in <e2f37d58276e431f93af9ff200e09912>:0 
+                                --- End of inner exception stack trace ---
+                               at Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x0004b] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at (wrapper remoting-invoke-with-check) Mono.Net.Security.MobileAuthenticatedStream.AuthenticateAsClient(string,System.Security.Cryptography.X509Certificates.X509CertificateCollection,System.Security.Authentication.SslProtocols,bool)
+                               at System.Net.Security.SslStream.AuthenticateAsClient (System.String targetHost, System.Security.Cryptography.X509Certificates.X509CertificateCollection clientCertificates, System.Security.Authentication.SslProtocols enabledSslProtocols, System.Boolean checkCertificateRevocation) [0x00006] in <e2f37d58276e431f93af9ff200e09912>:0 
+                               at WebSocketSharp.WebSocket.setClientStream () [0x000e1] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                                --- End of inner exception stack trace ---
+                               at WebSocketSharp.WebSocket.setClientStream () [0x000fb] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocket.doHandshake () [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocket.connect () [0x00073] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:25:30 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:25:30 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: RfuSyoM+jR7rc0ne9F3i+g==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:25:31 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:26:34 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: Vl1i0I+tERA5yEr4jEDDKAKPaFQ=
+                             CF-Ray: 8b701afc7d53b45e-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:32:25 SA|Fatal|WebSocket.<startReceiving>b__176_2|WebSocketSharp.WebSocketException: The header of a frame cannot be read from the stream.
+                               at WebSocketSharp.WebSocketFrame.processHeader (System.Byte[] header) [0x00010] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocketFrame+<>c__DisplayClass73_0.<readHeaderAsync>b__0 (System.Byte[] bytes) [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.Ext+<>c__DisplayClass48_0.<ReadBytesAsync>b__0 (System.IAsyncResult ar) [0x00085] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:32:25 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:32:25 SA|Fatal|WebSocket.<startReceiving>b__176_2|WebSocketSharp.WebSocketException: The header of a frame cannot be read from the stream.
+                               at WebSocketSharp.WebSocketFrame.processHeader (System.Byte[] header) [0x00010] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocketFrame+<>c__DisplayClass73_0.<readHeaderAsync>b__0 (System.Byte[] bytes) [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.Ext+<>c__DisplayClass48_0.<ReadBytesAsync>b__0 (System.IAsyncResult ar) [0x00085] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:32:25 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:32:25 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66bdc0a7d350f8cc2ab9068e HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: UlhEnCAzVMmWwsPcB5jN7w==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:32:25 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: RfuSyoM+jR7rc0ne9F3i+g==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:32:25 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:33:29 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: Vl1i0I+tERA5yEr4jEDDKAKPaFQ=
+                             CF-Ray: 8b70251bbb2e050c-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:32:25 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:33:29 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: QjFTKF+l/dLC9kmuoStaA2pNnrU=
+                             CF-Ray: 8b70251b9acd0509-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:47:24 SA|Fatal|WebSocket.<startReceiving>b__176_2|WebSocketSharp.WebSocketException: The header of a frame cannot be read from the stream.
+                               at WebSocketSharp.WebSocketFrame.processHeader (System.Byte[] header) [0x00010] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocketFrame+<>c__DisplayClass73_0.<readHeaderAsync>b__0 (System.Byte[] bytes) [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.Ext+<>c__DisplayClass48_0.<ReadBytesAsync>b__0 (System.IAsyncResult ar) [0x00085] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:47:24 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:47:24 SA|Fatal|WebSocket.<startReceiving>b__176_2|WebSocketSharp.WebSocketException: The header of a frame cannot be read from the stream.
+                               at WebSocketSharp.WebSocketFrame.processHeader (System.Byte[] header) [0x00010] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.WebSocketFrame+<>c__DisplayClass73_0.<readHeaderAsync>b__0 (System.Byte[] bytes) [0x00000] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+                               at WebSocketSharp.Ext+<>c__DisplayClass48_0.<ReadBytesAsync>b__0 (System.IAsyncResult ar) [0x00085] in <3dbc6ef0559a4023b6744a59e39dceea>:0 
+22/08/2024 11:47:24 SA|Debug|WebSocket.closeHandshake|Was clean?: False
+                               sent: False
+                               received: False
+22/08/2024 11:47:24 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66bdc0a7d350f8cc2ab9068e HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: UlhEnCAzVMmWwsPcB5jN7w==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:47:24 SA|Debug|WebSocket.sendHttpRequest|A request to the server:
+                             GET /?userId=66ab35f843a95191d365267c HTTP/1.1
+                             User-Agent: websocket-sharp/1.0
+                             Host: retstudio.io.vn
+                             Upgrade: websocket
+                             Connection: Upgrade
+                             Sec-WebSocket-Key: RfuSyoM+jR7rc0ne9F3i+g==
+                             Sec-WebSocket-Version: 13
+22/08/2024 11:47:24 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:48:27 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: QjFTKF+l/dLC9kmuoStaA2pNnrU=
+                             CF-Ray: 8b703b0e0d452398-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:47:24 SA|Debug|WebSocket.sendHttpRequest|A response to this request:
+                             HTTP/1.1 101 Switching Protocols
+                             Date: Thu, 22 Aug 2024 04:48:27 GMT
+                             Connection: upgrade
+                             Upgrade: websocket
+                             Sec-WebSocket-Accept: Vl1i0I+tERA5yEr4jEDDKAKPaFQ=
+                             CF-Ray: 8b703b0e0f9704dc-HKG
+                             CF-Cache-Status: DYNAMIC
+                             Server: cloudflare
+                             alt-svc: h3=":443"; ma=86400
+22/08/2024 11:51:58 SA|Info |WebSocket.close|The closing is already in progress.
+22/08/2024 11:51:58 SA|Debug|WebSocket.closeHandshake|Was clean?: True
+                               sent: True
+                               received: True
+22/08/2024 11:51:58 SA|Info |WebSocket.close|The connection has already been closed.
+22/08/2024 11:51:58 SA|Info |WebSocket.close|The connection has already been closed.
+22/08/2024 11:52:01 SA|Info |WebSocket.close|The closing is already in progress.
+22/08/2024 11:52:01 SA|Debug|WebSocket.closeHandshake|Was clean?: True
+                               sent: True
+                               received: True
+22/08/2024 11:52:01 SA|Info |WebSocket.close|The connection has already been closed.
+22/08/2024 11:52:01 SA|Info |WebSocket.close|The connection has already been closed.

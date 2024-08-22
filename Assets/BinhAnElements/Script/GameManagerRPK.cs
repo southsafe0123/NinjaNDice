@@ -12,7 +12,7 @@ public class GameManagerRPK : NetworkBehaviour
     public static GameManagerRPK instance;
     public Map map;
     public Map mapFight;
-    public int index, indexInFight;
+    public int index, indexInFight, topPlayer = 1;
     public GameObject gameInput, time;
 
     public List<Player> players = new List<Player>();
@@ -230,13 +230,15 @@ public class GameManagerRPK : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value,topPlayer);
+            topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value,topPlayer);
+            topPlayer++;
             yield return wait1f;
         }
 
@@ -266,10 +268,10 @@ public class GameManagerRPK : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID)
+    private void EndGameAnouncement_ClientRPC(ulong playerID, int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
     }
 
     [ClientRpc]
