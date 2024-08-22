@@ -369,7 +369,7 @@ public class ApiHandle : MonoBehaviour
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
                     PlayerSkin.instance.UpdateSkin();
                 }
-                AnouncementManager.instance.DisplayAnouncement("Welcome back, " + username);
+                AnouncementManager.instance.DisplayAnouncement("Welcome back, " + user.nameingame);
                 break;
             }
 
@@ -594,7 +594,7 @@ public class ApiHandle : MonoBehaviour
         userRq.username = usernameRegister.text;
         userRq.password = passwordRegister.text;
         userRq.email = EmailRegister.text;
-        string json = JsonUtility.ToJson(userRq);
+        string json = JsonConvert.SerializeObject(userRq);
         Debug.Log(json);
 
         UnityWebRequest www = new UnityWebRequest(_apiUrl + "/register", "POST");
@@ -637,10 +637,11 @@ public class ApiHandle : MonoBehaviour
                 AnouncementManager.instance.DisplayAnouncement("Register success");
                 StartCoroutine(Login(usernameRegister.text, passwordRegister.text));
                 RegisterPanel.instance.gameObject.SetActive(false);
+                isCoroutineDone = true;
             }
         }
         LoadingPanel.Instance.SetDisplayLoading(true);
-        isCoroutineDone = true;
+        
     }
 
     public IEnumerator SearchFriend(TMP_InputField NameSearch)
