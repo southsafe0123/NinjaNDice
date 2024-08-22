@@ -11,8 +11,8 @@ public class MiniEndGamePanel : MonoBehaviour
     public List<PlayerMiniEndGameItem> playerEndList = new List<PlayerMiniEndGameItem>();
     public List<Player> playerLose = new List<Player>();
     public Player playerWin;
-    public int indexTopPlayer = 1;
     public TextMeshProUGUI txtWaitToLeave;
+
     private void Awake()
     {
         Instance = this;
@@ -41,7 +41,7 @@ public class MiniEndGamePanel : MonoBehaviour
     {
         playerWin = player;
     }
-    public void DisplayPlayer(Player player)
+    public void DisplayPlayer(Player player,int topPlayer)
     {
         var playerCanGetItem = (int)Math.Ceiling((double)PlayerList.Instance.playerOrders.Count / 2);
         Debug.Log("playerCanGetItem In minigame: " + playerCanGetItem);
@@ -51,18 +51,17 @@ public class MiniEndGamePanel : MonoBehaviour
             {
                 playerItem.gameObject.SetActive(true);
                 playerItem.player = player;
-                playerItem.playerTop = "Top " + indexTopPlayer;
+                playerItem.playerTop = "Top " + topPlayer;
                 if (NetworkManager.Singleton.IsHost)
                 {
-                    if (indexTopPlayer <= playerCanGetItem)
+                    if (topPlayer <= playerCanGetItem)
                     {
                         Debug.Log("This player can get item: " + player.ownerClientID.Value);
                         ItemPool.Instance.GivePlayerRandomItem_ClientRPC(player.ownerClientID.Value);
                     }
-                    PlayerList.Instance.SetPlayerOrder(indexTopPlayer, player);
+                    PlayerList.Instance.SetPlayerOrder(topPlayer, player);
                 }
-                Debug.Log("top: " + indexTopPlayer);
-                indexTopPlayer++;
+                Debug.Log("top: " + topPlayer);
                 break;
             }
         }

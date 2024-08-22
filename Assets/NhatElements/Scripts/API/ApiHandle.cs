@@ -10,6 +10,7 @@ using System.Linq;
 using System;
 using Google.MiniJSON;
 using System.Threading;
+using UnityEditor.PackageManager;
 
 public class ApiHandle : MonoBehaviour
 {        //int timer = 0;
@@ -32,7 +33,7 @@ public class ApiHandle : MonoBehaviour
 
     [SerializeField] public List<friendIngame> friendIngame;
 
-     public UserResponse user;
+    public UserResponse user;
 
     [SerializeField] public bool isNewData = false;
 
@@ -264,14 +265,7 @@ public class ApiHandle : MonoBehaviour
     }
     public void RegisterButton(TMP_InputField usernameRegister, TMP_InputField EmailRegister, TMP_InputField passwordRegister, TMP_InputField RepasswordRegister)
     {
-        if (passwordRegister == null) return;
-        if (passwordRegister.text != RepasswordRegister.text)
-        {
-            if (message != null) { message.text = "Password not match"; }
-            else { Debug.Log("Password not match"); }
-            return;
-        }
-        StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
+        StartCoroutineWithTimeout(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
     }
 
     public IEnumerator LoginID(string ID, string username, string type = "Unity")
@@ -445,6 +439,7 @@ public class ApiHandle : MonoBehaviour
     {
         if (usernameLogin == null || passwordLogin == null)
         {
+            AnouncementManager.instance.DisplayAnouncement("Field is null");
             Debug.LogError("Username or Password field is null");
             yield break;
         }
@@ -574,9 +569,24 @@ public class ApiHandle : MonoBehaviour
 
     public IEnumerator Register(TMP_InputField usernameRegister, TMP_InputField EmailRegister, TMP_InputField passwordRegister, TMP_InputField RepasswordRegister)
     {
+        if (passwordRegister == null)
+        {
+            isCoroutineDone = true;
+            yield break;
+        } 
+        if (passwordRegister.text != RepasswordRegister.text)
+        {
+            AnouncementManager.instance.DisplayAnouncement("Password not match!");
+            if (message != null) { message.text = "Password not match"; }
+            else { Debug.Log("Password not match"); }
+            isCoroutineDone = true;
+            yield break;
+        }
+        LoadingPanel.Instance.SetDisplayLoading(false);
         if (usernameRegister == null || passwordRegister == null)
         {
             Debug.LogError("Username or Password field is null");
+            isCoroutineDone = true;
             yield break;
         }
 
@@ -600,21 +610,20 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.error);
             Debug.Log(www.downloadHandler.text);
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(Register(usernameRegister, EmailRegister, passwordRegister, RepasswordRegister));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
+
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    //AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
             }
             else
             {
+                AnouncementManager.instance.DisplayAnouncement("Bad Connection!");
                 Debug.LogError("Download handler is null");
             }
         }
@@ -622,8 +631,16 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Register success"; }
-            else { Debug.Log("Register success"); }
+            else
+            {
+                Debug.Log("Register success");
+                AnouncementManager.instance.DisplayAnouncement("Register success");
+                StartCoroutine(Login(usernameRegister.text, passwordRegister.text));
+                RegisterPanel.instance.gameObject.SetActive(false);
+            }
         }
+        LoadingPanel.Instance.SetDisplayLoading(true);
+        isCoroutineDone = true;
     }
 
     public IEnumerator SearchFriend(TMP_InputField NameSearch)
@@ -782,21 +799,20 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(AcceptFriend(request));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
+
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
             }
             else
             {
+                AnouncementManager.instance.DisplayAnouncement("Bad connection!");
                 Debug.LogError("Download handler is null");
             }
         }
@@ -804,11 +820,15 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Accept request success"; }
-            else { Debug.Log("Accept request success"); }
+            else
+            {
+                Debug.Log("Accept request success");
+                AnouncementManager.instance.DisplayAnouncement("Accept request success");
+            }
 
         }
         uiController.UpdateRequest();
-
+        isCoroutineDone = true;
     }
 
     // declineFriendRequest cung giong nhu acceptFriendRequest
@@ -839,21 +859,20 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(DeclineFriend(request));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
+
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else
+                {
+                    Debug.Log(errorRp.message);
+                    AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                }
             }
             else
             {
+                AnouncementManager.instance.DisplayAnouncement("Bad connection!");
                 Debug.LogError("Download handler is null");
             }
         }
@@ -861,10 +880,15 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Decline request success"; }
-            else { Debug.Log("Decline request success"); }
+            else
+            {
+                Debug.Log("Decline request success");
+                AnouncementManager.instance.DisplayAnouncement("Decline request success");
+            }
 
         }
         uiController.UpdateRequest();
+        isCoroutineDone = true;
     }
 
     //update list friend enpoint: /friends/:id , method: GET , id la id cua user UserSessionManager.Instance._id
@@ -1029,13 +1053,7 @@ public class ApiHandle : MonoBehaviour
 
         if (www.isNetworkError || www.isHttpError)
         {
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(getName(id));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
+
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);

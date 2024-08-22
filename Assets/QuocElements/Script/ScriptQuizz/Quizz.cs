@@ -29,7 +29,7 @@ public class Quizz : NetworkBehaviour
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
     // private bool timerIsRunning = false;
-
+    int topPlayer = 1;
     private void Awake()
     {
         if (!IsHost) return;
@@ -74,7 +74,7 @@ public class Quizz : NetworkBehaviour
         yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
         while (true)
         {
-            yield return new WaitForSeconds(3f); // Wait 15 seconds before loading a new question
+            yield return new WaitForSeconds(4f); // Wait 15 seconds before loading a new question
             LoadRandomQuestion();
             ResetGameObjectAnswer();
         }
@@ -214,6 +214,7 @@ public class Quizz : NetworkBehaviour
             if (playerList[i].ownerClientID.Value == clientID)
             {
                 TakeDamage_ClientRPC(clientID);
+                break;
             }
         }
     }
@@ -252,13 +253,15 @@ public class Quizz : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
+            topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, topPlayer);
+            topPlayer++;
             yield return wait1f;
         }
 
@@ -286,10 +289,10 @@ public class Quizz : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID)
+    private void EndGameAnouncement_ClientRPC(ulong playerID, int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
     }
     [ClientRpc]
     private void RemovedComponent_ClientRPC()

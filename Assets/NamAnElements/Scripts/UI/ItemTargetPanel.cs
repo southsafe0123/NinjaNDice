@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ItemTargetPanel : MonoBehaviour
 {
@@ -10,6 +11,20 @@ public class ItemTargetPanel : MonoBehaviour
     public CamToPlayer camToPlayer;
     public TextMeshProUGUI txtPlayerName;
     public CanvasGroup checkingPanel;
+    public Image playerAvatar;
+    public Button btnBack;
+    public Button btnUse;
+    private void Start()
+    {
+        btnBack.onClick.AddListener(() =>
+        {
+            OnClickExitTarget();
+        });
+        btnUse.onClick.AddListener(() =>
+        {
+            CamToPlayer.instance.playerToFollow = players[playerIndex];
+        });
+    }
     private void OnEnable()
     {
         players.Clear();
@@ -36,6 +51,8 @@ public class ItemTargetPanel : MonoBehaviour
     {
         camToPlayer.playerToFollow = players[playerIndex];
         txtPlayerName.text = players[playerIndex].GetComponent<PlayerData>().playerName.Value.ToString();
+        var playerAvatarSlot = players[playerIndex].GetComponent<PlayerData>().playerSkin.Value.ToString();
+        playerAvatar.sprite = SkinPool.instance.GetSkin(int.Parse(playerAvatarSlot)).skinAvatar;
     }
     public void OnClickExitTarget()
     {
@@ -43,7 +60,7 @@ public class ItemTargetPanel : MonoBehaviour
     }
     private void OnDisable()
     {
-        OnClickExitTarget();
+       
     }
     public void SetAlphaView(int alpha)
     {

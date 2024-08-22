@@ -46,7 +46,7 @@ public class ItemSkin : MonoBehaviour
     {
 
         if (ApiHandle.Instance == null) return;
-        if (ApiHandle.Instance.user.avatar == "")
+        if (ApiHandle.Instance.user.avatar.IsNullOrEmpty())
         {
             if(skinId == "Default")
             {

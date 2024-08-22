@@ -13,9 +13,10 @@ public class PlayerMiniEndGameItem : MonoBehaviour
     public TextMeshProUGUI txtPlayerName;
     public GameObject plus1;
     public Image itemGivePlayerImage;
-
+    public TextMeshProUGUI txtPlayerTop;
     private void Update()
     {
+        txtPlayerTop.text = playerTop;
         txtPlayerName.text = player.GetComponent<PlayerData>().playerName.Value.ToString();
         if (itemPlayerGet != null)
         {
