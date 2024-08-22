@@ -13,6 +13,8 @@ using Unity.Mathematics;
 
 public class RpkButton : MonoBehaviour
 {
+    public static RpkButton instance;
+
     public GameObject resultLeft;
     public GameObject resultRight;
     public Button rockButton;
@@ -22,6 +24,10 @@ public class RpkButton : MonoBehaviour
     public GameObject win;
     public GameObject lose;
     public GameObject draw;
+    public GameObject isDead;
+    public GameObject notInBattle;
+    public GameObject winner;
+    public GameObject start;
     public Map fightMap;
     public Player player;
     public int indexInFight;
@@ -34,30 +40,44 @@ public class RpkButton : MonoBehaviour
     //Transform rock;
     string resultName;
 
-    [SerializeField] TextMeshProUGUI timerText;
+    public TextMeshProUGUI timerText;
     float remainingTime;
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     private void Start()
     {
-        //scroll = theirResult.transform.Find("Scroll");
-        //kunai = theirResult.transform.Find("Kunai");
-        //rock = theirResult.transform.Find("Rock");
         StartCoroutine(WaitForPlayerChoose());
     }
 
-    IEnumerator WaitForPlayerChoose()
+    public IEnumerator WaitForPlayerChoose()
     {
         int i = 5;
-        time.SetActive(true);
         WaitForSeconds waitOneSecond = new WaitForSeconds(1);
-        while (GameManagerRPK.instance.checkPlayerInFight.Count > 1)
+        while (GameManagerRPK.instance.players.Count != 1)
         {
-            yield return waitOneSecond;
-            remainingTime = i;
-            timerText.text = remainingTime.ToString();
-            time.SetActive(true);
-            Debug.Log(i);
-            i--;
+            if (player.GetComponent<PlayerHeath>().health > 0)
+            {
+                yield return waitOneSecond;
+                time.SetActive(true);
+                remainingTime = i;
+                timerText.text = remainingTime.ToString();
+                Debug.Log(i);
+                i--;
+            }
+            else
+            {
+                yield return waitOneSecond;
+                time.SetActive(false);
+                remainingTime = i;
+                timerText.text = remainingTime.ToString();
+                Debug.Log(i);
+                i--;
+            }
+
             if (i < 0)
             {
                 i = 5;
@@ -66,52 +86,58 @@ public class RpkButton : MonoBehaviour
                 rockButton.gameObject.SetActive(false);
                 paperButton.gameObject.SetActive(false);
                 kunaiButton.gameObject.SetActive(false);
-                yield return new WaitForSeconds(1);
                 showTheirButton(resultName);
                 yield return new WaitForSeconds(1);
+
                 foreach (Transform child in theirResult.transform)
                 {
                     child.gameObject.SetActive(false);
                 }
+
                 foreach (Transform child in myResult.transform)
                 {
                     child.gameObject.SetActive(false);
                 }
-                yield return new WaitForSeconds(1);
+
                 OnClickCheckResult();
 
-                yield return new WaitForSeconds(2);
-                foreach (Transform child in theirResult.transform)
-                {
-                    theirResultTemp = Result.None;
-                    resultName = "";
-                }
+                yield return new WaitForSeconds(1);
+
                 foreach (Transform child in myResult.transform)
-                {  
-                    myResultTemp = Result.None;
-                    resultName = "";
+                {
+                    myResultTemp = Result.Clear;
                 }
 
+                start.gameObject.SetActive(false);
                 lose.gameObject.SetActive(false);
                 win.gameObject.SetActive(false);
                 draw.gameObject.SetActive(false);
+                notInBattle.gameObject.SetActive(false);
+
+                if (player.GetComponent<PlayerHeath>().health == 0)
+                {
+                    isDead.SetActive(true);
+                }
+
 
                 yield return new WaitForSeconds(1);
                 GameManagerRPK.instance.PickingPlayerList();
 
-                yield return null;
-                yield return new WaitForSeconds(2);
-                GameManagerRPK.instance.TelePlayerToFightMap(GameManagerRPK.instance.playerRange);
-                Debug.Log("Số lượng player ơ trong random là: " + GameManagerRPK.instance.checkPlayerInFight.Count);
-
-                yield return new WaitForSeconds(1);
-                if (GameManagerRPK.instance.checkPlayerInFight.Count == 1)
+                if (GameManagerRPK.instance.players.Count > 1)
                 {
-                    Debug.Log("End Game Rồi !!");
+                    GameManagerRPK.instance.TelePlayerToFightMap(GameManagerRPK.instance.playerRange);
+                }
+                else
+                {
                     rockButton.gameObject.SetActive(false);
                     paperButton.gameObject.SetActive(false);
                     kunaiButton.gameObject.SetActive(false);
+                    winner.gameObject.SetActive(true);
+                    isDead.gameObject.SetActive(false);
+                    GameManagerRPK.instance.EndGame(GameManagerRPK.instance.playerRangeTemp);
+                    break;
                 }
+                yield return new WaitForSeconds(1);
             }
         }
 
@@ -132,6 +158,7 @@ public class RpkButton : MonoBehaviour
             rockButton.gameObject.SetActive(true);
             paperButton.gameObject.SetActive(true);
             kunaiButton.gameObject.SetActive(true);
+            unButtonClick(resultLeft);
             rockButton.onClick.AddListener(() => OnRockButtonClick(resultLeft));
             paperButton.onClick.AddListener(() => OnPaperButtonClick(resultLeft));
             kunaiButton.onClick.AddListener(() => OnKunaiButtonClick(resultLeft));
@@ -144,17 +171,29 @@ public class RpkButton : MonoBehaviour
             rockButton.gameObject.SetActive(true);
             paperButton.gameObject.SetActive(true);
             kunaiButton.gameObject.SetActive(true);
+            unButtonClick(resultRight);
             rockButton.onClick.AddListener(() => OnRockButtonClick(resultRight));
             paperButton.onClick.AddListener(() => OnPaperButtonClick(resultRight));
             kunaiButton.onClick.AddListener(() => OnKunaiButtonClick(resultRight));
             myResult = resultRight;
             theirResult = resultLeft;
         }
+
+        if (indexInFight == 2)
+        {
+            rockButton.gameObject.SetActive(false);
+            paperButton.gameObject.SetActive(false);
+            kunaiButton.gameObject.SetActive(false);
+            myResult = resultRight;
+            theirResult = resultLeft;
+            myResultTemp = Result.Start;
+        }
+
     }
 
-    
 
-     public void DisplayTheirResult(string resultName)
+
+    public void DisplayTheirResult(string resultName)
     {
         this.resultName = resultName;
         switch (resultName)
@@ -178,7 +217,7 @@ public class RpkButton : MonoBehaviour
             {
                 child.gameObject.SetActive(true);
             }
-            else
+            if (myResultTemp == Result.Clear)
             {
                 child.gameObject.SetActive(false);
             }
@@ -227,9 +266,22 @@ public class RpkButton : MonoBehaviour
         }
     }
 
+    private void unButtonClick(GameObject result)
+    {
+        foreach (Transform child in result.transform)
+        {
+            child.gameObject.SetActive(false);
+            if (!child.gameObject.activeInHierarchy)
+            {
+                myResultTemp = Result.None;
+                GameManagerRPK.instance.ShowResult_ServerRPC(indexInFight, "");
+            }
+        }
+    }
+
     public enum Result
     {
-        Rock, Paper, Kunai, None
+        Rock, Paper, Kunai, None, Clear, Start
     }
 
     public void OnClickCheckResult()
@@ -240,20 +292,19 @@ public class RpkButton : MonoBehaviour
             {
                 switch (child.gameObject.name)
                 {
-                    case "Scroll": 
+                    case "Scroll":
                         theirResultTemp = Result.Paper;
-                        //scroll.gameObject.SetActive(true);
-                            break;
-                    case "Rock": 
+                        break;
+                    case "Rock":
                         theirResultTemp = Result.Rock;
-                        //rock.gameObject.SetActive(true);
                         break;
-                    case "Kunai": 
+                    case "Kunai":
                         theirResultTemp = Result.Kunai;
-                        //rock.gameObject.SetActive(true);
                         break;
-                    case "": theirResultTemp = Result.None; break;
-                        default:
+                    case "":
+                        theirResultTemp = Result.None;
+                        break;
+                    default:
                         break;
                 }
                 break;
@@ -266,10 +317,18 @@ public class RpkButton : MonoBehaviour
             {
                 switch (child.gameObject.name)
                 {
-                    case "Scroll": myResultTemp = Result.Paper; break;
-                    case "Rock": myResultTemp = Result.Rock; break;
-                    case "Kunai": myResultTemp = Result.Kunai; break;
-                    case "": theirResultTemp = Result.None; break;
+                    case "Scroll":
+                        myResultTemp = Result.Paper;
+                        break;
+                    case "Rock":
+                        myResultTemp = Result.Rock;
+                        break;
+                    case "Kunai":
+                        myResultTemp = Result.Kunai;
+                        break;
+                    case "":
+                        myResultTemp = Result.None;
+                        break;
                     default:
                         break;
                 }
@@ -288,9 +347,11 @@ public class RpkButton : MonoBehaviour
                         break;
                     case Result.Paper:
                         Debug.Log("Lose !!");
-                        var healthTemp = player.GetComponent<PlayerHeath>().health-1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.Kunai:
                         Debug.Log("Win !!");
@@ -304,6 +365,7 @@ public class RpkButton : MonoBehaviour
                         break;
                 }
                 break;
+
             case Result.Paper:
                 switch (theirResultTemp)
                 {
@@ -317,9 +379,11 @@ public class RpkButton : MonoBehaviour
                         break;
                     case Result.Kunai:
                         Debug.Log("Lose !!");
-                        var healthTemp = player.GetComponent<PlayerHeath>().health - 1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.None:
                         Debug.Log("Win !!");
@@ -329,14 +393,17 @@ public class RpkButton : MonoBehaviour
                         break;
                 }
                 break;
+
             case Result.Kunai:
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
                         Debug.Log("Lose !!");
-                        var healthTemp = player.GetComponent<PlayerHeath>().health - 1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.Paper:
                         Debug.Log("Win !!");
@@ -344,6 +411,7 @@ public class RpkButton : MonoBehaviour
                         break;
                     case Result.Kunai:
                         Debug.Log("Draw !!");
+                        draw.gameObject.SetActive(true);
                         break;
                     case Result.None:
                         Debug.Log("Win !!");
@@ -353,26 +421,33 @@ public class RpkButton : MonoBehaviour
                         break;
                 }
                 break;
+
             case Result.None:
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
                         Debug.Log("Lose !!");
-                        var healthTemp = player.GetComponent<PlayerHeath>().health - 1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.Paper:
                         Debug.Log("Lose !!");
-                        healthTemp = player.GetComponent<PlayerHeath>().health - 1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.Kunai:
                         Debug.Log("Lose !!");
-                        healthTemp = player.GetComponent<PlayerHeath>().health - 1;
-                        GameManagerRPK.instance.ShowHPPlayer_ServerRPC(healthTemp, player.GetComponent<Player>().ownerClientID.Value);
-                        lose.gameObject.SetActive(true);
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     case Result.None:
                         Debug.Log("Draw !!");
@@ -382,11 +457,83 @@ public class RpkButton : MonoBehaviour
                         break;
                 }
                 break;
+            case Result.Clear:
+                switch (theirResultTemp)
+                {
+                    case Result.Rock:
+                        Debug.Log("U are not in Battle !!");
+                        if (player.GetComponent<PlayerHeath>().health > 0)
+                        {
+                            notInBattle.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            notInBattle.gameObject.SetActive(false);
+                        }
+                        break;
+                    case Result.Paper:
+                        Debug.Log("U are not in Battle !!");
+                        if (player.GetComponent<PlayerHeath>().health > 0)
+                        {
+                            notInBattle.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            notInBattle.gameObject.SetActive(false);
+                        }
+                        break;
+                    case Result.Kunai:
+                        Debug.Log("U are not in Battle !!");
+                        if (player.GetComponent<PlayerHeath>().health > 0)
+                        {
+                            notInBattle.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            notInBattle.gameObject.SetActive(false);
+                        }
+                        break;
+                    case Result.None:
+                        Debug.Log("U are not in Battle !!");
+                        if (player.GetComponent<PlayerHeath>().health > 0)
+                        {
+                            notInBattle.gameObject.SetActive(true);
+                        }
+                        else
+                        {
+                            notInBattle.gameObject.SetActive(false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case Result.Start:
+                switch (theirResultTemp)
+                {
+                    case Result.Rock:
+                        Debug.Log("Game Start");
+                        start.gameObject.SetActive(true);
+                        break;
+                    case Result.Paper:
+                        Debug.Log("Game Start");
+                        start.gameObject.SetActive(true);
+                        break;
+                    case Result.Kunai:
+                        Debug.Log("Game Start");
+                        start.gameObject.SetActive(true);
+                        break;
+                    case Result.None:
+                        Debug.Log("Game Start");
+                        start.gameObject.SetActive(true);
+                        break;
+                    default:
+                        break;
+                }
+                break;
             default:
                 break;
         }
-
-        
     }
 
 }
