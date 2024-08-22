@@ -57,7 +57,7 @@ public class RpkButton : MonoBehaviour
     {
         int i = 5;
         WaitForSeconds waitOneSecond = new WaitForSeconds(1);
-        while (GameManagerRPK.instance.players.Count != 1)
+        while (true)
         {
             if (player.GetComponent<PlayerHeath>().health > 0)
             {

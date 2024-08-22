@@ -15,4 +15,8 @@ public class ShopPanel : MonoBehaviour
     {
         SkinPool.instance.shopContent = shopContent;
     }
+    public void UpdateInfoSkin()
+    {
+        ApiHandle.Instance.GetAllSkin();
+    }
 }

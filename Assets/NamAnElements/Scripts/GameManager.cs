@@ -186,7 +186,7 @@ public class GameManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         var randomvalue = UnityEngine.Random.Range(0,4);
-        switch (randomvalue)
+        switch (2)
         {
             case 0:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameAU", IsHost);
@@ -194,14 +194,11 @@ public class GameManager : NetworkBehaviour
             case 1:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameQuizz", IsHost);
                 break;
-            // case 2:
-            //     LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
-            //     break;
             case 2:
-                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
                 break;
             case 3:
-                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameRockPaperKunai", IsHost);
+                LoadScene.Instance.StartLoadSceneMultiplayer("MinigameLucky", IsHost);
                 break;
             default:
                 Debug.LogError("isminigame now");

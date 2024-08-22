@@ -56,7 +56,7 @@ public class GameManagerRPK : NetworkBehaviour
         playerRange.Add(hostPlayer);
         players.Remove(hostPlayer);
         List<Player> list = new List<Player>(players);
-        while (playerRange.Count != 2)
+        while (playerRange.Count < 2)
         {
             int randomIndex = Random.Range(0, players.Count);
             if (!selectedIndices.Contains(randomIndex))
@@ -69,13 +69,22 @@ public class GameManagerRPK : NetworkBehaviour
 
         SetPlayersTurnToFalse();
 
-        gameInput.SetActive(true);
+        TelePlayerToFightMap(playerRange);
 
         foreach (Player player in list)
         {
-            gameInput.SetActive(true);
-            gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
-            gameInput.GetComponent<RpkButton>().ConnetResult(2);
+            if(list.Count > 1)
+            {
+                gameInput.SetActive(true);
+                gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
+                gameInput.GetComponent<RpkButton>().ConnetResult(2);
+            }
+            else
+            {
+                gameInput.SetActive(true);
+                gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
+                gameInput.GetComponent<RpkButton>().ConnetResult(1);
+            }
         }
 
     }
