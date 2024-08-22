@@ -792,11 +792,11 @@ PlayerSettings:
   apiCompatibilityLevel: 6
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 2e215eb9-d2b2-430d-bf3e-4cb070ab8aa4
+  cloudProjectId: 39c78ed6-1765-41f7-84cc-6845faf9afba
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: NinjaNDice
-  organizationId: unity_pl9kacygyi5h9w
+  projectName: DragonNDice
+  organizationId: unity_24b76337700370002451
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   playerDataPath: 

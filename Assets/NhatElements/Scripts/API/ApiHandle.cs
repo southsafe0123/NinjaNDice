@@ -150,6 +150,11 @@ public class ApiHandle : MonoBehaviour
     // {
 
     // }
+
+    public void AddMoney(string top)
+    {
+        StartCoroutine(EndGameMoney(top));
+    }
     public void SetSkinButton(string skinId)
     {
         StartCoroutineWithTimeout(SetSkin(skinId));
@@ -194,7 +199,7 @@ public class ApiHandle : MonoBehaviour
 
     public void AddFriendButton(string _id)
     {
-        StartCoroutine(AddFriend(_id));
+        StartCoroutineWithTimeout(AddFriend(_id));
     }
     public void DeleteFriendButton(string _id)
     {
@@ -573,7 +578,7 @@ public class ApiHandle : MonoBehaviour
         {
             isCoroutineDone = true;
             yield break;
-        } 
+        }
         if (passwordRegister.text != RepasswordRegister.text)
         {
             AnouncementManager.instance.DisplayAnouncement("Password not match!");
@@ -641,7 +646,7 @@ public class ApiHandle : MonoBehaviour
             }
         }
         LoadingPanel.Instance.SetDisplayLoading(true);
-        
+
     }
 
     public IEnumerator SearchFriend(TMP_InputField NameSearch)
@@ -676,7 +681,51 @@ public class ApiHandle : MonoBehaviour
             uiController.UpdateSearch(friend);
         }
     }
+    public IEnumerator EndGameMoney(string top)
+    {
+        // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
+        MoneyTop moneyTop = new MoneyTop();
+        moneyTop.userId = UserSessionManager.Instance._id;
+        moneyTop.top = top;
+        string json = JsonUtility.ToJson(moneyTop);
+        Debug.Log(json);
 
+        UnityWebRequest www = new UnityWebRequest(_apiUrl + "/addMoney", "POST");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
+
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+
+        www.SetRequestHeader("Content-Type", "application/json");
+
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+
+            if (www.downloadHandler != null)
+            {
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
+            }
+            else
+            {
+                Debug.LogError("Download handler is null");
+            }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            if (message != null) { message.text = "Send request success"; }
+            else
+            {
+                Debug.Log("Send request success");
+
+            }
+        }
+    }
     public IEnumerator AddFriend(string id)
     {
         // post, endpoint: /sendFriendRequest , body: {from: "id", to: "id"}
@@ -699,21 +748,15 @@ public class ApiHandle : MonoBehaviour
         if (www.isNetworkError || www.isHttpError)
         {
             Debug.Log(www.error);
-            if (www.responseCode == 502)
-            {
-                LoadingPanel.Instance.SetDisplayLoading(true);
-                yield return new WaitForSeconds(1.5f);
-                yield return StartCoroutine(AddFriend(id));
-                LoadingPanel.Instance.SetDisplayLoading(false);
-            }
             if (www.downloadHandler != null)
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); }
+                else { Debug.Log(errorRp.message); AnouncementManager.instance.DisplayAnouncement(errorRp.message); }
             }
             else
             {
+                AnouncementManager.instance.DisplayAnouncement("Bad Connection!");
                 Debug.LogError("Download handler is null");
             }
         }
@@ -721,7 +764,12 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             if (message != null) { message.text = "Send request success"; }
-            else { Debug.Log("Send request success"); }
+            else
+            {
+                Debug.Log("Send request success");
+                AnouncementManager.instance.DisplayAnouncement("Send request success");
+            }
+            isCoroutineDone = true;
         }
         uiController.UpdateRequest();
     }
@@ -1192,6 +1240,11 @@ public class AddFriendRequest
 {
     public string from;
     public string to;
+}
+public class MoneyTop
+{
+    public string userId;
+    public string top;
 }
 [System.Serializable]
 public class PlayerAvatar
