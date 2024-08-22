@@ -450,8 +450,12 @@ public class RpkButton : MonoBehaviour
                         }
                         break;
                     case Result.None:
-                        Debug.Log("Draw !!");
-                        draw.gameObject.SetActive(true);
+                        Debug.Log("Lose !!");
+                        if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+                        {
+                            GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
+                            lose.gameObject.SetActive(true);
+                        }
                         break;
                     default:
                         break;
