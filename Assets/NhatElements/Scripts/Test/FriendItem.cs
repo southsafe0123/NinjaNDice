@@ -76,11 +76,19 @@ public class FriendItem : MonoBehaviour
         }
         else
         {
-            StartCoroutine(HostServer());
-            Debug.Log("sending roomcode" + NetworkLobby.txtRoomCode.text);
-            
-            Debug.Log("Host first, invite after");
-           
+            TMP_InputField joinCode = GameObject.Find("JoinCode").GetComponent<TMP_InputField>();
+            if (joinCode.text != "")
+            {
+                ApiHandle.Instance.GetComponent<WS_Client>()?.SendButton(_id, joinCode.text);
+            }
+            else
+            {
+                StartCoroutine(HostServer());
+                Debug.Log("sending roomcode" + NetworkLobby.txtRoomCode.text);
+
+                Debug.Log("Host first, invite after");
+            }
+
         }
     }
 

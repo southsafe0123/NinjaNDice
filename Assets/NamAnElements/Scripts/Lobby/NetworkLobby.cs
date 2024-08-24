@@ -12,7 +12,7 @@ using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class NetworkLobby : MonoBehaviour
 {
@@ -38,7 +38,7 @@ public class NetworkLobby : MonoBehaviour
         {
             Debug.Log("signed in: " + AuthenticationService.Instance.PlayerId);
         };
-        
+
     }
 
     [Command]
@@ -55,7 +55,7 @@ public class NetworkLobby : MonoBehaviour
             default:
                 break;
         }
-        
+
     }
 
     private static async Task CreateRelayOnline()
@@ -77,7 +77,7 @@ public class NetworkLobby : MonoBehaviour
             Debug.LogError("shit error in create relaynetwork" + ex);
         }
 
-        
+
     }
 
     private static void DisableJoinButton()
@@ -105,19 +105,21 @@ public class NetworkLobby : MonoBehaviour
             default:
                 break;
         }
-       
+
     }
 
     private static async Task JoinRelayOnline(string joinCode)
     {
         try
         {
+
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
             RelayServerData relayServerData = new RelayServerData(joinAllocation, "dtls");
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartClient();
+
         }
         catch (RelayServiceException ex)
         {

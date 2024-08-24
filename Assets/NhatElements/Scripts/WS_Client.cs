@@ -34,8 +34,8 @@ public class WS_Client : MonoBehaviour
         //'wss://retstudio.io.vn/?userId=66aa283a7093a0984b7188e5'
         //WebSocket(string url, params string[] protocols)
         ws = new WebSocket("wss://" + url + "/?userId=" + UserSessionManager.Instance._id);
-        ws.Log.File = "Assets/log/WebSocketLog.txt";
-        ws.Log.Level = LogLevel.Debug;
+        // ws.Log.File = "Assets/log/WebSocketLog.txt";
+        // ws.Log.Level = LogLevel.Debug;
         //ws = new WebSocket("wss://" + url + "/?userId=" + myID);
         myID = UserSessionManager.Instance._id;
         ws.OnOpen += (sender, e) =>
@@ -216,7 +216,7 @@ public class WS_Client : MonoBehaviour
     public void DisconnectWS()
     {
         ws.Close();
-        if(reConnectCoroutine != null)
+        if (reConnectCoroutine != null)
         {
             StopCoroutine(reConnectCoroutine);
             reConnectCoroutine = null;

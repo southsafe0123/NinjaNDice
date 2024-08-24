@@ -43,11 +43,11 @@ public class GameManager : NetworkBehaviour
             playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
             if (playerList[i].isPlayerFrozen.Value)
             {
-                Instantiate(GameObject.Find("freeze").GetComponent<FrozenAttack>().prefabEffect, playerList[i].transform.position,Quaternion.identity);
+                Instantiate(GameObject.Find("freeze").GetComponent<FrozenAttack>().prefabEffect, playerList[i].transform.position, Quaternion.identity);
             }
         }
 
-        SetPlayerTurn_ServerRPC(playerList[playerIndex].ownerClientID.Value,true);
+        SetPlayerTurn_ServerRPC(playerList[playerIndex].ownerClientID.Value, true);
         SetCamFollowPlayer_ClientRPC(playerList[playerIndex].ownerClientID.Value);
     }
 
@@ -185,8 +185,8 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = UnityEngine.Random.Range(0,4);
-        switch (2)
+        var randomvalue = UnityEngine.Random.Range(0, 4);
+        switch (randomvalue)
         {
             case 0:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameAU", IsHost);
@@ -240,8 +240,8 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     private void UnfreezeThisPlayerAnim_ClientRPC()
     {
-        List<FreezeEffect> freezeEffect = GameObject.FindObjectsByType<FreezeEffect>(sortMode:FindObjectsSortMode.None).ToList();
-        if (freezeEffect == null||freezeEffect.Count==0) return;
+        List<FreezeEffect> freezeEffect = GameObject.FindObjectsByType<FreezeEffect>(sortMode: FindObjectsSortMode.None).ToList();
+        if (freezeEffect == null || freezeEffect.Count == 0) return;
         foreach (var item in freezeEffect)
         {
             item.UnFreezeAnimation();
