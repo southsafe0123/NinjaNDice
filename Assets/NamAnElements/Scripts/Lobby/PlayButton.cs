@@ -16,7 +16,7 @@ public class PlayButton: MonoBehaviour
     {
         txtPlay.text = "W A I T ...";
         btnPlay.interactable = false;
-        LobbyGameManager.Instance.playerSlots[0].SetActive(false);
+        LobbyGameManager.Instance.playerSlots[0].gameObject.SetActive(false);
         yield return null;
         LobbyGameManager.Instance.ButtonClickHostServer();
         btnPlay.onClick.RemoveListener(Host);

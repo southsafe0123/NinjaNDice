@@ -53,7 +53,15 @@ public class SkinPool : MonoBehaviour
     }
     public ItemShop GetSkin(int skinSlot)
     {
-        return skinList[skinSlot].GetComponent<ItemShop>() == null? skinList[0].GetComponent<ItemShop>() : skinList[skinSlot].GetComponent<ItemShop>();
+        try
+        {
+            return skinList[skinSlot].GetComponent<ItemShop>() == null ? skinList[0].GetComponent<ItemShop>() : skinList[skinSlot].GetComponent<ItemShop>();
+        }
+        catch
+        {
+            return skinList[0].GetComponent<ItemShop>();
+        }
+        
     }
     public string GetSkin_Id(int skinSlot)
     {

@@ -9,13 +9,15 @@ using System.Linq;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
 using UnityEngine.UI;
+using WebSocketSharp;
+using System;
 
 public class Quizz : NetworkBehaviour
 {
     public TMP_Text questionText;
     public TMP_Text answerTexts;
     public TextAsset textFile;
-    public NetworkVariable<int> numQ = new NetworkVariable<int>();
+    public int numQ;
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
 
     public List<GameObject> answerObjects;
@@ -26,34 +28,21 @@ public class Quizz : NetworkBehaviour
     private List<Question> questions = new List<Question>();
     private int playerOrder = 0;
     public List<Player> playerLose = new List<Player>();
-
+    public TextMeshProUGUI txtTimer;
+    public Image imgTimer;
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
     // private bool timerIsRunning = false;
     int topPlayer = 1;
-    private void Awake()
-    {
-        if (!IsHost) return;
-        // playerList = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-        // foreach (var player in PlayerList.Instance.playerDic)
-        // {
-        //     playerList.Add(player.Value);
-        // }
-
-
-
-
-
-    }
     void Start()
     {
         Debug.Log(NetworkManager.LocalClientId);
         player = PlayerList.Instance.GetPlayerDic_Value(NetworkManager.LocalClientId).gameObject;
-
-
+        AnswerPanel.instance.player = player.GetComponent<Player>();
 
         if (IsHost)
         {
+            player.GetComponent<Player>().isPlayerTurn.Value = true;
             foreach (var player in PlayerList.Instance.playerDic)
             {
                 playerList.Add(player.Value);
@@ -72,43 +61,30 @@ public class Quizz : NetworkBehaviour
 
     IEnumerator AutoLoadQuestions()
     {
-        yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
+        yield return new WaitUntil(() => LoadScene.Instance.isAllPlayerReady);
+        WaitForSeconds wait = new WaitForSeconds(1);
+        yield return wait; // Wait 1 second before starting the first countdown
+        ResetGameObjectAnswer();
         while (true)
         {
-            yield return new WaitForSeconds(4f); // Wait 15 seconds before loading a new question
-            LoadRandomQuestion();
+            //Random question
+            
+            Question randomQuestion;
+
+            numQ = UnityEngine.Random.Range(0, questions.Count);
+            randomQuestion = questions[numQ];
+
+            questionText.text = randomQuestion.text;
+            AnswerPanel.instance.txtAnswer1.text = randomQuestion.answers[0];
+            AnswerPanel.instance.txtAnswer2.text = randomQuestion.answers[1];
+            AnswerPanel.instance.txtAnswer3.text = randomQuestion.answers[2];
+            AnswerPanel.instance.txtAnswer4.text = randomQuestion.answers[3];
+
+            yield return StartCoroutine(WaitAndDisplayCorrectAnswer(randomQuestion));
+            if (topPlayer != 1) break;
+            yield return wait;
             ResetGameObjectAnswer();
         }
-    }
-
-    // void Update()
-    // {
-
-    // }
-
-    // [MenuItem("Tools/Write file")]
-    // static void WriteString()
-    // {
-    //     string path = "Assets/QuocElements/Resources/test.txt";
-    //     //Write some text to the test.txt file
-    //     StreamWriter writer = new StreamWriter(path, true);
-    //     writer.WriteLine("1,câu hỏi 1,a,b,c,d,1");
-    //     writer.WriteLine("2,câu hỏi 2,a,b,c,d,2");
-    //     writer.WriteLine("3,câu hỏi 3,a,b,c,d,3");
-    //     writer.Close();
-    //     //Re-import the file to update the reference in the editor
-    //     AssetDatabase.ImportAsset(path);
-    //     TextAsset asset = (TextAsset)Resources.Load("test");
-    //     //Print the text from the file
-    //     Debug.Log(asset.text);
-    // }
-
-    // [MenuItem("Tools/Read file")]
-    public void ReadString()
-    {
-        // string path = "Assets/QuocElements/Resources/test.txt";
-        LoadQuestionsFromFile(textFile);
-        LoadRandomQuestion();
     }
 
     public void TeleportPlayer(Player player, int value)
@@ -136,37 +112,23 @@ public class Quizz : NetworkBehaviour
         }
     }
 
-    private void LoadRandomQuestion(int q = 0)
-    {
-        //Random question
-        if (questions.Count == 0)
-        {
-            Debug.LogError("No questions loaded from file.");
-            return;
-        }
-        Question randomQuestion;
-        if (q == 0)
-        {
-            if (IsServer) { numQ.Value = Random.Range(0, questions.Count); }
-            randomQuestion = questions[numQ.Value];
-        }
-        else
-        {
-            randomQuestion = questions[q];
-        }
-
-        questionText.text = randomQuestion.text;
-        AnswerPanel.instance.txtAnswer1.text = randomQuestion.answers[0];
-        AnswerPanel.instance.txtAnswer2.text = randomQuestion.answers[1];
-        AnswerPanel.instance.txtAnswer3.text = randomQuestion.answers[2];
-        AnswerPanel.instance.txtAnswer4.text = randomQuestion.answers[3];
-
-        StartCoroutine(WaitAndDisplayCorrectAnswer(randomQuestion));
-    }
-
     private IEnumerator WaitAndDisplayCorrectAnswer(Question randomQuestion)
     {
-        yield return new WaitUntil(() => AnswerPanel.instance.isPlayerClick);
+        float timer = 0;
+        int timeRemain = 0;
+        WaitForSeconds wait = new WaitForSeconds(1);
+        while(timer<5)
+        {
+            yield return null;
+            if (AnswerPanel.instance.isPlayerClick) break;
+            timeRemain = 5 - Mathf.FloorToInt(timer);
+            timer+= Time.deltaTime;
+            txtTimer.text = ""+ timeRemain;
+            imgTimer.fillAmount = timer / 5;
+            //Debug.Log("timer: " + Mathf.FloorToInt(timer));
+        }
+        bool isPlayerClickOrTimeout = AnswerPanel.instance.isPlayerClick || timer >= 5;
+        yield return new WaitUntil(() => isPlayerClickOrTimeout);
         AnswerPanel.instance.isPlayerClick = false;
         // Call ChooseCorrectAnswer to display correct answer
         ChooseCorrectAnswer(randomQuestion);
@@ -176,11 +138,10 @@ public class Quizz : NetworkBehaviour
     {
         ShowAnswer(answerObjects[randomQuestion.correctAnswer - 1]);
 
-        if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer == null)
+        if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer.IsNullOrEmpty())
         {
             TakeDamage_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
         };
-        lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
     }
 
     private void ResetGameObjectAnswer()
@@ -190,6 +151,7 @@ public class Quizz : NetworkBehaviour
             answerObjects[i].gameObject.SetActive(true);
             answerObjects[i].GetComponent<Button>().interactable = true;
         }
+        AnswerPanel.instance.player.answer = "";
     }
 
     public void ShowAnswer(GameObject answer)
@@ -224,9 +186,10 @@ public class Quizz : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
-
+        player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
+            LifeRemainPanel.instance.UpdateHealth();
             Debug.Log("Myplayer: " + NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health);
             if (player.GetComponent<PlayerHeath>().health == 0)
             {

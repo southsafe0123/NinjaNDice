@@ -66,11 +66,16 @@ public class ItemTargetPanel : MonoBehaviour
     }
     public void OnClickExitTarget()
     {
+        Player playerInTurn = camToPlayer.playerInTurn;
         camToPlayer.playerToFollow = camToPlayer.playerInTurn;
-    }
-    private void OnDisable()
-    {
-       
+        playerInTurn.GetComponent<SpriteRenderer>().sortingOrder = 2;
+        foreach (Player playerr in players)
+        {
+            if (playerr != playerInTurn)
+            {
+                playerr.GetComponent<SpriteRenderer>().sortingOrder = 1;
+            }
+        }
     }
     public void SetAlphaView(int alpha)
     {

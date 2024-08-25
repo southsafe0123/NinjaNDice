@@ -17,9 +17,9 @@ public class LobbyGameManager : NetworkBehaviour
 {
     public static LobbyGameManager Instance;
     //this is server data (because clientID is Online and only server have)
-    public Dictionary<ulong, GameObject> sv_dicPlayer = new Dictionary<ulong, GameObject>();
+    public Dictionary<ulong, PlayerLobby> sv_dicPlayer = new Dictionary<ulong, PlayerLobby>();
     //this is all userdata (because it offline)
-    public List<GameObject> playerSlots = new List<GameObject>();
+    public List<PlayerLobby> playerSlots = new List<PlayerLobby>();
     public Button disconnectButton;
     public GameObject startGameButton;
     //use to set playerOrder that login into this server
@@ -33,15 +33,7 @@ public class LobbyGameManager : NetworkBehaviour
 
     private void Start()
     {
-        playerSlots[0].SetActive(true);
-        if(UserSessionManager.Instance._id.IsNullOrEmpty())
-        {
-            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(0).skinAvatar;
-        }
-        else
-        {
-            playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinAvatar;
-        }
+        playerSlots[0].gameObject.SetActive(true);
          
         RegisterDisconnectButton();
         NetworkManager.Singleton.OnClientConnectedCallback += OnConnectedClient;
@@ -111,36 +103,29 @@ public class LobbyGameManager : NetworkBehaviour
     private IEnumerator WaitUntilHaveData()
     {
         yield return new WaitForSeconds(0.15f);
-        Debug.Log("Cllear=>?>>>>>>");
         playerListTest.Clear();
-        foreach (var item in playerSlots)
+        foreach (var playerSlot in playerSlots)
         {
-            item.SetActive(false);
+            playerSlot.gameObject.SetActive(false);
         }
         yield return new WaitForSeconds(0.15f);
-        Debug.Log("Add=>?>>>>>>");
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
-            Debug.Log("=>>>>>P: " + player.ownerClientID.Value);
             playerListTest.Add(player);
         }
         yield return new WaitForSeconds(0.15f);
-        Debug.Log("Done=>?>>>>>>");
         for (int i = 0; i < playerListTest.Count; i++)
         {
             yield return new WaitUntil(() => !playerListTest[i].GetComponent<PlayerData>().playerSkin.Value.ToString().IsNullOrEmpty());
-            playerSlots[i].SetActive(true);
-            var playerSkinSlot = playerListTest[i].GetComponent<PlayerData>().playerSkin.Value.ToString();
-            Debug.Log("AvatarSlot: "+playerSkinSlot);
-            var playerSprite = SkinPool.instance.GetSkin(int.Parse(playerSkinSlot)).skinAvatar;
-            playerSlots[i].transform.Find("Image").GetComponent<Image>().sprite = playerSprite;
+            playerSlots[i].player = playerListTest[i];
+            playerSlots[i].gameObject.SetActive(true);
         }
     }
 
     private void LoadPlayer(ulong clientID)
     {
         //PlayerList.Instance.UpdatePlayerList();
-        GameObject emptyPlayerSlot = GetEmptyPlayerSlot();
+        PlayerLobby emptyPlayerSlot = GetEmptyPlayerSlot();
         if (!emptyPlayerSlot)
         {
             NetworkManager.Singleton.DisconnectClient(clientID);
@@ -171,14 +156,14 @@ public class LobbyGameManager : NetworkBehaviour
     [ClientRpc] 
     public void SetActiveInClient_ClientRPC(int slotIndex, bool isActive, ulong clientID)
     {
-        playerSlots[slotIndex].SetActive(isActive);
+        playerSlots[slotIndex].gameObject.SetActive(isActive);
     }
 
-    private GameObject GetEmptyPlayerSlot()
+    private PlayerLobby GetEmptyPlayerSlot()
     {
         foreach (var playerSlot in playerSlots)
         {
-            if (!playerSlot.activeSelf) return playerSlot;
+            if (!playerSlot.gameObject.activeSelf) return playerSlot;
         }
 
         return null;
@@ -194,7 +179,7 @@ public class LobbyGameManager : NetworkBehaviour
     private void UnloadPlayer(ulong clientID)
     {
         if (!sv_dicPlayer.ContainsKey(clientID)) return;
-        sv_dicPlayer[clientID]?.SetActive(false);
+        sv_dicPlayer[clientID]?.gameObject.SetActive(false);
 
         foreach (var player in sv_dicPlayer)
         {
@@ -224,7 +209,7 @@ public class LobbyGameManager : NetworkBehaviour
 
     private IEnumerator WaitAllPlayerLeft()
     {
-        yield return new WaitUntil(() => playerSlots.Where(player => player.activeInHierarchy).Count() == 1);
+        yield return new WaitUntil(() => playerSlots.Where(player => player.gameObject.activeInHierarchy).Count() == 1);
         Disconnect();
     }
 

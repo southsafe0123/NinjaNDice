@@ -1,4 +1,5 @@
 ﻿using System;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,13 +15,15 @@ public class Player : NetworkBehaviour
     public NetworkVariable<bool> isPlayerFrozen = new NetworkVariable<bool>();
     public NetworkVariable<bool> isPlayerDeffend = new NetworkVariable<bool>();
 
+    public GameObject uiPopupCurrentHeath;
+    public TextMeshProUGUI txtCurrentHeath;
+
     public string answer;
     public int life = 3;
     public bool isDie = false;
     private void Start()
     {
         transform.position = new Vector3(100, 100, 0);
-        // DontDestroyOnLoad(gameObject);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -32,60 +35,24 @@ public class Player : NetworkBehaviour
     {
         this.isPlayerTurn.Value = isPlayerTurn;
     }
-    void Update()
-    {
-        if (IsLocalPlayer)
-        {
-            //transform.Translate(Input.GetAxis("Horizontal") * Time.deltaTime * 5, Input.GetAxis("Vertical") * Time.deltaTime * 5, 0);
 
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+    public void DisplayCurrentHealth()
+    {
+        var playerHeath = GetComponent<PlayerHeath>();
+        uiPopupCurrentHeath.SetActive(true);
+        if (playerHeath != null)
+        {
+            txtCurrentHeath.text = "X" + GetComponent<PlayerHeath>().health;
+            if (playerHeath.isDead)
             {
-                answer = "1";
+                GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
             }
-            if (Input.GetKeyDown(KeyCode.Alpha2))
+            else
             {
-                answer = "2";
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha3))
-            {
-                answer = "3";
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha4))
-            {
-                answer = "4";
+                GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1);
             }
         }
 
 
-
-    }
-
-    public void OnTriggerEnter2D(Collider2D col)
-    {
-        // // Debug.Log(col.name);
-        // if (col.gameObject.tag == "Answer")
-        // {
-        //     answerGameObject = col.gameObject;
-        // }
-    }
-
-    public void WrongAnswer()
-    {
-        // gameObject.transform.position = new Vector3(-8f, -1.6f, 0);
-
-        // if (IsServer)
-        // {
-        life--;
-        if (life <= 0)
-        {
-            Debug.Log("Game Over");
-            isDie = true;
-            // if (IsServer)
-            // {
-            //     NetworkObject.NetworkHide(NetworkObjectId);
-            // }
-            // gameObject.SetActive(false);
-        }
-        // }
     }
 }

@@ -65,7 +65,17 @@ public class ApiHandle : MonoBehaviour
 
 
         StartCoroutineWithTimeout(CheckUrlConnection());
+        StartCoroutine(FirstLoadSkin());
+        
     }
+
+    private IEnumerator FirstLoadSkin()
+    {
+        yield return StartCoroutine(getAllSkins());
+        yield return new WaitForSeconds(0.1f);
+        GetAllSkin();
+    }
+
     public void StartCoroutineWithTimeout(IEnumerator coroutine)
     {
         Coroutine coroutineToStop = StartCoroutine(coroutine);
@@ -138,7 +148,7 @@ public class ApiHandle : MonoBehaviour
         catch (Exception)
         {
 
-        }
+        } 
 
     }
 
@@ -1126,8 +1136,6 @@ public class ApiHandle : MonoBehaviour
 
     public IEnumerator getAllSkins()
     {
-        for (int i = 0; i < 2; i++)
-        {
             UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skins");
             yield return www.SendWebRequest();
 
@@ -1149,11 +1157,8 @@ public class ApiHandle : MonoBehaviour
                 Debug.Log(www.downloadHandler.text);
                 skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
                 Debug.Log(skins.Count);
-                UpdateSkinsHandle.instance.LoadPrefab();
-                break;
+                UpdateSkinsHandle.instance.LoadPrefab(skins);
             }
-
-        }
 
     }
 

@@ -273,9 +273,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1940382946}
-        m_TargetAssemblyTypeName: UpdateSkinsHandle, Assembly-CSharp
-        m_MethodName: LoadPrefab
+      - m_Target: {fileID: 1940382945}
+        m_TargetAssemblyTypeName: ShopPanel, Assembly-CSharp
+        m_MethodName: UpdateInfoSkin
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -285,9 +285,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 1940382945}
-        m_TargetAssemblyTypeName: ShopPanel, Assembly-CSharp
-        m_MethodName: UpdateInfoSkin
+      - m_Target: {fileID: 1940382946}
+        m_TargetAssemblyTypeName: UpdateSkinsHandle, Assembly-CSharp
+        m_MethodName: LoadRemoteAsset
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17053,7 +17053,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_AnchorMin.x
@@ -17061,15 +17061,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 208.9923
+      value: 194.5
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 218.6805
+      value: 219
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17101,11 +17101,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 188.68933
+      value: 869.8898
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -212.11426
+      value: -109.5
       objectReference: {fileID: 0}
     - target: {fileID: 8290837315187581980, guid: 2a7b0eff620be4a4faf144b5099dd192, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -28975,7 +28975,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0

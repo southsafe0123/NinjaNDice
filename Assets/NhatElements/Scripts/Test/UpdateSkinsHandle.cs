@@ -28,7 +28,7 @@ public class UpdateSkinsHandle : MonoBehaviour
 
     private void Start()
     {
-        ApiHandle.Instance.GetAllSkin();
+
     }
 
     // get name all folder in path
@@ -95,19 +95,16 @@ public class UpdateSkinsHandle : MonoBehaviour
     public void LoadRemoteAsset()
     {
         //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab
-        LoadPrefab();
+        LoadPrefab(ApiHandle.Instance.skins);
 
     }
     [ContextMenu("test")]
-    public void LoadPrefab()
+    public void LoadPrefab(List<skin> skins) 
     {
         foreach (Transform child in content)
         {
             Destroy(child.gameObject);
         }
-
-        List<skin> skins = new List<skin>();
-        skins = ApiHandle.Instance.skins;
         foreach (skin s in skins)
         {
             //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab

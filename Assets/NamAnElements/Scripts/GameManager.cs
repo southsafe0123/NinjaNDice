@@ -191,7 +191,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = UnityEngine.Random.Range(0, 4);
+        var randomvalue = 1;
         switch (randomvalue)
         {
             case 0:
@@ -232,14 +232,7 @@ public class GameManager : NetworkBehaviour
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
         Debug.Log(player.ownerClientID.Value + "turn =" + isPlayerTurn);
         player.isPlayerTurn.Value = isPlayerTurn;
-        player.GetComponent<SpriteRenderer>().sortingOrder = 2;
-        foreach (Player playerr in PlayerList.Instance.playerDic.Values)
-        {
-            if (playerr != player)
-            {
-                playerr.GetComponent<SpriteRenderer>().sortingOrder = 1;
-            }
-        }
+        SetPlayerTurnVisual_ClientRPC(clientID);
         // Check player frozen
 
         if (player.isPlayerFrozen.Value && player.isPlayerTurn.Value)
@@ -251,6 +244,20 @@ public class GameManager : NetworkBehaviour
             NextPlayerTurn_ServerRPC();
         }
     }
+    [ClientRpc]
+    private void SetPlayerTurnVisual_ClientRPC(ulong playerID)
+    {
+        var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        player.GetComponent<SpriteRenderer>().sortingOrder = 2;
+        foreach (Player playerr in PlayerList.Instance.playerDic.Values)
+        {
+            if (playerr != player)
+            {
+                playerr.GetComponent<SpriteRenderer>().sortingOrder = 1;
+            }
+        }
+    }
+
     [ClientRpc]
     private void UnfreezeThisPlayerAnim_ClientRPC()
     {

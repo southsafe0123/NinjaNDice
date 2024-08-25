@@ -18,7 +18,7 @@ public class PlayerData : NetworkBehaviour
     private void Start()
     {
         string myPlayerName = UserSessionManager.Instance.username.IsNullOrEmpty() ? PrefsData.GetData(PrefsData.PLAYER_INGAME_NAME_NOLOGIN) : ApiHandle.Instance.user.nameingame.ToString();
-        string myPlayerSkin = ApiHandle.Instance.user.avatar.IsNullOrEmpty()? 0.ToString(): ApiHandle.Instance.user.avatar;
+        string myPlayerSkin = UserSessionManager.Instance._id.IsNullOrEmpty()? 0.ToString(): ApiHandle.Instance.user.avatar;
         
         SetPlayerPlayerData_ServerRPC(myPlayerName, myPlayerSkin,NetworkManager.LocalClientId);
         
