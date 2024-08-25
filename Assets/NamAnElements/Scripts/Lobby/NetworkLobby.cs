@@ -38,7 +38,11 @@ public class NetworkLobby : MonoBehaviour
         {
             Debug.Log("signed in: " + AuthenticationService.Instance.PlayerId);
         };
-
+        AuthenticationService.Instance.Expired += () =>
+        {
+            AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
+            DisplayeJoinButton(false);
+        };
     }
 
     [Command]
@@ -70,19 +74,20 @@ public class NetworkLobby : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
             CreateJoinCode(joinCode);
-            DisableJoinButton();
+            DisplayeJoinButton(false);
         }
         catch (RelayServiceException ex)
         {
             Debug.LogError("shit error in create relaynetwork" + ex);
+            AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
         }
 
 
     }
 
-    private static void DisableJoinButton()
+    private static void DisplayeJoinButton(bool isDisplay)
     {
-        joinButton.interactable = false;
+        joinButton.interactable = isDisplay;
     }
 
     static void CreateJoinCode(string joinCode)
@@ -119,11 +124,13 @@ public class NetworkLobby : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartClient();
-
+            DisplayeJoinButton(false);
         }
         catch (RelayServiceException ex)
         {
             Debug.LogError("shit error in join relaynetwork" + ex);
+            AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
+            DisplayeJoinButton(true);
         }
     }
 }

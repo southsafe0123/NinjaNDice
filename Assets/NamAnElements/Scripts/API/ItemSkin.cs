@@ -45,8 +45,7 @@ public class ItemSkin : MonoBehaviour
     public void CheckDisplay()
     {
 
-        if (ApiHandle.Instance == null) return;
-        if (ApiHandle.Instance.user == null || ApiHandle.Instance.user.avatar.IsNullOrEmpty())
+        if (UserSessionManager.Instance._id.IsNullOrEmpty())
         {
             if(skinId == "Default")
             {

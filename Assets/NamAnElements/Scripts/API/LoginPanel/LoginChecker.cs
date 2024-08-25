@@ -1,19 +1,34 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using WebSocketSharp;
 
 public class LoginChecker : MonoBehaviour
 {
-    private GameObject loginPanel;
+    public static LoginChecker instance;
+    public List<GameObject> objectCheckLogins = new List<GameObject>();
+    private void OnEnable()
+    {
+        CheckLogin();
+    }
+    private void Awake()
+    {
+        instance = this;
+    }
+
     public void CheckLogin()
     {
-        loginPanel = FindObjectOfType<LoginPanel>(true).gameObject;
-        if (UserSessionManager.Instance._id.IsNullOrEmpty())
+        foreach (var obj in objectCheckLogins)
         {
-            loginPanel.SetActive(true);
-
+            if (UserSessionManager.Instance._id.IsNullOrEmpty())
+            {
+                obj.SetActive(false);
+            }
+            else
+            {
+                obj.SetActive(true);
+            }
         }
-
     }
 }

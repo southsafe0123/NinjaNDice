@@ -65,8 +65,6 @@ public class ApiHandle : MonoBehaviour
 
 
         StartCoroutineWithTimeout(CheckUrlConnection());
-
-        GetAllSkin();
     }
     public void StartCoroutineWithTimeout(IEnumerator coroutine)
     {
@@ -543,7 +541,7 @@ public class ApiHandle : MonoBehaviour
                     if (SettingPanel.instance != null) SettingPanel.instance.SetAvatar();
                     PlayerSkin.instance.UpdateSkin();
                 }
-
+                LoginChecker.instance.CheckLogin();
                 AnouncementManager.instance.DisplayAnouncement("Welcome back, " + usernameLogin);
                 break;
             }
@@ -1152,7 +1150,6 @@ public class ApiHandle : MonoBehaviour
                 skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
                 Debug.Log(skins.Count);
                 UpdateSkinsHandle.instance.LoadPrefab();
-
                 break;
             }
 

@@ -12,12 +12,4 @@ public class RequestFriendPanel : MonoBehaviour
         UI_Controller.Instance.requestPrefab = requestPrefab;
         StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
     }
-    private void OnDisable()
-    {
-        StopAllCoroutines();
-        if (requestContent.transform.childCount == 0)
-        {
-            requestButton.gameObject.SetActive(false);
-        }
-    }
 }

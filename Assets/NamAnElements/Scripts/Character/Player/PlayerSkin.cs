@@ -16,8 +16,7 @@ public class PlayerSkin : MonoBehaviour
     }
     public void UpdateSkin()
     {
-        if (ApiHandle.Instance == null) return;
-        if (ApiHandle.Instance.user == null || ApiHandle.Instance.user.avatar.IsNullOrEmpty())
+        if (UserSessionManager.Instance._id.IsNullOrEmpty())
         {
             spriteRenderer.sprite = SkinPool.instance.GetSkin(0).skinData;
         }
