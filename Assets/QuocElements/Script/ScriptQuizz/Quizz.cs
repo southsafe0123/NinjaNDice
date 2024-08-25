@@ -14,6 +14,7 @@ public class Quizz : NetworkBehaviour
 {
     public TMP_Text questionText;
     public TMP_Text answerTexts;
+    public TextAsset textFile;
     public NetworkVariable<int> numQ = new NetworkVariable<int>();
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
 
@@ -29,7 +30,7 @@ public class Quizz : NetworkBehaviour
     public TMP_Text lifeText;
     // private float timeRemaining = 5f;
     // private bool timerIsRunning = false;
-
+    int topPlayer = 1;
     private void Awake()
     {
         if (!IsHost) return;
@@ -65,7 +66,7 @@ public class Quizz : NetworkBehaviour
             }
         }
         lifeText.text = "Life: " + player.GetComponent<PlayerHeath>().health.ToString();
-        LoadQuestionsFromFile("Assets/QuocElements/Resources/test.txt");
+        LoadQuestionsFromFile(textFile);
         StartCoroutine(AutoLoadQuestions());
     }
 
@@ -74,7 +75,7 @@ public class Quizz : NetworkBehaviour
         yield return new WaitForSeconds(1f); // Wait 1 second before starting the first countdown
         while (true)
         {
-            yield return new WaitForSeconds(3f); // Wait 15 seconds before loading a new question
+            yield return new WaitForSeconds(4f); // Wait 15 seconds before loading a new question
             LoadRandomQuestion();
             ResetGameObjectAnswer();
         }
@@ -105,8 +106,8 @@ public class Quizz : NetworkBehaviour
     // [MenuItem("Tools/Read file")]
     public void ReadString()
     {
-        string path = "Assets/QuocElements/Resources/test.txt";
-        LoadQuestionsFromFile(path);
+        // string path = "Assets/QuocElements/Resources/test.txt";
+        LoadQuestionsFromFile(textFile);
         LoadRandomQuestion();
     }
 
@@ -115,10 +116,10 @@ public class Quizz : NetworkBehaviour
         player.transform.position = standPos[value].transform.position;
     }
 
-    private void LoadQuestionsFromFile(string path)
+    private void LoadQuestionsFromFile(TextAsset file)
     {
         questions.Clear();
-        string[] lines = File.ReadAllLines(path);
+        string[] lines = file.text.Split('\n');
         foreach (string line in lines)
         {
             string[] parts = line.Split(',');
@@ -214,6 +215,7 @@ public class Quizz : NetworkBehaviour
             if (playerList[i].ownerClientID.Value == clientID)
             {
                 TakeDamage_ClientRPC(clientID);
+                break;
             }
         }
     }
@@ -252,13 +254,15 @@ public class Quizz : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
+            topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, topPlayer);
+            topPlayer++;
             yield return wait1f;
         }
 
@@ -286,10 +290,10 @@ public class Quizz : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID)
+    private void EndGameAnouncement_ClientRPC(ulong playerID, int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
     }
     [ClientRpc]
     private void RemovedComponent_ClientRPC()

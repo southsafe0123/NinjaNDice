@@ -32,7 +32,7 @@ public class RequestItem : MonoBehaviour
             return;
         }
         //send request to server
-        StartCoroutine(ApiHandle.Instance.AcceptFriend(rq));
+        ApiHandle.Instance.StartCoroutineWithTimeout(ApiHandle.Instance.AcceptFriend(rq));
     }
 
     public void Decline()
@@ -43,6 +43,6 @@ public class RequestItem : MonoBehaviour
             return;
         }
         //send request to server
-        StartCoroutine(ApiHandle.Instance.DeclineFriend(rq));
+        ApiHandle.Instance.StartCoroutineWithTimeout(ApiHandle.Instance.DeclineFriend(rq));
     }
 }

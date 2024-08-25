@@ -32856,7 +32856,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Repassword
+  m_text: RePassword
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}
   m_sharedMaterial: {fileID: -5361591186681043168, guid: ec8a6e2661e4fdd418901f1d66005aac, type: 2}

@@ -22,6 +22,8 @@ public class GameLuckyController : NetworkBehaviour
     //This is online to Lock not selectPlayer to Click button
     public bool isAllowThisPlayerClick;
 
+    int topPlayer = 1;
+
     // Start is called before the first frame update
     public IEnumerator Start()
     {
@@ -246,13 +248,15 @@ public class GameLuckyController : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
+            topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, topPlayer);
+            topPlayer++;
             yield return wait1f;
         }
 
@@ -282,10 +286,10 @@ public class GameLuckyController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID)
+    private void EndGameAnouncement_ClientRPC(ulong playerID,int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID));
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
     }
     [ClientRpc]
     private void RemovedComponent_ClientRPC()

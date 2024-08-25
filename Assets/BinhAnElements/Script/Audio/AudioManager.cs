@@ -34,11 +34,10 @@ public class AudioManager : MonoBehaviour
     {
         musicSource.volume = 0.3f;
         sfxSource.volume = 0.3f;
-        if (LoadScene.Instance.enabled)
-        {
-            musicSource.clip = backgroud[Random.Range(0, backgroud.Length)];
-            musicSource.PlayOneShot(musicSource.clip);
-        }
+
+        musicSource.clip = backgroud[Random.Range(0, backgroud.Length)];
+        musicSource.PlayOneShot(musicSource.clip);
+
     }
 
     public void PlaySFXButton()
@@ -51,7 +50,7 @@ public class AudioManager : MonoBehaviour
     {
         sfxSource.PlayOneShot(success);
     }
-    
+
     public void PlaySFXClaim()
     {
         sfxSource.PlayOneShot(claim);
