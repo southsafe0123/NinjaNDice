@@ -5,13 +5,14 @@ using UnityEngine.UI;
 
 public class VolumeSetting : MonoBehaviour
 {
+    public static VolumeSetting Instance;
     [SerializeField] private Slider musicSlider;
     [SerializeField] private Slider sfxSlider;
 
 
     private void Start()
     {
-        if (PlayerPrefs.HasKey("musicVolmue") || PlayerPrefs.HasKey("sfxVolume"))
+        if (PlayerPrefs.HasKey("musicVolume") || PlayerPrefs.HasKey("sfxVolume"))
         {
             LoadVolume();
         }
