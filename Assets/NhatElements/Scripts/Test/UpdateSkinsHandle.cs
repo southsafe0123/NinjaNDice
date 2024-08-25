@@ -28,7 +28,7 @@ public class UpdateSkinsHandle : MonoBehaviour
 
     private void Start()
     {
-
+        ApiHandle.Instance.GetAllSkin();
     }
 
     // get name all folder in path

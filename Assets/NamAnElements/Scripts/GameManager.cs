@@ -43,12 +43,18 @@ public class GameManager : NetworkBehaviour
             playerList[i].gameObject.transform.position = map.movePos[playerList[i].currentPos.Value].position;
             if (playerList[i].isPlayerFrozen.Value)
             {
-                Instantiate(GameObject.Find("freeze").GetComponent<FrozenAttack>().prefabEffect, playerList[i].transform.position,Quaternion.identity);
+                CreateFrozenEffect_ClientRPC(playerList[i].ownerClientID.Value);
             }
         }
 
         SetPlayerTurn_ServerRPC(playerList[playerIndex].ownerClientID.Value,true);
         SetCamFollowPlayer_ClientRPC(playerList[playerIndex].ownerClientID.Value);
+    }
+    [ClientRpc]
+    private void CreateFrozenEffect_ClientRPC(ulong playerID)
+    {
+        Player player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        Instantiate(GameObject.Find("freeze").GetComponent<FrozenAttack>().prefabEffect, player.transform.position, Quaternion.identity);
     }
 
     private void OnDiceValueChanged(int oldValue, int newValue)
@@ -226,6 +232,14 @@ public class GameManager : NetworkBehaviour
         var player = PlayerList.Instance.GetPlayerDic_Value(clientID);
         Debug.Log(player.ownerClientID.Value + "turn ="+ isPlayerTurn);
         player.isPlayerTurn.Value = isPlayerTurn;
+        player.GetComponent<SpriteRenderer>().sortingOrder = 2;
+        foreach (Player playerr in PlayerList.Instance.playerDic.Values)
+        {
+            if (playerr != player)
+            {
+                playerr.GetComponent<SpriteRenderer>().sortingOrder = 1;
+            }
+        }
         // Check player frozen
 
         if (player.isPlayerFrozen.Value&&player.isPlayerTurn.Value)

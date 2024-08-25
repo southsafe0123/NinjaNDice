@@ -60,20 +60,6 @@ public class UI_Controller : MonoBehaviour
 
     public void UpdateRequest()
     {
-        bool isDone = false;
-        foreach (var item in ApiHandle.Instance.user.request)
-        {
-            foreach (var request in ApiHandle.Instance.wRequest)
-            {
-                if (request._id.Contains(item.from))
-                {
-                    GamePanel.Instance.request.SetActive(true);
-                    isDone = true;
-                    break;
-                }
-            }
-            if (isDone) break;
-        }
         if (requestContent == null || requestPrefab == null) return;
 
         // Clear all request
@@ -86,6 +72,7 @@ public class UI_Controller : MonoBehaviour
         {
             return;
         }
+        AnouncementManager.instance.DisplayAnouncement("You got a friend request");
         foreach (var item in ApiHandle.Instance.user.request)
         {
 
@@ -200,6 +187,7 @@ public class UI_Controller : MonoBehaviour
             }
             GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
             inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
+            AnouncementManager.instance.DisplayAnouncement("Invited from " + name);
         }
         catch (System.Exception e)
         {

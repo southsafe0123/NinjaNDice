@@ -15,19 +15,9 @@ public class GamePanel : MonoBehaviour
     {
         Instance = this;
     }
-    public Button btnPlay;
-    public GameObject request;
 
 
-
-    private void Start()
-    {
-        btnPlay.onClick.AddListener(OnClickPlay);
-    }
-
-
-
-    private void OnClickPlay()
+    public void OnClickPlay()
     {
         LoadScene.Instance.StartLoadScene("LobbyScene");
     }

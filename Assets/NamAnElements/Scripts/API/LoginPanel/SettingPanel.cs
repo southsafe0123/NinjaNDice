@@ -56,7 +56,7 @@ public class SettingPanel : MonoBehaviour
 
         if (ApiHandle.Instance == null) return;
 
-        avatarImage.sprite = ApiHandle.Instance.user.avatar.IsNullOrEmpty() ? defaultImage : SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinAvatar;
+        avatarImage.sprite = UserSessionManager.Instance._id.IsNullOrEmpty() ? defaultImage : SkinPool.instance.GetSkin(int.Parse(ApiHandle.Instance.user.avatar)).skinAvatar;
 
 
     }

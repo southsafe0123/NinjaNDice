@@ -34,8 +34,17 @@ public class ItemTargetPanel : MonoBehaviour
     }
     public void DisplayPlayerCamera()
     {
-        camToPlayer.playerToFollow = players[playerIndex];
-        txtPlayerName.text = players[playerIndex].GetComponent<PlayerData>().playerName.Value.ToString();
+        Player player = players[playerIndex];
+        camToPlayer.playerToFollow = player;
+        txtPlayerName.text = player.GetComponent<PlayerData>().playerName.Value.ToString();
+        player.GetComponent<SpriteRenderer>().sortingOrder = 2;
+        foreach (Player playerr in players)
+        {
+            if(playerr != player)
+            {
+                playerr.GetComponent<SpriteRenderer>().sortingOrder = 1;
+            }
+        }
     }
     public void OnClickExitTarget()
     {

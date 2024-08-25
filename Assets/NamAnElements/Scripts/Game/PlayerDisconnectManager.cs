@@ -92,4 +92,9 @@ public class PlayerDisconnectManager : NetworkBehaviour
 
         LoadScene.Instance.StartLoadScene("MenuScene");
     }
+
+    private void OnApplicationQuit()
+    {
+        OnClickDisconnect();
+    }
 }

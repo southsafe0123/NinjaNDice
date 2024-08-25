@@ -34,7 +34,7 @@ public class LobbyGameManager : NetworkBehaviour
     private void Start()
     {
         playerSlots[0].SetActive(true);
-        if(ApiHandle.Instance.user.avatar.IsNullOrEmpty())
+        if(UserSessionManager.Instance._id.IsNullOrEmpty())
         {
             playerSlots[0].transform.Find("Image").GetComponent<Image>().sprite = SkinPool.instance.GetSkin(0).skinAvatar;
         }
@@ -279,5 +279,10 @@ public class LobbyGameManager : NetworkBehaviour
     private void StartGame_ClientRPC()
     {
         LoadScene.Instance.StartLoadSceneMultiplayer("NamAn", IsHost);
+    }
+
+    private void OnApplicationQuit()
+    {
+        OnClickDisconnect();
     }
 }
