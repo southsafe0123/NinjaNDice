@@ -59,7 +59,6 @@ public class WS_Client : MonoBehaviour
                         StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
                     });
 
-
                 }
                 else if (e.Data == "friend")
                 {
@@ -93,6 +92,7 @@ public class WS_Client : MonoBehaviour
                                     {
                                         UI_Controller.Instance.UpdateInvite(item.username, data[2]);
                                         Debug.Log("Invite from: " + item.username + " code: " + data[2]);
+                                        AnouncementManager.instance.DisplayAnouncement("You got game invite from: "+ item.username);
                                     }
                                 }
                             }

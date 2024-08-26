@@ -1,3 +1,4 @@
+using DG.Tweening;
 using JetBrains.Annotations;
 using System;
 using System.Collections;
@@ -26,21 +27,49 @@ public class GameplayManager : NetworkBehaviour
     public List<GameObject> list3;
     public List<GameObject> list4;
     private bool canInput = true; // Biến để kiểm tra xem có thể xử lý đầu vào mới hay không
-
+    public Color colorCorrect;
+    public Color colorWrong;
+    public Color colorNormal;
     public List<Player> playerList = new List<Player>();
     public List<Player> playerLose = new List<Player>();
     public Map map;
     private float objectMoveSpeed;
     public float defaultObjectMoveSpeed;
     public float objectMoveSpeedPlus;
-    private int playerOrder = 0;
     public Slider sliderTime;
     public GameObject gameInput;
     public bool isEndGame;
-    public MiniEndGamePanel miniEndGamePanel;
     bool isAllPlayerReady = false;
+    public GameObject rockfallPref;
+    int topPlayer = 1;
 
-    int topPlayer=1;
+    private void Awake()
+    {
+        Instance = this;
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
+        StartCoroutine(WaitForPlayer());
+        objectMoveSpeed = defaultObjectMoveSpeed;
+        LoadPlayer();
+        GenerateRandomListNumber();
+        Display();
+
+    }
+
+    private void LoadPlayer()
+    {
+
+        if (!IsHost) return;
+        playerList = PlayerList.Instance.GetPlayerOrder();
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            playerList[i].gameObject.transform.position = map.movePos[i].position;
+            playerList[i].isPlayerTurn.Value = false;
+            AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
+        }
+    }
     private IEnumerator WaitForPlayer()
     {
         WaitForSeconds waithalfsecond = new WaitForSeconds(0.5f);
@@ -67,48 +96,6 @@ public class GameplayManager : NetworkBehaviour
         }
 
     }
-    private void Awake()
-    {
-        Instance = this;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        StartCoroutine(WaitForPlayer());
-        playerOrder = 0;
-        objectMoveSpeed = defaultObjectMoveSpeed;
-        LoadPlayer();
-        GenerateRandomListNumber();
-        Display();
-
-    }
-
-    private void LoadPlayer()
-    {
-
-        if (!IsHost) return;
-        playerList = PlayerList.Instance.GetPlayerOrder();
-        for (int i = 0; i < playerList.Count; i++)
-        {
-            playerList[i].gameObject.transform.position = map.movePos[i].position;
-            playerList[i].isPlayerTurn.Value = false;
-            AddComponent_ClientRPC(playerList[i].ownerClientID.Value);
-        }
-    }
-    // [ClientRpc]
-    // public void SortPlayerListByServer_ClientRPC(ulong clientID)
-    // {
-    //     if (IsHost) return;
-    //     var temp = GameObject.FindObjectsByType<Player>(sortMode: FindObjectsSortMode.None).ToList();
-    //     foreach (var item in temp)
-    //     {
-    //         if (item.ownerClientID.Value == clientID)
-    //         {
-    //             playerList.Add(item);
-    //             break;
-    //         }
-    //     }
-    // }
     [ClientRpc]
     private void AddComponent_ClientRPC(ulong clientID)
     {
@@ -203,7 +190,7 @@ public class GameplayManager : NetworkBehaviour
 
         //objectPrefabs[index].SetActive(true);
         //objectPrefabs[index].transform.Translate(Vector3.left * objectMoveSpeed * Time.deltaTime);
-
+        if (isEndGame) return;
         if (sliderTime.value == 0)
         {
             ClearDisplayLists();
@@ -254,28 +241,33 @@ public class GameplayManager : NetworkBehaviour
             if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health < 1) return;
             Debug.Log("-1 health");
             TakeDamage_ServerRPC(NetworkManager.Singleton.LocalClientId);
-
-
         }
     }
     [ServerRpc(RequireOwnership = false)]
     public void TakeDamage_ServerRPC(ulong clientID)
     {
-        for (int i = 0; i < playerList.Count; i++)
-        {
-            if (playerList[i].ownerClientID.Value == clientID)
-            {
-                TakeDamage_ClientRPC(clientID);
-            }
-        }
+        TakeDamage_ClientRPC(clientID);
     }
     [ClientRpc]
     private void TakeDamage_ClientRPC(ulong playerID)
     {
+        StartCoroutine(TakeDamage_Coroutine(playerID));
+       
+
+    }
+
+    private IEnumerator TakeDamage_Coroutine(ulong playerID)
+    {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
+        var objSpawnPos = new Vector2(player.transform.position.x, player.transform.position.y + 1.2f);
+        GameObject obj = Instantiate(rockfallPref, objSpawnPos, Quaternion.identity);
+        
+        yield return new WaitUntil(() => obj.IsDestroyed());
+        player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
+            LifeRemainPanel.instance.UpdateHealth();
             if (player.GetComponent<PlayerHeath>().health == 0)
             {
                 player.GetComponent<PlayerHeath>().isDead = true;
@@ -283,8 +275,8 @@ public class GameplayManager : NetworkBehaviour
                 CallThisPlayerIsDead_ServerRPC(playerID);
             }
         }
-
     }
+
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
@@ -304,7 +296,7 @@ public class GameplayManager : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value,topPlayer);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
             topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
@@ -351,7 +343,7 @@ public class GameplayManager : NetworkBehaviour
     private void EndGameAnouncement_ClientRPC(ulong playerID, int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
-        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID),topPlayer);
+        MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
     }
 
 
@@ -361,6 +353,10 @@ public class GameplayManager : NetworkBehaviour
     {
         if (listUserInput.Count == 0)
         {
+            list1[listNumber[0]].GetComponent<SpriteRenderer>().color = colorNormal;
+            list2[listNumber[1]].GetComponent<SpriteRenderer>().color = colorNormal;
+            list3[listNumber[2]].GetComponent<SpriteRenderer>().color = colorNormal;
+            list4[listNumber[3]].GetComponent<SpriteRenderer>().color = colorNormal;
             list1[listNumber[0]].SetActive(true);
             list2[listNumber[1]].SetActive(true);
             list3[listNumber[2]].SetActive(true);
@@ -384,16 +380,34 @@ public class GameplayManager : NetworkBehaviour
                 switch (i)
                 {
                     case 0:
-                        list1[randomValue + 4].SetActive(true);
+                        list1[randomValue].GetComponent<SpriteRenderer>().color = colorCorrect;
                         break;
                     case 1:
-                        list2[randomValue + 4].SetActive(true);
+                        list2[randomValue].GetComponent<SpriteRenderer>().color = colorCorrect;
                         break;
                     case 2:
-                        list3[randomValue + 4].SetActive(true);
+                        list3[randomValue].GetComponent<SpriteRenderer>().color = colorCorrect;
                         break;
                     case 3:
-                        list4[randomValue + 4].SetActive(true);
+                        list4[randomValue].GetComponent<SpriteRenderer>().color = colorCorrect;
+                        break;
+                }
+            }
+            else
+            {
+                switch (i)
+                {
+                    case 0:
+                        list1[randomValue].GetComponent<SpriteRenderer>().color = colorWrong;
+                        break;
+                    case 1:
+                        list2[randomValue].GetComponent<SpriteRenderer>().color = colorWrong;
+                        break;
+                    case 2:
+                        list3[randomValue].GetComponent<SpriteRenderer>().color = colorWrong;
+                        break;
+                    case 3:
+                        list4[randomValue].GetComponent<SpriteRenderer>().color = colorWrong;
                         break;
                 }
             }

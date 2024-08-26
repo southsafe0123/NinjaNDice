@@ -66,7 +66,7 @@ public class ApiHandle : MonoBehaviour
 
         StartCoroutineWithTimeout(CheckUrlConnection());
         StartCoroutine(FirstLoadSkin());
-        
+
     }
 
     private IEnumerator FirstLoadSkin()
@@ -148,7 +148,7 @@ public class ApiHandle : MonoBehaviour
         catch (Exception)
         {
 
-        } 
+        }
 
     }
 
@@ -570,6 +570,11 @@ public class ApiHandle : MonoBehaviour
     }
     public IEnumerator GetAllRequestname(List<request> requests)
     {
+        if (!FindObjectOfType<RequestFriendPanel>(true).gameObject.activeSelf)
+        {
+            AnouncementManager.instance.DisplayAnouncement("You got a friend request");
+        };
+
         foreach (var item in requests)
         {
             if (item.status == "pending" && item.to == UserSessionManager.Instance._id)
@@ -838,7 +843,7 @@ public class ApiHandle : MonoBehaviour
         //     "_id": "66a74cde0d7be3e4c13b1d75",
         //     "dateRequested": "2024-07-29T08:03:42.207Z"
         // } body la reques do
-
+        LoadingPanel.Instance.SetDisplayLoading(true);
         string json = JsonUtility.ToJson(request);
         Debug.Log(json);
 
@@ -880,9 +885,10 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.Log("Accept request success");
                 AnouncementManager.instance.DisplayAnouncement("Accept request success");
+                uiController.UpdateRequest();
             }
-
         }
+        LoadingPanel.Instance.SetDisplayLoading(false);
         uiController.UpdateRequest();
         isCoroutineDone = true;
     }
@@ -899,6 +905,7 @@ public class ApiHandle : MonoBehaviour
         //     "dateRequested": "2024-07-29T08:03:42.207Z"
         // } body la reques do
 
+        LoadingPanel.Instance.SetDisplayLoading(true);
         string json = JsonUtility.ToJson(request);
         Debug.Log(json);
 
@@ -940,9 +947,11 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.Log("Decline request success");
                 AnouncementManager.instance.DisplayAnouncement("Decline request success");
+                uiController.UpdateRequest();
             }
 
         }
+        LoadingPanel.Instance.SetDisplayLoading(false);
         uiController.UpdateRequest();
         isCoroutineDone = true;
     }
@@ -1104,6 +1113,7 @@ public class ApiHandle : MonoBehaviour
     // get name user, enpoint /name/:id > {_id,username}
     public IEnumerator getName(string id)
     {
+        LoadingPanel.Instance.SetDisplayLoading(true);
         UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/name/" + id);
         yield return www.SendWebRequest();
 
@@ -1129,6 +1139,7 @@ public class ApiHandle : MonoBehaviour
             wRequest1.Add(who);
             wRequest = wRequest1;
         }
+        LoadingPanel.Instance.SetDisplayLoading(false);
         uiController.UpdateRequest();
     }
 
@@ -1136,29 +1147,29 @@ public class ApiHandle : MonoBehaviour
 
     public IEnumerator getAllSkins()
     {
-            UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skins");
-            yield return www.SendWebRequest();
+        UnityWebRequest www = UnityWebRequest.Get(_apiUrl + "/skins");
+        yield return www.SendWebRequest();
 
-            if (www.isNetworkError || www.isHttpError)
+        if (www.isNetworkError || www.isHttpError)
+        {
+            if (www.downloadHandler != null)
             {
-                if (www.downloadHandler != null)
-                {
-                    ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-                    if (message != null) { message.text = errorRp.message; }
-                    else { Debug.Log(errorRp.message); }
-                }
-                else
-                {
-                    Debug.LogError("Download handler is null");
-                }
+                ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
+                if (message != null) { message.text = errorRp.message; }
+                else { Debug.Log(errorRp.message); }
             }
             else
             {
-                Debug.Log(www.downloadHandler.text);
-                skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
-                Debug.Log(skins.Count);
-                UpdateSkinsHandle.instance.LoadPrefab(skins);
+                Debug.LogError("Download handler is null");
             }
+        }
+        else
+        {
+            Debug.Log(www.downloadHandler.text);
+            skins = JsonConvert.DeserializeObject<List<skin>>(www.downloadHandler.text);
+            Debug.Log(skins.Count);
+            UpdateSkinsHandle.instance.LoadPrefab(skins);
+        }
 
     }
 

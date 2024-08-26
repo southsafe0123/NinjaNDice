@@ -7,11 +7,13 @@ using Unity.Netcode;
 using System.Linq;
 using Unity.VisualScripting;
 using DG.Tweening;
+using Unity.Services.Lobbies.Models;
 
 public class GameLuckyController : NetworkBehaviour
 {
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
     public List<Button> buttonsList;
+    public List<SmokeEffect> statueShotList;
     public Map standPos;
     public Transform selectedPos;
     // public TextMeshProUGUI message;
@@ -46,7 +48,7 @@ public class GameLuckyController : NetworkBehaviour
 
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
-            player.AddComponent<PlayerHeath>().health = 1;
+            player.AddComponent<PlayerHeath>().health = 2;
         }
 
     }
@@ -158,20 +160,27 @@ public class GameLuckyController : NetworkBehaviour
     private IEnumerator SendButtonPlayerClick_Coroutine(string buttonName)
     {
         SendButtonPlayerClick_ClientRPC(buttonName);
-        yield return new WaitForSeconds(1);
+
+        yield return new WaitForSeconds(1f);
 
         //check if for button clicked
         if (buttonName == selectedButton.name)
         {
             //Player bị sát thương ở đoạn này
-            TakeDamage_ServerRPC(selectedPlayer.GetComponent<Player>().ownerClientID.Value);
+            TakeDamage_ServerRPC(selectedPlayer.GetComponent<Player>().ownerClientID.Value, buttonName);
+            yield return null;
+            foreach (var item in statueShotList)
+            {
+                if (item.gameObject.activeSelf)
+                {
+                    yield return new WaitUntil(() => !item.gameObject.activeSelf);
+                    break;
+                }
+            }
             //random lại button
             RandomButton();
             //bật tất cả các button click
-            foreach (Button button in buttonsList)
-            {
-                button.interactable = true;
-            }
+            ResetButton_ClientRPC();
         }
 
         ShowMessage(selectedPlayer.GetComponent<PlayerData>().playerName.Value + " clicked button: " + buttonName);
@@ -179,6 +188,14 @@ public class GameLuckyController : NetworkBehaviour
         yield return new WaitUntil(() => selectedPlayer.transform.position == previousPlayerStandPos.transform.position);
         yield return new WaitForSeconds(0.25f);
         RandomlySelectPlayer();
+    }
+    [ClientRpc]
+    private void ResetButton_ClientRPC()
+    {
+        foreach (Button button in buttonsList)
+        {
+            button.interactable = true;
+        }
     }
 
     private void TeleportSelectedPlayerBackToStandPos(Player selectedPlayer)
@@ -193,36 +210,45 @@ public class GameLuckyController : NetworkBehaviour
     private void SendButtonPlayerClick_ClientRPC(string buttonName)
     {
         // tắt button đã click
-        foreach (Button button in buttonsList)
+        for (int i = 0; i < buttonsList.Count; i++)
         {
-            if (buttonName == button.name)
+            if (buttonsList[i].name == buttonName)
             {
-                button.interactable = false;
+                buttonsList[i].interactable = false;
             }
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void TakeDamage_ServerRPC(ulong clientID)
+    public void TakeDamage_ServerRPC(ulong clientID, string buttonName)
     {
-        foreach (Player player in PlayerList.Instance.playerDic.Values)
-        {
-            if (player.ownerClientID.Value == clientID)
-            {
-                TakeDamage_ClientRPC(clientID);
-            }
-
-        }
+        TakeDamage_ClientRPC(clientID, buttonName);
     }
     [ClientRpc]
-    private void TakeDamage_ClientRPC(ulong playerID)
+    private void TakeDamage_ClientRPC(ulong playerID, string buttonName)
+    {
+        StartCoroutine(TakeDamage_Coroutine(playerID, buttonName));
+    }
+
+    private IEnumerator TakeDamage_Coroutine(ulong playerID, string buttonName)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
-
+        for (int i = 0; i < buttonsList.Count; i++)
+        {
+            if (buttonsList[i].name == buttonName)
+            {
+                statueShotList[i].gameObject.SetActive(true);
+                yield return new WaitUntil(() => !statueShotList[i].gameObject.activeSelf);
+                break;
+            }
+        }
+        
+        player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
             Debug.Log("Myplayer: " + NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health);
+            LifeRemainPanel.instance.UpdateHealth();
             if (player.GetComponent<PlayerHeath>().health == 0)
             {
                 player.GetComponent<PlayerHeath>().isDead = true;
@@ -231,6 +257,7 @@ public class GameLuckyController : NetworkBehaviour
             }
         }
     }
+
     [ServerRpc(RequireOwnership = false)]
     private void CallThisPlayerIsDead_ServerRPC(ulong playerID)
     {
@@ -286,7 +313,7 @@ public class GameLuckyController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void EndGameAnouncement_ClientRPC(ulong playerID,int topPlayer)
+    private void EndGameAnouncement_ClientRPC(ulong playerID, int topPlayer)
     {
         MiniEndGamePanel.Instance.DisplayEndMinigame(true);
         MiniEndGamePanel.Instance.DisplayPlayer(PlayerList.Instance.GetPlayerDic_Value(playerID), topPlayer);
