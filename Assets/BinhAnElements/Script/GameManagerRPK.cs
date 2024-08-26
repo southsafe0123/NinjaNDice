@@ -39,53 +39,55 @@ public class GameManagerRPK : NetworkBehaviour
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
             player.gameObject.transform.position = map.movePos[index].position;
+            CheckPlayerInFightMap_ClientRPC(player.ownerClientID.Value, 2);
             players.Add(player);
             index++;
         }
 
-        Player hostPlayer = null;
+        //Player hostPlayer = null; 
 
-        foreach (Player player in players)
-        {
-            if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
-            {
-                hostPlayer = player;
-            }
-        }
+        //foreach (Player player in players)
+        //{
+        //    if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
+        //    {
+        //        hostPlayer = player;
+        //    }
+        //}
 
-        playerRange.Add(hostPlayer);
-        players.Remove(hostPlayer);
-        List<Player> list = new List<Player>(players);
-        while (playerRange.Count < 2)
-        {
-            int randomIndex = Random.Range(0, players.Count);
-            if (!selectedIndices.Contains(randomIndex))
-            {
-                playerRange.Add(players[randomIndex]);
-                selectedIndices.Add(randomIndex);
-                list.Remove(players[randomIndex]);
-            }
-        }
+        //playerRange.Add(hostPlayer);
+        //players.Remove(hostPlayer);
+        //List<Player> list = new List<Player>(players);
+        //while (playerRange.Count < 2)
+        //{
+        //    int randomIndex = Random.Range(0, players.Count);
+        //    if (!selectedIndices.Contains(randomIndex))
+        //    {
+        //        playerRange.Add(players[randomIndex]);
+        //        selectedIndices.Add(randomIndex);
+        //        list.Remove(players[randomIndex]);
+        //    }
+        //}
 
         SetPlayersTurnToFalse();
 
-        TelePlayerToFightMap(playerRange);
 
-        foreach (Player player in list)
-        {
-            if(list.Count > 1)
-            {
-                gameInput.SetActive(true);
-                gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
-                gameInput.GetComponent<RpkButton>().ConnetResult(2);
-            }
-            else
-            {
-                gameInput.SetActive(true);
-                gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
-                gameInput.GetComponent<RpkButton>().ConnetResult(1);
-            }
-        }
+        //foreach (Player player in list)
+        //{
+        //    //if(list.Count > 1)
+        //    //{
+        //    //    gameInput.SetActive(true);
+        //    //    gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
+        //    //    gameInput.GetComponent<RpkButton>().ConnetResult(2);
+        //    //}
+        //    //else
+        //    //{
+        //    //    gameInput.SetActive(true);
+        //    //    gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
+        //    //    gameInput.GetComponent<RpkButton>().ConnetResult(1);
+        //    //}
+
+        //    CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value, 2);
+        //}
 
     }
 

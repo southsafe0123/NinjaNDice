@@ -191,8 +191,8 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = UnityEngine.Random.Range(0, 3);
-        switch (randomvalue)
+        var randomvalue = UnityEngine.Random.Range(0, 4);
+        switch (2)
         {
             case 0:
                 LoadScene.Instance.StartLoadSceneMultiplayer("minigameAU", IsHost);

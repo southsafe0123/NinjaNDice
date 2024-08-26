@@ -45832,6 +45832,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: AudioManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: itemDef
+      value: 
+      objectReference: {fileID: 8300000, guid: dc732548a1fb32f4d95921ffc60de65a, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: success
+      value: 
+      objectReference: {fileID: 8300000, guid: 33ec03e8566c2994d81e37a51d79e9f8, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: itemSwap
+      value: 
+      objectReference: {fileID: 8300000, guid: 7f8b9bc89dad3c94f90fd76e230e1f0d, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: itemFreeze
+      value: 
+      objectReference: {fileID: 8300000, guid: eb0502129fa308c4e87e820679de3a72, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: outOfHealth
+      value: 
+      objectReference: {fileID: 8300000, guid: 7c9f698df0340954f8bf731c994ffe7a, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: endGamePanel
+      value: 
+      objectReference: {fileID: 8300000, guid: d47feaca25899da4abff1b58ed707135, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: itemBreakDef
+      value: 
+      objectReference: {fileID: 8300000, guid: 399ebb9ba800d1942a1cd6b88996f2dd, type: 3}
+    - target: {fileID: 5868747418226010003, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: itemNormalPuch
+      value: 
+      objectReference: {fileID: 8300000, guid: fa659c803b7abe448bd3943f6c15d365, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
 --- !u!1 &6121629517501495124
