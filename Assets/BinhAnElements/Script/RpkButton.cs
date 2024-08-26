@@ -48,14 +48,9 @@ public class RpkButton : MonoBehaviour
         instance = this;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        StartCoroutine(WaitForPlayerChoose());
-    }
-
-    public IEnumerator WaitForPlayerChoose()
-    {
-        int i = 5;
+        int i = 3;
         WaitForSeconds waitOneSecond = new WaitForSeconds(1);
         while (true)
         {
@@ -80,7 +75,7 @@ public class RpkButton : MonoBehaviour
 
             if (i < 0)
             {
-                i = 5;
+                i = 3;
                 yield return new WaitForSeconds(1);
                 time.SetActive(false);
                 rockButton.gameObject.SetActive(false);
@@ -140,12 +135,11 @@ public class RpkButton : MonoBehaviour
                 yield return new WaitForSeconds(1);
             }
         }
-
     }
-
-
     public void ConnetResult(int indexInFight)
     {
+        myResultTemp = Result.Start;
+
         rockButton.gameObject.SetActive(false);
         paperButton.gameObject.SetActive(false);
         kunaiButton.gameObject.SetActive(false);
@@ -186,7 +180,6 @@ public class RpkButton : MonoBehaviour
             kunaiButton.gameObject.SetActive(false);
             myResult = resultRight;
             theirResult = resultLeft;
-            myResultTemp = Result.Start;
         }
 
     }
