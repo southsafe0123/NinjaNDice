@@ -19,6 +19,7 @@ public class LifeRemainPanel : MonoBehaviour
     private void Start()
     {
         player = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
+        UpdateHealth();
     }
     public void UpdateHealth()
     {

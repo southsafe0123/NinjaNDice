@@ -191,7 +191,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = UnityEngine.Random.Range(0, 3);
+        var randomvalue = 3;
         switch (randomvalue)
         {
             case 0:

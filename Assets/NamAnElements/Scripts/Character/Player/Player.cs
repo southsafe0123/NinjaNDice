@@ -43,14 +43,14 @@ public class Player : NetworkBehaviour
         if (playerHeath != null)
         {
             txtCurrentHeath.text = "X" + GetComponent<PlayerHeath>().health;
-            if (playerHeath.isDead)
-            {
-                GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
-            }
-            else
-            {
-                GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1);
-            }
+            //    if (playerHeath.isDead)
+            //    {
+            //        GetComponent<SpriteRenderer>().color = new Color(0.5f, 0.5f, 0.5f, 1);
+            //    }
+            //    else
+            //    {
+            //        GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1);
+            //    }
         }
 
 

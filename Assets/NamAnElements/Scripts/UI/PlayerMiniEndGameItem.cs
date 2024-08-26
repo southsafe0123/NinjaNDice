@@ -14,10 +14,12 @@ public class PlayerMiniEndGameItem : MonoBehaviour
     public GameObject plus1;
     public Image itemGivePlayerImage;
     public TextMeshProUGUI txtPlayerTop;
-    private void Update()
+    public Image playerImage;
+    private void OnEnable()
     {
         txtPlayerTop.text = playerTop;
         txtPlayerName.text = player.GetComponent<PlayerData>().playerName.Value.ToString();
+        playerImage.sprite = SkinPool.instance.GetSkin(int.Parse(player.GetComponent<PlayerData>().playerSkin.Value.ToString())).skinAvatar;
         if (itemPlayerGet != null)
         {
             plus1.SetActive(true);

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class RequestFriendPanel : MonoBehaviour
 {
+    public static RequestFriendPanel instance;
     public GameObject requestContent;
     public GameObject requestPrefab;
     public Button requestButton;
@@ -10,6 +11,8 @@ public class RequestFriendPanel : MonoBehaviour
     {
         UI_Controller.Instance.requestContent = requestContent;
         UI_Controller.Instance.requestPrefab = requestPrefab;
-        StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
+        UI_Controller.Instance.UpdateRequest();
     }
+
+    public void GetRequest()=> StartCoroutine(ApiHandle.Instance.GetAllRequestname(ApiHandle.Instance.user.request));
 }

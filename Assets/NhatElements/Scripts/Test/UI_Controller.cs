@@ -72,7 +72,6 @@ public class UI_Controller : MonoBehaviour
         {
             return;
         }
-        AnouncementManager.instance.DisplayAnouncement("You got a friend request");
         foreach (var item in ApiHandle.Instance.user.request)
         {
 
@@ -87,7 +86,6 @@ public class UI_Controller : MonoBehaviour
                 }
             });
         }
-
     }
 
     public void UpdateFriend()
