@@ -2633,9 +2633,9 @@ MonoBehaviour:
   endMinigamePanelGroup: {fileID: 6451937994084223131}
   playerEndList:
   - {fileID: 6451937993179519208}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 2902178425332030031}
+  - {fileID: 8557766069398640982}
+  - {fileID: 6443621745585043045}
   playerLose: []
   playerWin: {fileID: 0}
   txtWaitToLeave: {fileID: 6451937993723502981}

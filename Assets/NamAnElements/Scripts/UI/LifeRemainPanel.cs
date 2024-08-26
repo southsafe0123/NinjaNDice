@@ -16,8 +16,9 @@ public class LifeRemainPanel : MonoBehaviour
     {
         instance = this;    
     }
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return new WaitUntil(() => NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>() != null);
         player = NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<Player>();
         UpdateHealth();
     }
