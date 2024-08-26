@@ -26,6 +26,10 @@ public class MiniEndGamePanel : MonoBehaviour
     }
     public void DisplayEndMinigame(bool isDisplay)
     {
+        if (!AudioManager.Instance.sfxSource.isPlaying)
+        {
+            AudioManager.Instance.PlaySFXEndGamePanel();
+        }
         endMinigamePanelGroup.SetActive(isDisplay);
     }
     public void SettextWaitToLeave(string text)

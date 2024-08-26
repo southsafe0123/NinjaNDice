@@ -18,5 +18,6 @@ public abstract class ItemBase : NetworkBehaviour
     {
         GameObject.Find("cutShield").GetComponent<UnDeffend>().targetPlayer = targetPlayer;
         GameObject.Find("cutShield").GetComponent<UnDeffend>().Effect();
+        AudioManager.Instance.PlaySFXBreakDownDef();
     }
 }

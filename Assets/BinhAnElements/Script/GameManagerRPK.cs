@@ -117,7 +117,7 @@ public class GameManagerRPK : NetworkBehaviour
         while (playerRange.Count < 2)
         {
             if (players.Count != 1)
-            { 
+            {
                 int randomIndex = Random.Range(0, players.Count);
                 if (!selectedIndices.Contains(randomIndex))
                 {
@@ -126,7 +126,7 @@ public class GameManagerRPK : NetworkBehaviour
                 }
             }
 
-            if(players.Count == 1)
+            if (players.Count == 1)
             {
                 foreach (Player player in players)
                 {
@@ -148,7 +148,6 @@ public class GameManagerRPK : NetworkBehaviour
 
     public void TelePlayerToFightMap(List<Player> playerRange)
     {
-        
         indexInFight = 0;
         foreach (Player playerInFight in playerRange)
         {
@@ -204,6 +203,7 @@ public class GameManagerRPK : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
+        //AudioManager.Instance.PlaySFXTakeHp();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
             Debug.Log("Myplayer health: " + NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health);
@@ -222,7 +222,10 @@ public class GameManagerRPK : NetworkBehaviour
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         MiniEndGamePanel.Instance.AddPlayerLose(player);
 
-        if (MiniEndGamePanel.Instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
+        if (MiniEndGamePanel.Instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1)
+        {
+            StartCoroutine(EndGame());
+        }
     }
 
     private void SetPlayersTurnToFalse()
@@ -241,14 +244,14 @@ public class GameManagerRPK : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value,topPlayer);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
             topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value,topPlayer);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, topPlayer);
             topPlayer++;
             yield return wait1f;
         }

@@ -222,6 +222,7 @@ public class WS_Client : MonoBehaviour
             reConnectCoroutine = null;
         }
         AnouncementManager.instance.DisplayAnouncement("Logged out!");
+        AudioManager.Instance.PlaySFXShowDialog();
         Debug.Log("Disable");
     }
     public void reloadData()

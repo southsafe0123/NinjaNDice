@@ -73,6 +73,7 @@ public class UI_Controller : MonoBehaviour
             return;
         }
         AnouncementManager.instance.DisplayAnouncement("You got a friend request");
+        AudioManager.Instance.PlaySFXSuccess();
         foreach (var item in ApiHandle.Instance.user.request)
         {
 
@@ -188,6 +189,7 @@ public class UI_Controller : MonoBehaviour
             GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
             inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
             AnouncementManager.instance.DisplayAnouncement("Invited from " + name);
+            AudioManager.Instance.PlaySFXSuccess();
         }
         catch (System.Exception e)
         {

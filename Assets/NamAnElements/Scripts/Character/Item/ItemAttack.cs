@@ -49,6 +49,7 @@ public class ItemAttack : ItemBase
             try
             {
                 targetPlayer.gameObject.transform.DOJump(GameManager.Singleton.map.movePos[targetPlayer.currentPos.Value].position, 0.5f, 1, 0.4f);
+                AudioManager.Instance.PlaySFXJump();
                 posCount--;
             }
             catch
@@ -67,5 +68,6 @@ public class ItemAttack : ItemBase
     {
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
         Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
+        AudioManager.Instance.PlaySFXItemNormalPuch();
     }
 }
