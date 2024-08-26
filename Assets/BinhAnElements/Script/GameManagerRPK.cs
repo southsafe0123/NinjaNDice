@@ -6,6 +6,8 @@ using Unity.VisualScripting;
 using Unity.Services.Lobbies.Models;
 using TMPro;
 using System.Linq;
+using DG.Tweening;
+
 public class GameManagerRPK : NetworkBehaviour
 {
     public const string MAIN_GAMEPLAY_SCENE = "NamAn";
@@ -29,11 +31,11 @@ public class GameManagerRPK : NetworkBehaviour
         instance = this;
     }
 
-    void Start()
+    public void Start()
     {
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
-            player.AddComponent<PlayerHeath>().health = 3;
+            player.AddComponent<PlayerHeath>().health = 2;
         }
 
         foreach (Player player in PlayerList.Instance.playerDic.Values)
@@ -73,7 +75,7 @@ public class GameManagerRPK : NetworkBehaviour
 
         foreach (Player player in list)
         {
-            if(list.Count > 1)
+            if (list.Count > 1)
             {
                 gameInput.SetActive(true);
                 gameInput.GetComponent<RpkButton>().player = PlayerList.Instance.GetPlayerDic_Value(player.ownerClientID.Value);
@@ -98,24 +100,22 @@ public class GameManagerRPK : NetworkBehaviour
         checkPlayerInFight.Clear();
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
+            player.gameObject.transform.DOJump(map.movePos[index].position, 0.5f, 1, 0.4f);
             if (player.GetComponent<PlayerHeath>().health > 0)
             {
-                player.gameObject.transform.position = map.movePos[index].position;
                 players.Add(player);
-                index++;
             }
             else
             {
-                player.gameObject.transform.position = map.movePos[index].position;
-                index++;
                 players.Remove(player);
             }
+            index++;
         }
 
         while (playerRange.Count < 2)
         {
             if (players.Count != 1)
-            { 
+            {
                 int randomIndex = Random.Range(0, players.Count);
                 if (!selectedIndices.Contains(randomIndex))
                 {
@@ -124,7 +124,7 @@ public class GameManagerRPK : NetworkBehaviour
                 }
             }
 
-            if(players.Count == 1)
+            if (players.Count == 1)
             {
                 foreach (Player player in players)
                 {
@@ -146,13 +146,13 @@ public class GameManagerRPK : NetworkBehaviour
 
     public void TelePlayerToFightMap(List<Player> playerRange)
     {
-        
+
         indexInFight = 0;
         foreach (Player playerInFight in playerRange)
         {
             if (indexInFight < mapFight.movePos.Count)
             {
-                playerInFight.gameObject.transform.position = mapFight.movePos[indexInFight].position;
+                playerInFight.gameObject.transform.DOJump(mapFight.movePos[indexInFight].position, 0.5f, 1, 0.4f);
                 CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value, indexInFight);
                 checkPlayerInFight.Add(playerInFight);
                 indexInFight++;
@@ -187,14 +187,9 @@ public class GameManagerRPK : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void ShowHPPlayer_ServerRPC(ulong playerID)
     {
-        foreach (Player player in PlayerList.Instance.playerDic.Values)
-        {
-            if (player.ownerClientID.Value == playerID)
-            {
-                ShowHPPlayer_ClientRPC(playerID);
-            }
 
-        }
+        ShowHPPlayer_ClientRPC(playerID);
+
     }
 
     [ClientRpc]
@@ -202,8 +197,10 @@ public class GameManagerRPK : NetworkBehaviour
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
+        player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
+            LifeRemainPanel.instance.UpdateHealth();
             Debug.Log("Myplayer health: " + NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health);
             if (player.GetComponent<PlayerHeath>().health == 0)
             {
@@ -239,14 +236,14 @@ public class GameManagerRPK : NetworkBehaviour
         if (playerWin != null)
         {
             MiniEndGamePanel.Instance.SetPlayerWin(playerWin);
-            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value,topPlayer);
+            EndGameAnouncement_ClientRPC(playerWin.ownerClientID.Value, topPlayer);
             topPlayer++;
         }
         MiniEndGamePanel.Instance.playerLose.Reverse();
         yield return wait1f;
         foreach (Player player in MiniEndGamePanel.Instance.playerLose)
         {
-            EndGameAnouncement_ClientRPC(player.ownerClientID.Value,topPlayer);
+            EndGameAnouncement_ClientRPC(player.ownerClientID.Value, topPlayer);
             topPlayer++;
             yield return wait1f;
         }
