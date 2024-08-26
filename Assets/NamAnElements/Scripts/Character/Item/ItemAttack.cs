@@ -12,7 +12,7 @@ public class ItemAttack : ItemBase
     public override void Effect()
     {
         if (IsTargetAreDeffendUp()) { BreakTargetPlayerDeffend(targetPlayer); return; }
-        int attackDamage = UnityEngine.Random.Range(0, 4);
+        int attackDamage = UnityEngine.Random.Range(1, 5);
         SendAttackDamage_ServerRPC(targetPlayer.ownerClientID.Value, attackDamage);
     }
 

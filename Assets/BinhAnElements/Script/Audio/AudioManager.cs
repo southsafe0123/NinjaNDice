@@ -23,7 +23,10 @@ public class AudioManager : MonoBehaviour
     public AudioClip cancel;
     public AudioClip text;
     public AudioClip item;
-
+    public AudioClip endGamePanel;
+    public AudioClip outOfHealth;
+    public AudioClip itemFreeze, itemNormalPuch, itemDef, itemBreakDef, itemSwap;
+    
     private List<AudioClip> remainingClips = new List<AudioClip>();
     public float fadeDuration = 2f;
     private Coroutine fadeCoroutine;
@@ -182,6 +185,40 @@ public class AudioManager : MonoBehaviour
     public void PlaySFXPickItem()
     {
         sfxSource.PlayOneShot(item);
+    }
+
+    public void PlaySFXItemFreeze()
+    {
+        sfxSource.PlayOneShot(itemFreeze);
+    }
+
+    public void PlaySFXItemBreakDef()
+    {
+        sfxSource.PlayOneShot(itemBreakDef);
+    }
+
+    public void PlaySFXItemDef()
+    {
+        sfxSource.PlayOneShot(itemDef);
+    }
+
+    public void PlaySFXItemSwap()
+    {
+        sfxSource.PlayOneShot(itemSwap);
+    }
+    public void PlaySFXItemNormalPuch()
+    {
+        sfxSource.PlayOneShot(itemNormalPuch);
+    }
+
+    public void PlaySFXEndGamePanel()
+    {
+        sfxSource.PlayOneShot(endGamePanel);
+    }
+
+    public void PlaySFXOutOfHealth()
+    {
+        sfxSource.PlayOneShot(outOfHealth);
     }
 
     public void PlayRandomPitch()
