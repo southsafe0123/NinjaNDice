@@ -1,6 +1,9 @@
 ﻿using JetBrains.Annotations;
+using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -51,7 +54,7 @@ public class ItemTargetPanel : MonoBehaviour
     {
         
         Player player = players[playerIndex];
-        camToPlayer.playerToFollow = player;
+        ChangeCam_ServerRPC(player.ownerClientID.Value);
         txtPlayerName.text = player.GetComponent<PlayerData>().playerName.Value.ToString();
         var playerAvatarSlot = player.GetComponent<PlayerData>().playerSkin.Value.ToString();
         playerAvatar.sprite = SkinPool.instance.GetSkin(int.Parse(playerAvatarSlot)).skinAvatar;
@@ -64,10 +67,22 @@ public class ItemTargetPanel : MonoBehaviour
             }
         }
     }
+    [ServerRpc(RequireOwnership =false)]
+    private void ChangeCam_ServerRPC(ulong playerId)
+    {
+        ChangeCam_ClientRPC(playerId);
+    }
+    [ClientRpc]
+    private void ChangeCam_ClientRPC(ulong playerId)
+    {
+        Player player = PlayerList.Instance.GetPlayerDic_Value(playerId);
+        camToPlayer.playerToFollow = player;
+    }
+
     public void OnClickExitTarget()
     {
         Player playerInTurn = camToPlayer.playerInTurn;
-        camToPlayer.playerToFollow = camToPlayer.playerInTurn;
+        ChangeCam_ServerRPC(camToPlayer.playerInTurn.ownerClientID.Value);
         playerInTurn.GetComponent<SpriteRenderer>().sortingOrder = 2;
         foreach (Player playerr in players)
         {

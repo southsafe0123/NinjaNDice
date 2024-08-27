@@ -140,6 +140,8 @@ public class Quizz : NetworkBehaviour
 
         if (player.GetComponent<Player>().answer != randomQuestion.correctAnswer.ToString() || player.GetComponent<Player>().answer.IsNullOrEmpty())
         {
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>() == null) return;
+            if (NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<PlayerHeath>().health < 1) return;
             TakeDamage_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
         };
     }
