@@ -11,4 +11,14 @@ public class SmokeEffect : MonoBehaviour
     {
         objectActive.SetActive(true);
     }
+
+    public void TringgerSoundEffectStart()
+    {
+        AudioManager.Instance.PlaySFXStartExplosion();
+    }
+    
+    public void TringgerSoundEffectEnd()
+    {
+        AudioManager.Instance.PlaySFXEndExplosion();
+    }
 }

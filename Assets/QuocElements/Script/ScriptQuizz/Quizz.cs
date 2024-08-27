@@ -185,7 +185,13 @@ public class Quizz : NetworkBehaviour
     private void TakeDamage_ClientRPC(ulong playerID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        if (player.GetComponent<PlayerHeath>().isDead) 
+        {
+            AudioManager.Instance.PlaySFXOutOfHealth();
+            return;
+        }
         player.GetComponent<PlayerHeath>().health--;
+        AudioManager.Instance.PlaySFXTakeHp();
         player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
