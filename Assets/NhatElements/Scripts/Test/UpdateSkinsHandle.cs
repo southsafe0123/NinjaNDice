@@ -6,6 +6,7 @@ using System.IO;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Unity.VisualScripting;
+using UnityEngine.AddressableAssets.ResourceLocators;
 
 
 
@@ -28,7 +29,7 @@ public class UpdateSkinsHandle : MonoBehaviour
 
     private void Start()
     {
-
+        Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
     }
 
     // get name all folder in path
@@ -95,11 +96,44 @@ public class UpdateSkinsHandle : MonoBehaviour
     public void LoadRemoteAsset()
     {
         //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab
-        LoadPrefab(ApiHandle.Instance.skins);
+        // LoadPrefab(ApiHandle.Instance.skins);
+        // Kiểm tra cập nhật catalog
+        Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
 
     }
+
+    private void OnCheckForCatalogUpdatesComplete(AsyncOperationHandle<List<string>> handle)
+    {
+        if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result.Count > 0)
+        {
+            Debug.Log("Catalog updates found, downloading...");
+
+            // Tải và áp dụng catalog mới
+            Addressables.UpdateCatalogs(handle.Result).Completed += OnUpdateCatalogsComplete;
+        }
+        else
+        {
+            Debug.Log("No catalog updates found.");
+            LoadPrefab(ApiHandle.Instance.skins);
+        }
+    }
+
+    private void OnUpdateCatalogsComplete(AsyncOperationHandle<List<IResourceLocator>> handle)
+    {
+        if (handle.Status == AsyncOperationStatus.Succeeded)
+        {
+            Debug.Log("Catalogs updated successfully.");
+            // Tiếp tục với các bước load tài nguyên sau khi cập nhật catalog
+            LoadPrefab(ApiHandle.Instance.skins);
+        }
+        else
+        {
+            Debug.LogError("Failed to update catalogs.");
+        }
+    }
+
     [ContextMenu("test")]
-    public void LoadPrefab(List<skin> skins) 
+    public void LoadPrefab(List<skin> skins)
     {
         foreach (Transform child in content)
         {
@@ -116,7 +150,7 @@ public class UpdateSkinsHandle : MonoBehaviour
                 {
                     GameObject prefab = obj.Result;
                     GameObject item = Instantiate(prefab, content);
-                    item.GetComponent<ItemShop>().UpdateData(s,s._id);
+                    item.GetComponent<ItemShop>().UpdateData(s, s._id);
                     SkinPool.instance.CallUpdateSkinPool();
                 }
                 else
@@ -126,9 +160,9 @@ public class UpdateSkinsHandle : MonoBehaviour
             };
         }
 
-        
-       
-        
+
+
+
     }
 
 

@@ -326,8 +326,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skinId: 
   skinName: 
-  skinData: {fileID: 732168620, guid: 2055a8c92db22e1489bab053885cd2c5, type: 3}
-  skinAvatar: {fileID: 21300000, guid: 69bac1e02b932a64bace1bb9d1e9ba5f, type: 3}
+  skinData: {fileID: -896136175, guid: bb3022b31042818449ad47efca62034f, type: 3}
+  skinAvatar: {fileID: 21300000, guid: ea94c676a2b2b4747baf25e2fd53d8b4, type: 3}
   txtSkinName: {fileID: 7294001225069884182}
   txtSkinPrice: {fileID: 5286042886935263014}
 --- !u!222 &1672572601449800018
@@ -434,7 +434,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 69bac1e02b932a64bace1bb9d1e9ba5f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ea94c676a2b2b4747baf25e2fd53d8b4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
