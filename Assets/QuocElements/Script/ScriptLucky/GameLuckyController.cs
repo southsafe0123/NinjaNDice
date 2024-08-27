@@ -235,7 +235,13 @@ public class GameLuckyController : NetworkBehaviour
     private IEnumerator TakeDamage_Coroutine(ulong playerID, string buttonName)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        if (player.GetComponent<PlayerHeath>().isDead)
+        {
+            AudioManager.Instance.PlaySFXOutOfHealth();
+            yield break;
+        }
         player.GetComponent<PlayerHeath>().health--;
+        AudioManager.Instance.PlaySFXTakeHp();
         for (int i = 0; i < buttonsList.Count; i++)
         {
             if (buttonsList[i].name == buttonName)

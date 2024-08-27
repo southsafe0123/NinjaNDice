@@ -26,6 +26,8 @@ public class AudioManager : MonoBehaviour
     public AudioClip endGamePanel;
     public AudioClip outOfHealth, jump, takeHp;
     public AudioClip countDownRpk, winGameRpk, loseGameRpk, drawGameRpk;
+    public AudioClip startExplosion, endExplotion;
+    public AudioClip startFalling, fallingHit;
     public AudioClip itemFreeze, itemNormalPuch, itemDef, itemBreakDef, itemSwap, cutForNotThing, breakDownDef;
     
     private List<AudioClip> remainingClips = new List<AudioClip>();
@@ -275,6 +277,26 @@ public class AudioManager : MonoBehaviour
     public void PlaySFXShowDialog()
     {
         sfxSource.PlayOneShot(showDialog);
+    }
+    
+    public void PlaySFXStartExplosion()
+    {
+        sfxSource.PlayOneShot(startExplosion);
+    }
+    
+    public void PlaySFXEndExplosion()
+    {
+        sfxSource.PlayOneShot(endExplotion);
+    }
+    
+    public void PlaySFXFalling()
+    {
+        sfxSource.PlayOneShot(startFalling);
+    }
+    
+    public void PlaySFXFallingHit()
+    {
+        sfxSource.PlayOneShot(fallingHit);
     }
 
     public void PlayRandomPitch()

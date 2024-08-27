@@ -259,7 +259,13 @@ public class GameplayManager : NetworkBehaviour
     private IEnumerator TakeDamage_Coroutine(ulong playerID)
     {
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
+        if (player.GetComponent<PlayerHeath>().isDead)
+        {
+            AudioManager.Instance.PlaySFXOutOfHealth();
+            yield break;
+        }
         player.GetComponent<PlayerHeath>().health--;
+        AudioManager.Instance.PlaySFXTakeHp();
         var objSpawnPos = new Vector2(player.transform.position.x, player.transform.position.y + 1.2f);
         GameObject obj = Instantiate(rockfallPref, objSpawnPos, Quaternion.identity);
         
