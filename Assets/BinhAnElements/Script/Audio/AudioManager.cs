@@ -69,6 +69,16 @@ public class AudioManager : MonoBehaviour
             remainingClips.AddRange(background);
         }
         int index = Random.Range(0, remainingClips.Count);
+
+        // Nếu có một coroutine fade-out đang chạy, dừng nó
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+        }
+
+        // Thực hiện fade-out cho bài nhạc hiện tại và chuyển sang bài nhạc mới
+        fadeCoroutine = StartCoroutine(FadeOutAndPlayNewMusic(remainingClips[index]));
+
         musicSource.clip = remainingClips[index];
         musicSource.Play();
         remainingClips.RemoveAt(index);
