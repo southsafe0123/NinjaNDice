@@ -7,7 +7,7 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ItemTargetPanel : MonoBehaviour
+public class ItemTargetPanel : NetworkBehaviour
 {
     public List<Player> players = new List<Player>();
     public int playerIndex;
