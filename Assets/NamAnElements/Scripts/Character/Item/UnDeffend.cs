@@ -35,7 +35,7 @@ public class UnDeffend : ItemBase
             AudioManager.Instance.PlaySFXCutForNothing();
         }
 
-        yield return new WaitForSeconds(1f);  // Đợi 2 giây (hoặc thời gian mong muốn
+        yield return new WaitForSeconds(1.5f);  // Đợi 2 giây (hoặc thời gian mong muốn
 
         // Cập nhật vòng lặp gameTurn và chuyển camera khi hết vòng chơi
         GameManager.Singleton.NextPlayerTurn_ServerRPC();
