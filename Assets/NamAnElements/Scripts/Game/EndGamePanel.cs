@@ -17,6 +17,7 @@ public class EndGamePanel : MonoBehaviour
     public GameObject endGamePanel;
     public List<GameObject> playerRankingList = new List<GameObject>();
     public int top;
+    public bool isDoneGame = false;
     private List<Player> tempPlayerInList = new List<Player>();
     private void Awake()
     {
@@ -40,7 +41,7 @@ public class EndGamePanel : MonoBehaviour
     }
     private void Update()
     {
-        btnLeaderBoard.gameObject.SetActive(player.isPlayerDoneGame.Value);
+        btnLeaderBoard.gameObject.SetActive(isDoneGame);
     }
     private void Start()
     {
@@ -68,6 +69,7 @@ public class EndGamePanel : MonoBehaviour
                 Player player = PlayerList.Instance.GetPlayerDic_Value(clientID);
                 if (NetworkManager.Singleton.LocalClientId == clientID)
                 {
+                    isDoneGame = true;
                     if (!UserSessionManager.Instance._id.IsNullOrEmpty())
                     {
                         ApiHandle.Instance.AddMoney(top.ToString());
