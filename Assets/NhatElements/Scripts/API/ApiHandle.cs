@@ -699,6 +699,7 @@ public class ApiHandle : MonoBehaviour
         MoneyTop moneyTop = new MoneyTop();
         moneyTop.userId = UserSessionManager.Instance._id;
         moneyTop.top = top;
+        moneyTop.money = 300;
         string json = JsonUtility.ToJson(moneyTop);
         Debug.Log(json);
 
@@ -1257,6 +1258,7 @@ public class MoneyTop
 {
     public string userId;
     public string top;
+    public int money;
 }
 [System.Serializable]
 public class PlayerAvatar

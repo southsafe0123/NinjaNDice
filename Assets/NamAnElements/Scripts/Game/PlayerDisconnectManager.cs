@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -11,11 +12,19 @@ public class PlayerDisconnectManager : NetworkBehaviour
     {
         Instance = this;
     }
-
     private void Start()
     {
         NetworkManager.Singleton.OnClientDisconnectCallback += OnDisconnectedClient;
+        StartCoroutine(ServerShutDownCheck());
     }
+
+    private IEnumerator ServerShutDownCheck()
+    {
+        if (IsHost) yield break ;
+        yield return new WaitUntil(() => !NetworkManager.Singleton.IsConnectedClient);
+        Disconnect();
+    }
+
     private void OnDisconnectedClient(ulong clientID)
     {
         if (!IsHost) return;
@@ -37,19 +46,15 @@ public class PlayerDisconnectManager : NetworkBehaviour
     }
     public void OnClickDisconnect()
     {
-
-        if (!IsHost)
-        {
-            Disconnect();
-        }
-        else
-        {
-            OnClickDisconnect_ClientRPC();
-            StartCoroutine(WaitAllPlayerLeft());
-        }
-
-
+        CallDisconnect_ServerRPC();
     }
+    [ServerRpc(RequireOwnership = false)]
+    private void CallDisconnect_ServerRPC()
+    {
+        OnClickDisconnect_ClientRPC();
+        StartCoroutine(WaitAllPlayerLeft());
+    }
+
     private IEnumerator WaitAllPlayerLeft()
     {
         yield return new WaitUntil(() => PlayerList.Instance.playerDic.Count < 2);
