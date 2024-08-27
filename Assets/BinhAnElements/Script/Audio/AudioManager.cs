@@ -69,6 +69,7 @@ public class AudioManager : MonoBehaviour
             remainingClips.AddRange(background);
         }
         int index = Random.Range(0, remainingClips.Count);
+        musicSource.clip = remainingClips[index];
 
         // Nếu có một coroutine fade-out đang chạy, dừng nó
         if (fadeCoroutine != null)
@@ -78,8 +79,6 @@ public class AudioManager : MonoBehaviour
 
         // Thực hiện fade-out cho bài nhạc hiện tại và chuyển sang bài nhạc mới
         fadeCoroutine = StartCoroutine(FadeOutAndPlayNewMusic(remainingClips[index]));
-
-        musicSource.clip = remainingClips[index];
         musicSource.Play();
         remainingClips.RemoveAt(index);
         Debug.Log("Số nhạc còn lại trong list là: " + remainingClips.Count);
@@ -136,7 +135,7 @@ public class AudioManager : MonoBehaviour
     {
         // Thực hiện fade-out cho bài nhạc hiện tại
         float startVolume = musicSource.volume;
-        float elapsedTime = 1.25f;
+        float elapsedTime = 1f;
 
         while (elapsedTime < fadeDuration)
         {
@@ -152,7 +151,7 @@ public class AudioManager : MonoBehaviour
         musicSource.volume = 0f;
         musicSource.Play();
          
-        elapsedTime = 0f;
+        elapsedTime = 1f;
         while (elapsedTime < fadeDuration)
         {
             musicSource.volume = Mathf.Lerp(0f, startVolume, elapsedTime / fadeDuration);
