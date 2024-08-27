@@ -12,7 +12,7 @@ public class MiniEndGamePanel : MonoBehaviour
     public List<Player> playerLose = new List<Player>();
     public Player playerWin;
     public TextMeshProUGUI txtWaitToLeave;
-
+    private List<Player> tempPlayerInList = new List<Player>();
     private void Awake()
     {
         Instance = this;
@@ -47,6 +47,12 @@ public class MiniEndGamePanel : MonoBehaviour
     }
     public void DisplayPlayer(Player player,int topPlayer)
     {
+
+        foreach (var item in tempPlayerInList)
+        {
+            if (item.ownerClientID.Value == player.ownerClientID.Value) return;
+        }
+
         var playerCanGetItem = (int)Math.Ceiling((double)PlayerList.Instance.playerOrders.Count / 2);
         Debug.Log("playerCanGetItem In minigame: " + playerCanGetItem);
         foreach (PlayerMiniEndGameItem playerItem in playerEndList)
@@ -66,6 +72,7 @@ public class MiniEndGamePanel : MonoBehaviour
                     PlayerList.Instance.SetPlayerOrder(topPlayer, player);
                 }
                 Debug.Log("top: " + topPlayer);
+                tempPlayerInList.Add(player);
                 break;
             }
         }
