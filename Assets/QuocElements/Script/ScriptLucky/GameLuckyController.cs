@@ -71,14 +71,13 @@ public class GameLuckyController : NetworkBehaviour
 
     private void AddPlayerToListSelectRandom()
     {
+        playerList.Clear();
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
-            if (player.GetComponent<PlayerHeath>() == null) return;
-            if (player.GetComponent<PlayerHeath>().isDead) return;
-        }
-        foreach (Player player in PlayerList.Instance.playerDic.Values)
-        {
-            playerList.Add(player);
+            if (player.GetComponent<PlayerHeath>() != null|| !player.GetComponent<PlayerHeath>().isDead)
+            {
+                playerList.Add(player);
+            }
         }
     }
 
@@ -113,9 +112,10 @@ public class GameLuckyController : NetworkBehaviour
         if (playerList.Count == 0) AddPlayerToListSelectRandom();
 
         // Ngẫu nhiên chọn một index từ danh sách playerList
+
         int randomIndex = Random.Range(0, playerList.Count);
         selectedPlayer = playerList[randomIndex];
-        if (selectedPlayer == null) return;
+
         previousPlayerStandPos = standPos.movePos.FirstOrDefault(pos => pos.position == selectedPlayer.transform.position);
 
         // Hiển thị hoặc sử dụng player đã chọn theo yêu cầu của bạn
@@ -251,7 +251,7 @@ public class GameLuckyController : NetworkBehaviour
                 break;
             }
         }
-        
+
         player.DisplayCurrentHealth();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
