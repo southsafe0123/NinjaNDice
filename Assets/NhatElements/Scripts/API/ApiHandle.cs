@@ -71,7 +71,7 @@ public class ApiHandle : MonoBehaviour
 
     private IEnumerator FirstLoadSkin()
     {
-        yield return StartCoroutine(getAllSkins());
+        // yield return StartCoroutine(getAllSkins());
         yield return new WaitForSeconds(0.1f);
         GetAllSkin();
     }

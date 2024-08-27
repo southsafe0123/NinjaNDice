@@ -7,6 +7,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Unity.VisualScripting;
 using UnityEngine.AddressableAssets.ResourceLocators;
+using System;
 
 
 
@@ -29,7 +30,7 @@ public class UpdateSkinsHandle : MonoBehaviour
 
     private void Start()
     {
-        Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
+        // Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
     }
 
     // get name all folder in path
@@ -96,10 +97,15 @@ public class UpdateSkinsHandle : MonoBehaviour
     public void LoadRemoteAsset()
     {
         //Skins/66bc57c5ea0484839ae5c2c1/ItemShop.prefab
-        // LoadPrefab(ApiHandle.Instance.skins);
+        LoadPrefab(ApiHandle.Instance.skins);
         // Kiểm tra cập nhật catalog
-        Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
+        // Addressables.CheckForCatalogUpdates().Completed += OnCheckForCatalogUpdatesComplete;
 
+    }
+
+    public void updateSkins()
+    {
+        StartCoroutine(ApiHandle.Instance.getAllSkins());
     }
 
     private void OnCheckForCatalogUpdatesComplete(AsyncOperationHandle<List<string>> handle)
