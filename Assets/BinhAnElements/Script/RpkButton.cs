@@ -48,7 +48,7 @@ public class RpkButton : MonoBehaviour
         instance = this;
     }
 
-    private IEnumerator Start()
+    private void Start()
     {
         StartCoroutine(WaitForPlayerChoose());
     }
