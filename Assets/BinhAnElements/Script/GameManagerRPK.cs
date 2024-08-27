@@ -41,7 +41,7 @@ public class GameManagerRPK : NetworkBehaviour
         foreach (Player player in PlayerList.Instance.playerDic.Values)
         {
             player.gameObject.transform.position = map.movePos[index].position;
-            player.isPlayerTurn.Value = false;
+            if(IsHost) player.isPlayerTurn.Value = false;
             CheckPlayerInFightMap_ClientRPC(player.ownerClientID.Value, 2);
             players.Add(player);
             index++;
@@ -154,7 +154,7 @@ public class GameManagerRPK : NetworkBehaviour
         {
             if (indexInFight < mapFight.movePos.Count)
             {
-                playerInFight.isPlayerTurn.Value = true;
+                if(IsHost) playerInFight.isPlayerTurn.Value = true;
                 playerInFight.gameObject.transform.DOJump(mapFight.movePos[indexInFight].position, 0.5f, 1, 0.4f);
                 CheckPlayerInFightMap_ClientRPC(playerInFight.ownerClientID.Value, indexInFight);
                 checkPlayerInFight.Add(playerInFight);
