@@ -69,7 +69,6 @@ public class GameManager : NetworkBehaviour
         }
         else
         {
-
             StartCoroutine(DoTeleportPlayerCoroutine(index, clientPlayer));
         }
     }
@@ -103,7 +102,7 @@ public class GameManager : NetworkBehaviour
             yield return waitForSeconds;
         } while (posCount <= index);
 
-        if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) CheckEndGame_ClientRPC(clientPlayer.ownerClientID.Value);
+        if (clientPlayer.gameObject.transform.position == map.movePos[map.movePos.Count - 1].position) SetEndGameForPlayer(clientPlayer.ownerClientID.Value);
 
         NextPlayerTurn_ServerRPC();
     }
@@ -116,47 +115,23 @@ public class GameManager : NetworkBehaviour
         bool isGameTurnChange = OnGameTurnChange(oldGameTurn, gameTurn);
         StartCoroutine(SwitchCamCoroutine(isGameTurnChange));
     }
-
-    [ClientRpc]
-    private void CheckEndGame_ClientRPC(ulong clientPlayerID)
+    private void SetEndGameForPlayer(ulong clientPlayerID)
     {
-        if (PlayerList.Instance.playerOrders.Count > 2)
+        PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
+        CallEndGamePanel_ClientRPC(clientPlayerID);
+        if (PlayerList.Instance.playerOrders.Count == 1)
         {
-            EndGamePanel.Instance.btnBack.interactable = true;
-            EndGamePanel.Instance.DisplayEndGamePanel(true);
-            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
-            //setplayerWin;
-            if (IsHost)
-            {
-                EndGamePanel.Instance.btnLeave.gameObject.SetActive(false);
-                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            }
+            PlayerList.Instance.GetPlayerDic_Value(PlayerList.Instance.playerOrders[0].player.ownerClientID.Value).isPlayerDoneGame.Value = true;
+            CallEndGamePanel_ClientRPC(PlayerList.Instance.playerOrders[0].player.ownerClientID.Value,true);
         }
-        else
-        {
-            EndGamePanel.Instance.btnBack.interactable = false;
-            EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
-            EndGamePanel.Instance.DisplayEndGamePanel(true);
-            if (IsHost)
-            {
-                PlayerList.Instance.GetPlayerDic_Value(clientPlayerID).isPlayerDoneGame.Value = true;
-            }
-            EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
-            foreach (Player player in PlayerList.Instance.playerDic.Values)
-            {
-                if (player.isPlayerDoneGame.Value == false)
-                {
-                    if (IsHost)
-                    {
-                        player.isPlayerDoneGame.Value = true;
-                    }
-                    EndGamePanel.Instance.UpdateRankingList(player.ownerClientID.Value);
-                    break;
-                }
-            }
-
-
-        }
+    }
+    [ClientRpc]
+    private void CallEndGamePanel_ClientRPC(ulong clientPlayerID, bool isAllDone = false)
+    {
+        EndGamePanel.Instance.UpdateRankingList(clientPlayerID);
+        EndGamePanel.Instance.DisplayEndGamePanel(true);
+        if (isAllDone) EndGamePanel.Instance.btnLeave.gameObject.SetActive(true);
+        
     }
 
     private IEnumerator SwitchCamCoroutine(bool isGameTurnChange)
@@ -192,7 +167,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator ChangeSceneCoroutine()
     {
         yield return new WaitForSeconds(1f);
-        var randomvalue = 2;
+        var randomvalue = UnityEngine.Random.Range(0,4);
         switch (randomvalue)
         {
             case 0:

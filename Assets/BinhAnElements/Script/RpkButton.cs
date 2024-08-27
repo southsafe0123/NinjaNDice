@@ -144,7 +144,6 @@ public class RpkButton : MonoBehaviour
     }
     public void ConnetResult(int indexInFight)
     {
-        myResultTemp = Result.Start;
 
         rockButton.gameObject.SetActive(false);
         paperButton.gameObject.SetActive(false);
@@ -186,6 +185,8 @@ public class RpkButton : MonoBehaviour
             kunaiButton.gameObject.SetActive(false);
             myResult = resultRight;
             theirResult = resultLeft;
+
+            myResultTemp = Result.Start;
         }
 
     }
