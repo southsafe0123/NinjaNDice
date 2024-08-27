@@ -8833,7 +8833,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &293466612
 Transform:
   m_ObjectHideFlags: 0
@@ -9257,6 +9257,7 @@ GameObject:
   - component: {fileID: 435852468}
   - component: {fileID: 435852467}
   - component: {fileID: 435852466}
+  - component: {fileID: 435852470}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -9353,6 +9354,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &435852470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 435852465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07870e44d698d6048a75ecd810096e35, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  musicSlider: {fileID: 596963522}
+  sfxSlider: {fileID: 693798267}
 --- !u!1 &443433669
 GameObject:
   m_ObjectHideFlags: 0
@@ -9559,6 +9574,63 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   objectActive: {fileID: 480779686}
+--- !u!1001 &484695475
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 7100171388276066377, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_Name
+      value: AudioManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_RootOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 724.1222
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 630.938
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.7474334
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8653659590349505818, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9089952113f92de4cbe6f98c749e7160, type: 3}
 --- !u!1 &506570468
 GameObject:
   m_ObjectHideFlags: 0
@@ -9997,7 +10069,7 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 435852470}
         m_TargetAssemblyTypeName: VolumeSetting, Assembly-CSharp
         m_MethodName: SetMusicVolume
         m_Mode: 1
@@ -10918,21 +10990,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 435852470}
         m_TargetAssemblyTypeName: VolumeSetting, Assembly-CSharp
         m_MethodName: SetSFXVolume
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ButtonEffectSound, Assembly-CSharp
-        m_MethodName: PlayEffect
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
