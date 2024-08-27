@@ -39,5 +39,6 @@ public class Deffend : ItemBase
     {
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
         targetPlayer.GetComponent<SpriteRenderer>().sprite = deffendSprite;
+        AudioManager.Instance.PlaySFXItemDef();
     }
 }

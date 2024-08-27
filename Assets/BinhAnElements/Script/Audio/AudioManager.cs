@@ -17,17 +17,21 @@ public class AudioManager : MonoBehaviour
     [Header("----------- Audio Clip -----------")]
     public AudioClip[] background;
     public AudioClip button;
-    public AudioClip success;
-    public AudioClip claim;
-    public AudioClip alert;
+    public AudioClip cantClick;
+    public AudioClip claim, success;
+    public AudioClip alert, showDialog;
     public AudioClip cancel;
     public AudioClip text;
     public AudioClip item;
     public AudioClip endGamePanel;
-    public AudioClip outOfHealth;
-    public AudioClip itemFreeze, itemNormalPuch, itemDef, itemBreakDef, itemSwap;
+    public AudioClip outOfHealth, jump, takeHp;
+    public AudioClip countDownRpk, winGameRpk, loseGameRpk, drawGameRpk;
+    public AudioClip itemFreeze, itemNormalPuch, itemDef, itemBreakDef, itemSwap, cutForNotThing, breakDownDef;
     
     private List<AudioClip> remainingClips = new List<AudioClip>();
+    private List<AudioClip> remainingClipsTemp = new List<AudioClip>();
+
+
     public float fadeDuration = 2f;
     private Coroutine fadeCoroutine;
 
@@ -154,17 +158,22 @@ public class AudioManager : MonoBehaviour
     public void PlaySFXButton()
     {
         sfxSource.PlayOneShot(button);
-        PlayRandomPitch();
+        //PlayRandomPitch();
     }
 
-    public void PlaySFXSuccess()
+    public void PlaySFXCantClick()
     {
-        sfxSource.PlayOneShot(success);
+        sfxSource.PlayOneShot(cantClick);
     }
 
     public void PlaySFXClaim()
     {
         sfxSource.PlayOneShot(claim);
+    }
+    
+    public void PlaySFXSuccess()
+    {
+        sfxSource.PlayOneShot(success);
     }
 
     public void PlaySFXAlert()
@@ -213,12 +222,59 @@ public class AudioManager : MonoBehaviour
 
     public void PlaySFXEndGamePanel()
     {
-        sfxSource.PlayOneShot(endGamePanel);
+        sfxSource.clip = endGamePanel;
+        sfxSource.PlayOneShot(sfxSource.clip);
     }
 
     public void PlaySFXOutOfHealth()
     {
         sfxSource.PlayOneShot(outOfHealth);
+    }
+    
+    public void PlaySFXJump()
+    {
+        sfxSource.PlayOneShot(jump);
+    }
+    
+    public void PlaySFXCountDownRpk()
+    {
+        sfxSource.clip = countDownRpk;
+        sfxSource.PlayOneShot(sfxSource.clip);
+    }
+    
+    public void PlaySFXWin()
+    {
+        sfxSource.PlayOneShot(winGameRpk);
+    }
+    
+    public void PlaySFXLose()
+    {
+        sfxSource.PlayOneShot(loseGameRpk);
+    }
+    
+    public void PlaySFXDraw()
+    {
+        sfxSource.PlayOneShot(drawGameRpk);
+    }
+    
+    public void PlaySFXCutForNothing()
+    {
+        sfxSource.PlayOneShot(cutForNotThing);
+    }
+    
+    public void PlaySFXBreakDownDef()
+    {
+        sfxSource.PlayOneShot(breakDownDef);
+    }
+    
+    public void PlaySFXTakeHp()
+    {
+        sfxSource.PlayOneShot(takeHp);
+    }
+    
+    public void PlaySFXShowDialog()
+    {
+        sfxSource.PlayOneShot(showDialog);
     }
 
     public void PlayRandomPitch()

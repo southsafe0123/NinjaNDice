@@ -148,7 +148,6 @@ public class GameManagerRPK : NetworkBehaviour
 
     public void TelePlayerToFightMap(List<Player> playerRange)
     {
-
         indexInFight = 0;
         foreach (Player playerInFight in playerRange)
         {
@@ -200,6 +199,7 @@ public class GameManagerRPK : NetworkBehaviour
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         player.GetComponent<PlayerHeath>().health--;
         player.DisplayCurrentHealth();
+        //AudioManager.Instance.PlaySFXTakeHp();
         if (playerID == NetworkManager.Singleton.LocalClientId)
         {
             LifeRemainPanel.instance.UpdateHealth();
@@ -219,7 +219,10 @@ public class GameManagerRPK : NetworkBehaviour
         var player = PlayerList.Instance.GetPlayerDic_Value(playerID);
         MiniEndGamePanel.Instance.AddPlayerLose(player);
 
-        if (MiniEndGamePanel.Instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1) StartCoroutine(EndGame());
+        if (MiniEndGamePanel.Instance.playerLose.Count >= PlayerList.Instance.playerOrders.Count - 1)
+        {
+            StartCoroutine(EndGame());
+        }
     }
 
     private void SetPlayersTurnToFalse()

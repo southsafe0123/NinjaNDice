@@ -91,6 +91,7 @@ public class GameManager : NetworkBehaviour
             try
             {
                 clientPlayer.gameObject.transform.DOJump(map.movePos[newPos].position, 0.5f, 1, 0.4f);
+                AudioManager.Instance.PlaySFXJump();
                 posCount++;
             }
             catch

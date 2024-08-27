@@ -28,6 +28,11 @@ public class UnDeffend : ItemBase
         if (targetPlayer.isPlayerDeffend.Value)
         {
             targetPlayer.isPlayerDeffend.Value = false;
+            AudioManager.Instance.PlaySFXBreakDownDef();
+        }
+        else
+        {
+            AudioManager.Instance.PlaySFXCutForNothing();
         }
 
         yield return new WaitForSeconds(1f);  // Đợi 2 giây (hoặc thời gian mong muốn
@@ -42,5 +47,6 @@ public class UnDeffend : ItemBase
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
         Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
         targetPlayer.GetComponent<SpriteRenderer>().sprite = targetPlayer.GetComponent<PlayerData>().gameplaySprite;
+        AudioManager.Instance.PlaySFXItemBreakDef();
     }
 }

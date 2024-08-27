@@ -38,5 +38,6 @@ public class FrozenAttack : ItemBase
     {
         Player targetPlayer = PlayerList.Instance.GetPlayerDic_Value(targetPlayerID);
         Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
+        AudioManager.Instance.PlaySFXItemFreeze();
     }
 }

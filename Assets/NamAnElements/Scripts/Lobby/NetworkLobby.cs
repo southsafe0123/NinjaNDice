@@ -41,6 +41,7 @@ public class NetworkLobby : MonoBehaviour
         AuthenticationService.Instance.Expired += () =>
         {
             AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
+            AudioManager.Instance.PlaySFXAlert();
             DisplayeJoinButton(false);
         };
     }
@@ -80,6 +81,8 @@ public class NetworkLobby : MonoBehaviour
         {
             Debug.LogError("shit error in create relaynetwork" + ex);
             AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
+            AudioManager.Instance.PlaySFXAlert();
+
         }
 
 
@@ -130,6 +133,7 @@ public class NetworkLobby : MonoBehaviour
         {
             Debug.LogError("shit error in join relaynetwork" + ex);
             AnouncementManager.instance.DisplayAnouncement("Connection error! Back to menu and play again");
+            AudioManager.Instance.PlaySFXAlert();
             DisplayeJoinButton(true);
         }
     }

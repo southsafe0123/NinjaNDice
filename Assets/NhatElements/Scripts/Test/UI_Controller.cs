@@ -186,6 +186,7 @@ public class UI_Controller : MonoBehaviour
             GameObject inviteItem = Instantiate(invitePrefab, inviteContent.transform);
             inviteItem.GetComponent<InviteItem>().SetData(name, inviteCode);
             AnouncementManager.instance.DisplayAnouncement("Invited from " + name);
+            AudioManager.Instance.PlaySFXSuccess();
         }
         catch (System.Exception e)
         {

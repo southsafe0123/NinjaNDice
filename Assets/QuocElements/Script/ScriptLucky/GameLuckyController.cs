@@ -123,6 +123,7 @@ public class GameLuckyController : NetworkBehaviour
         selectedPlayer.isPlayerTurn.Value = true;
         // Dịch chuyển player đến vị trị mới
         selectedPlayer.transform.DOJump(selectedPos.transform.position, 0.7f, 1, 0.6f);
+        AudioManager.Instance.PlaySFXJump();
         // Cho UI trên màn hình của người chơi được chọn có thể bấm (gọi client xuống player được chọn)
         SetIsAllowThisPlayerClick_ClientRPC(selectedPlayer.ownerClientID.Value);
         // Loại bỏ player đã chọn khỏi danh sách
@@ -203,6 +204,7 @@ public class GameLuckyController : NetworkBehaviour
         if (previousPlayerStandPos != null)
         {
             selectedPlayer.transform.DOJump(previousPlayerStandPos.transform.position, 0.5f, 1, 0.4f);
+            AudioManager.Instance.PlaySFXJump();
             selectedPlayer.isPlayerTurn.Value = false;
         }
     }

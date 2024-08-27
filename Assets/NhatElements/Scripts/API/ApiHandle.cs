@@ -103,6 +103,7 @@ public class ApiHandle : MonoBehaviour
         }
         StopCoroutine(coroutine);
         AnouncementManager.instance.DisplayAnouncement("Connection timeout!");
+        AudioManager.Instance.PlaySFXAlert();
         LoadingPanel.Instance.SetDisplayLoading(false);
     }
     IEnumerator CheckUrlConnection()
@@ -140,6 +141,7 @@ public class ApiHandle : MonoBehaviour
             else
             {
                 AnouncementManager.instance.DisplayAnouncement("Login failed, check your internet connection");
+                AudioManager.Instance.PlaySFXAlert();
                 Debug.Log("Connected to database failed!");
                 LoadingPanel.Instance.SetDisplayLoading(false);
                 isCoroutineDone = true;
@@ -253,6 +255,7 @@ public class ApiHandle : MonoBehaviour
                 {
                     Debug.Log(errorRp.message);
                     AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                    AudioManager.Instance.PlaySFXAlert();
                 }
             }
             else
@@ -264,7 +267,7 @@ public class ApiHandle : MonoBehaviour
         {
             Debug.Log(www.downloadHandler.text);
             AnouncementManager.instance.DisplayAnouncement("Skin equiped");
-
+            AudioManager.Instance.PlaySFXClaim();
             user.avatar = skinId;
 
             if (message != null) { message.text = "Send request success"; }
@@ -317,9 +320,6 @@ public class ApiHandle : MonoBehaviour
                 {
                     Debug.Log(www.downloadHandler.text);
                     ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
-
-
-
                     if (message != null)
                     {
                         message.text = errorRp.message;
@@ -329,6 +329,7 @@ public class ApiHandle : MonoBehaviour
                     {
                         Debug.Log(errorRp.message);
                         AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                        AudioManager.Instance.PlaySFXAlert();
                     }
                 }
                 else
@@ -337,6 +338,7 @@ public class ApiHandle : MonoBehaviour
                 }
 
                 AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again");
+                AudioManager.Instance.PlaySFXAlert();
             }
             else
             {
@@ -382,6 +384,7 @@ public class ApiHandle : MonoBehaviour
                     PlayerSkin.instance.UpdateSkin();
                 }
                 AnouncementManager.instance.DisplayAnouncement("Welcome back, " + user.nameingame);
+                AudioManager.Instance.PlaySFXShowDialog();
                 break;
             }
 
@@ -428,6 +431,7 @@ public class ApiHandle : MonoBehaviour
                 {
                     Debug.Log(errorRp.message);
                     AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                    AudioManager.Instance.PlaySFXAlert();
                 }
             }
             else
@@ -442,7 +446,7 @@ public class ApiHandle : MonoBehaviour
             yield return StartCoroutine(getMe());
             if (message != null) { message.text = "Change Success!"; }
             AnouncementManager.instance.DisplayAnouncement("Change Success!");
-
+            AudioManager.Instance.PlaySFXClaim();
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
         isCoroutineDone = true;
@@ -452,6 +456,7 @@ public class ApiHandle : MonoBehaviour
         if (usernameLogin == null || passwordLogin == null)
         {
             AnouncementManager.instance.DisplayAnouncement("Field is null");
+            AudioManager.Instance.PlaySFXAlert();
             Debug.LogError("Username or Password field is null");
             yield break;
         }
@@ -498,6 +503,7 @@ public class ApiHandle : MonoBehaviour
                     {
                         Debug.Log(errorRp.message);
                         AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                        AudioManager.Instance.PlaySFXAlert();
                     }
 
 
@@ -506,6 +512,7 @@ public class ApiHandle : MonoBehaviour
                 {
                     Debug.LogError("Download handler is null");
                     AnouncementManager.instance.DisplayAnouncement("Bad Connection, please try again ");
+                    AudioManager.Instance.PlaySFXAlert();
                 }
 
             }
@@ -553,6 +560,7 @@ public class ApiHandle : MonoBehaviour
                 }
                 LoginChecker.instance.CheckLogin();
                 AnouncementManager.instance.DisplayAnouncement("Welcome back, " + usernameLogin);
+                AudioManager.Instance.PlaySFXShowDialog();
                 break;
             }
 
@@ -594,6 +602,7 @@ public class ApiHandle : MonoBehaviour
         if (passwordRegister.text != RepasswordRegister.text)
         {
             AnouncementManager.instance.DisplayAnouncement("Password not match!");
+            AudioManager.Instance.PlaySFXAlert();
             if (message != null) { message.text = "Password not match"; }
             else { Debug.Log("Password not match"); }
             isCoroutineDone = true;
@@ -641,6 +650,7 @@ public class ApiHandle : MonoBehaviour
             else
             {
                 AnouncementManager.instance.DisplayAnouncement("Bad Connection!");
+                AudioManager.Instance.PlaySFXAlert();
                 Debug.LogError("Download handler is null");
             }
         }
@@ -652,6 +662,7 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.Log("Register success");
                 AnouncementManager.instance.DisplayAnouncement("Register success");
+                AudioManager.Instance.PlaySFXClaim();
                 StartCoroutine(Login(usernameRegister.text, passwordRegister.text));
                 RegisterPanel.instance.gameObject.SetActive(false);
                 isCoroutineDone = true;
@@ -764,11 +775,12 @@ public class ApiHandle : MonoBehaviour
             {
                 ErrorRespone errorRp = JsonConvert.DeserializeObject<ErrorRespone>(www.downloadHandler.text);
                 if (message != null) { message.text = errorRp.message; }
-                else { Debug.Log(errorRp.message); AnouncementManager.instance.DisplayAnouncement(errorRp.message); }
+                else { Debug.Log(errorRp.message); AnouncementManager.instance.DisplayAnouncement(errorRp.message); AudioManager.Instance.PlaySFXAlert(); }
             }
             else
             {
                 AnouncementManager.instance.DisplayAnouncement("Bad Connection!");
+                AudioManager.Instance.PlaySFXAlert();
                 Debug.LogError("Download handler is null");
             }
         }
@@ -780,6 +792,7 @@ public class ApiHandle : MonoBehaviour
             {
                 Debug.Log("Send request success");
                 AnouncementManager.instance.DisplayAnouncement("Send request success");
+                AudioManager.Instance.PlaySFXShowDialog();
             }
             isCoroutineDone = true;
         }
@@ -874,6 +887,7 @@ public class ApiHandle : MonoBehaviour
             else
             {
                 AnouncementManager.instance.DisplayAnouncement("Bad connection!");
+                AudioManager.Instance.PlaySFXAlert();
                 Debug.LogError("Download handler is null");
             }
         }
@@ -886,6 +900,7 @@ public class ApiHandle : MonoBehaviour
                 Debug.Log("Accept request success");
                 AnouncementManager.instance.DisplayAnouncement("Accept request success");
                 uiController.UpdateRequest();
+                AudioManager.Instance.PlaySFXClaim();
             }
         }
         LoadingPanel.Instance.SetDisplayLoading(false);
@@ -936,6 +951,7 @@ public class ApiHandle : MonoBehaviour
             else
             {
                 AnouncementManager.instance.DisplayAnouncement("Bad connection!");
+                AudioManager.Instance.PlaySFXAlert();
                 Debug.LogError("Download handler is null");
             }
         }
@@ -948,6 +964,7 @@ public class ApiHandle : MonoBehaviour
                 Debug.Log("Decline request success");
                 AnouncementManager.instance.DisplayAnouncement("Decline request success");
                 uiController.UpdateRequest();
+                AudioManager.Instance.PlaySFXClaim();
             }
 
         }
@@ -1181,6 +1198,7 @@ public class ApiHandle : MonoBehaviour
             if (skin._id == skinId)
             {
                 AnouncementManager.instance.DisplayAnouncement("Skin Already Buy!");
+                AudioManager.Instance.PlaySFXAlert();
                 CheckBuySkinPanel.instance.DisplayCheck(false);
                 yield break;
             }
@@ -1214,6 +1232,7 @@ public class ApiHandle : MonoBehaviour
                 {
                     Debug.Log(errorRp.message);
                     AnouncementManager.instance.DisplayAnouncement(errorRp.message);
+                    AudioManager.Instance.PlaySFXAlert();
                 }
             }
             else
@@ -1231,6 +1250,7 @@ public class ApiHandle : MonoBehaviour
             }
 
             AnouncementManager.instance.DisplayAnouncement("Buying Success");
+            AudioManager.Instance.PlaySFXClaim();
             CheckBuySkinPanel.instance.DisplayCheck(false);
         }
         LoadingPanel.Instance.SetDisplayLoading(false);

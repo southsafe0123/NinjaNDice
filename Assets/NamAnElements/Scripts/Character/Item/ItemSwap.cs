@@ -47,5 +47,6 @@ public class ItemSwap : ItemBase
         Player senderPlayer = PlayerList.Instance.GetPlayerDic_Value(senderID);
         Instantiate(prefabEffect, targetPlayer.transform.position, Quaternion.identity);
         Instantiate(prefabEffect, senderPlayer.transform.position, Quaternion.identity);
+        AudioManager.Instance.PlaySFXItemSwap();
     }
 }

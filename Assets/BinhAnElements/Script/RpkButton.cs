@@ -50,6 +50,11 @@ public class RpkButton : MonoBehaviour
 
     private IEnumerator Start()
     {
+        StartCoroutine(WaitForPlayerChoose());
+    }
+
+    public IEnumerator WaitForPlayerChoose()
+    {
         int i = 3;
         WaitForSeconds waitOneSecond = new WaitForSeconds(1);
         while (true)
@@ -62,15 +67,14 @@ public class RpkButton : MonoBehaviour
                 timerText.text = remainingTime.ToString();
                 Debug.Log(i);
                 i--;
+                if (!AudioManager.Instance.sfxSource.isPlaying)
+                {
+                    AudioManager.Instance.PlaySFXCountDownRpk();
+                }
             }
             else
             {
-                yield return waitOneSecond;
-                time.SetActive(false);
-                remainingTime = i;
-                timerText.text = remainingTime.ToString();
-                Debug.Log(i);
-                i--;
+                break;
             }
 
             if (i < 0)
@@ -112,6 +116,8 @@ public class RpkButton : MonoBehaviour
                 if (player.GetComponent<PlayerHeath>().health == 0)
                 {
                     isDead.SetActive(true);
+                    AudioManager.Instance.PlaySFXOutOfHealth();
+                    yield return new WaitForSeconds(3);
                 }
 
 
@@ -127,9 +133,9 @@ public class RpkButton : MonoBehaviour
                     rockButton.gameObject.SetActive(false);
                     paperButton.gameObject.SetActive(false);
                     kunaiButton.gameObject.SetActive(false);
-                    winner.gameObject.SetActive(true);
-                    isDead.gameObject.SetActive(false);
-                    GameManagerRPK.instance.EndGame(GameManagerRPK.instance.playerRangeTemp);
+                    //winner.gameObject.SetActive(true);
+                    //isDead.gameObject.SetActive(false);
+                    //GameManagerRPK.instance.EndGame(GameManagerRPK.instance.playerRangeTemp);
                     break;
                 }
                 yield return new WaitForSeconds(1);
@@ -335,24 +341,24 @@ public class RpkButton : MonoBehaviour
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
-                        Debug.Log("Draw !!");
                         draw.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXDraw();
                         break;
                     case Result.Paper:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.Kunai:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     case Result.None:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     default:
                         break;
@@ -363,24 +369,24 @@ public class RpkButton : MonoBehaviour
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     case Result.Paper:
-                        Debug.Log("Draw !!");
                         draw.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXDraw();
                         break;
                     case Result.Kunai:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.None:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     default:
                         break;
@@ -391,24 +397,24 @@ public class RpkButton : MonoBehaviour
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.Paper:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     case Result.Kunai:
-                        Debug.Log("Draw !!");
                         draw.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXDraw();
                         break;
                     case Result.None:
-                        Debug.Log("Win !!");
                         win.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXWin();
                         break;
                     default:
                         break;
@@ -419,35 +425,35 @@ public class RpkButton : MonoBehaviour
                 switch (theirResultTemp)
                 {
                     case Result.Rock:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.Paper:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.Kunai:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     case Result.None:
-                        Debug.Log("Lose !!");
+                        lose.gameObject.SetActive(true);
+                        AudioManager.Instance.PlaySFXLose();
                         if (player.ownerClientID.Value == NetworkManager.Singleton.LocalClientId)
                         {
                             GameManagerRPK.instance.ShowHPPlayer_ServerRPC(player.GetComponent<Player>().ownerClientID.Value);
-                            lose.gameObject.SetActive(true);
                         }
                         break;
                     default:
