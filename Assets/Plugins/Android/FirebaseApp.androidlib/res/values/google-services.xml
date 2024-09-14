@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/firebase_database_url,@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_android_client_id,@string/default_web_client_id">
+  <string name="firebase_database_url" translatable="false">https://ninjandice-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+  <string name="gcm_defaultSenderId" translatable="false">825067341094</string>
+  <string name="google_storage_bucket" translatable="false">ninjandice.appspot.com</string>
+  <string name="project_id" translatable="false">ninjandice</string>
+  <string name="google_api_key" translatable="false">AIzaSyC0xcoUCkFlyrew2qy9swwod1WpTRoziXU</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyC0xcoUCkFlyrew2qy9swwod1WpTRoziXU</string>
+  <string name="google_app_id" translatable="false">1:825067341094:android:289070a00ffb6aa67d2de7</string>
+  <string name="default_android_client_id" translatable="false">825067341094-f6r875g4p7dc4vqo4p8v7540281bj8eq.apps.googleusercontent.com</string>
+  <string name="default_web_client_id" translatable="false">825067341094-d48m0vgtdtk7rb1ag83m6mpqeuv0gr8f.apps.googleusercontent.com</string>
+</resources>
